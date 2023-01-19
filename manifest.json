@@ -1,0 +1,11 @@
+{
+    "name": "Pomify",
+    "version": "1.0.0",
+    "description": "Pomodoro with spotify integration extension.",
+    "manifest_version": 3,
+    "author": "Eric Pineda",
+    "action": {
+        "default_popup": "index.html",
+        "default_title": "Pomify"
+    }
+}
