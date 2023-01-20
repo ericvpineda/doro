@@ -1,0 +1,12 @@
+body {
+    min-width: 50rem;
+    min-height: 30rem;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.time {
+    max-width: 10rem;
+}
