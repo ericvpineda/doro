@@ -1,11 +1,15 @@
 {
-    "name": "Pomify",
+    "name": "Doro - Pomodoro with Spotify Player",
     "version": "1.0.0",
     "description": "Pomodoro with spotify integration extension.",
     "manifest_version": 3,
     "author": "Eric Pineda",
     "action": {
-        "default_popup": "index.html",
-        "default_title": "Pomify"
+        "default_title": "Doro",
+        "default_popup": "timer.html"
+    }, 
+    "permissions": ["storage", "alarms"],
+    "background": {
+        "service_worker": "js/background.js"
     }
 }

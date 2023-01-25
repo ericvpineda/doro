@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/bootstrap/bootstrap.min.css">
+    <script src="./js/bootstrap/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="css/timer.css">
+
+    <title>Doro</title>
+</head>
+<body>
+    
+    <!-- Timer UI  -->
+    <div id="timer-ui">
+        <div id="timer-outer">
+            <div class="timer-ring">
+                <div class="timer">
+                    <span id="hours">00</span>
+                    <span>:</span>
+                    <span id="minutes">00</span>
+                    <span>:</span>
+                    <span id="seconds">01</span>
+                </div>
+                <!-- FIX: Change out with picture later  -->
+                <div id="timer-control">Start</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timer user input  -->
+    <div id="timer-input">
+        <form action="" class="d-flex flex-column justify-content-between">
+            <!-- Hours and minutes input  -->
+            <div class="mb-3">
+                <h3 class="me-5">Set timer:</h3>
+                <div class="d-flex flex-row">
+                    <div class="input-group time">
+                        <span class="input-group-text">Hours</span>
+                        <input id="hours" class="form-control" type="number" min="0" max="24" placeholder="0" value="1">
+                    </div>
+                    <div class="input-group time">
+                        <span class="input-group-text">Minutes</span>
+                        <input id="minutes" class="form-control" type="number" min="0" max="59" placeholder="0" value="30">
+                    </div>
+                </div>
+            </div>
+            <!-- Focus text input  -->
+            <div class="mb-3">
+                <h3 class="me-4 text-nowrap">What to focus on?</h3>
+                <textarea id="description" class="form-control" name="description" id="" cols="15" rows="2" placeholder="Studying for exam...">I am studying...</textarea>
+            </div>
+        
+            <div class="d-flex justify-content-center">
+                <button id="start" class="btn btn-primary">Start Doro</button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Task status  -->
+    <footer class="task">
+        <div>Task: <span>Studying...</span></div>
+    </footer>
+</body>
+<script src="js/timer.js"></script>
+</html>
