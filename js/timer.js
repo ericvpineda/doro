@@ -3,12 +3,17 @@ const secondElem = document.getElementById("seconds");
 const progressRing = document.getElementById("timer-outer");
 const timerUI = document.getElementById("timer-ui")
 const timerControl = document.getElementById("timer-control")
+const hourElem = document.getElementById("hours")
+const minElem = document.getElementById("minutes")
+const secElem = document.getElementById("seconds")
+const taskElem = document.getElementById("task")
+const editBtn = document.getElementById("edit-btn")
 
 const startBtn = document.getElementById("start");
 const timerInput = document.getElementById("timer-input")
-const hourElem = document.getElementById("hours");
-const minElem = document.getElementById("minutes");
-const descriptElem = document.getElementById("description");
+const hoursInput = document.getElementById("hours-input");
+const minsInput = document.getElementById("minutes-input");
+const descriptInput = document.getElementById("description");
 
 let showTimerUI = false; 
 
@@ -37,13 +42,34 @@ function toggleUI() {
     showTimerUI = !showTimerUI;
 }
 
+function updateTime() {
+    chrome.storage.local.get(["hours", "minutes", "seconds", "isRunning"], (res) => {
+        if (res.isRunning) {
+            hourElem.textContent = res.hours >= 10 ? res.hours : "0" + res.hours
+            minElem.textContent = res.minutes >= 10 ? res.minutes : "0" + res.minutes
+            secElem.textContent = res.seconds >= 10 ? res.seconds : "0" + res.seconds
+        }
+    })
+}
+
 
 // -- Event Listeners --  
 
-timerControl.addEventListener("click", (event) => {
+editBtn.addEventListener("click", (event) => {
     toggleUI()
 })
 
+timerControl.addEventListener("click", (event) => {
+    chrome.storage.local.get(["isRunning"], (res) => {
+        chrome.storage.local.set({
+            isRunning: !res.isRunning 
+        })
+
+        timerControl.textContent = res.isRunning ? "Pause" : "Start"
+    })
+
+    timerControl
+})
 
 // Note:
 // - edge cases: 
@@ -51,26 +77,31 @@ timerControl.addEventListener("click", (event) => {
 startBtn.addEventListener("click", (event) => {
     event.preventDefault()
 
-    let hours = hourElem.value || 0  
-    let minutes = minElem.value || 0
-    let description = descriptElem || "Working..."
+    const hours = hoursInput.value || 0;
+    const minutes = minsInput.value || 0;
+    const seconds = 0;
 
-    // Steps
-    // - update chrome storage local with hours and minutes (to update every interval)
-    // - increment setInterval to update timer gui
-    //  - set hours, minute, sec, and description 
-    chrome.storage.sync.set({
+    taskElem.textContent = descriptInput.value || "Working..."
+    
+    // Note: timer unique to eqch browser 
+    chrome.storage.local.set({
         hours,
         minutes,
-        description
+        seconds, 
+        isRunning: true,
+        setTime: {
+            hours,
+            minutes,
+            seconds
+        }
     })
     toggleUI()
 })
-
-
 
 
 // -- Main Code -- 
 
 incrementRing()
 toggleUI()
+updateTime()
+setInterval(updateTime, 1000)

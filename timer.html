@@ -11,6 +11,8 @@
     <title>Doro</title>
 </head>
 <body>
+
+    <div id="edit-btn">Edit</div>
     
     <!-- Timer UI  -->
     <div id="timer-ui">
@@ -38,11 +40,11 @@
                 <div class="d-flex flex-row">
                     <div class="input-group time">
                         <span class="input-group-text">Hours</span>
-                        <input id="hours" class="form-control" type="number" min="0" max="24" placeholder="0" value="1">
+                        <input id="hours-input" class="form-control" type="number" min="0" max="24" placeholder="0" value="1">
                     </div>
                     <div class="input-group time">
                         <span class="input-group-text">Minutes</span>
-                        <input id="minutes" class="form-control" type="number" min="0" max="59" placeholder="0" value="30">
+                        <input id="minutes-input" class="form-control" type="number" min="0" max="59" placeholder="0" value="30">
                     </div>
                 </div>
             </div>
@@ -59,8 +61,8 @@
     </div>
     
     <!-- Task status  -->
-    <footer class="task">
-        <div>Task: <span>Studying...</span></div>
+    <footer >
+        <div>Task: <span id="task"></span></div>
     </footer>
 </body>
 <script src="js/timer.js"></script>
