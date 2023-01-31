@@ -1,12 +1,12 @@
 import React from 'react'
-import {FC, ChangeEvent} from 'react'
+import {FC, ChangeEvent, Fragment} from 'react'
 
-interface TimeValues {
+interface TimeFunctions {
     setHours: (param: number) => void,
     setMinutes: (param: number) => void
 }
 
-const Time: FC<TimeValues> = (props): JSX.Element => {
+const Time: FC<TimeFunctions> = (props): JSX.Element => {
     const setHoursHandler = (event: ChangeEvent<HTMLInputElement>) => {
         props.setHours(+event.target.value)
     }
@@ -16,12 +16,26 @@ const Time: FC<TimeValues> = (props): JSX.Element => {
     }
 
     return (
-        <div className='d-flex flex-row'>
-            <label className='form-label' htmlFor="hours">Hours</label>
-            <input onChange={setHoursHandler} id="hours" className='form-control' type="number" min="0" max="24"/>
-            <label className='form-label' htmlFor="minutes">Minutes</label>
-            <input onChange={setMinutesHandler} id="minutes" className='form-control' type="number" min="0" max="59"/>
-        </div>
+        <Fragment>
+            <div className='row'>
+                <div className="col-3">
+                    <label className='form-label' htmlFor="hours">Hours</label>
+                </div>
+                <div className="offset-1 col">
+                    <input onChange={setHoursHandler} id="hours" className='form-control' type="number" min="0" max="24"/>
+                </div>
+            </div>
+            
+            <div className='row'>
+                <div className="col-3">
+                    <label className='form-label' htmlFor="minutes">Minutes</label>
+                </div>
+                <div className="offset-1 col">
+                    <input onChange={setMinutesHandler} id="minutes" className='form-control' type="number" min="0" max="59"/>
+                </div>
+            </div>
+            
+        </Fragment>
     )
 }
 
