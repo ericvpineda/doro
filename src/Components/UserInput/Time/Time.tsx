@@ -22,7 +22,7 @@ const Time: FC<TimeFunctions> = (props): JSX.Element => {
                     <label className='form-label' htmlFor="hours">Hours</label>
                 </div>
                 <div className="offset-1 col">
-                    <input onChange={setHoursHandler} id="hours" className='form-control' type="number" min="0" max="24"/>
+                    <input onChange={setHoursHandler} id="hours" className='form-control' type="number" min="0" max="24" placeholder='Set hours...'/>
                 </div>
             </div>
             
@@ -31,10 +31,9 @@ const Time: FC<TimeFunctions> = (props): JSX.Element => {
                     <label className='form-label' htmlFor="minutes">Minutes</label>
                 </div>
                 <div className="offset-1 col">
-                    <input onChange={setMinutesHandler} id="minutes" className='form-control' type="number" min="0" max="59"/>
+                    <input onChange={setMinutesHandler} id="minutes" className='form-control' type="number" min="0" max="59" placeholder='Set minutes...'/>
                 </div>
             </div>
-            
         </Fragment>
     )
 }
