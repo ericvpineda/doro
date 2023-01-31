@@ -8,8 +8,5 @@
         "default_title": "Doro",
         "default_popup": "index.html"
     }, 
-    "permissions": ["storage", "alarms"],
-    "background": {
-        "service_worker": "popup.js"
-    }
+    "permissions": ["storage", "alarms"]
 }

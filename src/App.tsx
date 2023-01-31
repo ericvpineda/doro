@@ -1,13 +1,14 @@
 import React from 'react'
-import {Fragment, FC} from 'react'
+import {FC} from 'react'
 import UserInput from './Components/UserInput/UserInput/UserInput'
+import styles from './App.module.css'
 
 const App: FC = () => {
+    
     return (
-        <Fragment>
-            <div>App Component</div>
+        <div className={styles.body}>
             <UserInput></UserInput>
-        </Fragment>
+        </div>
     )
 } 
 
