@@ -1,4 +1,4 @@
-body {
+/* body {
     min-width: 40rem;
     min-height: 20rem;
     height: 100vh;
@@ -9,12 +9,12 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-}
+} */
 
 
 /* Timer UI css  */
 
-#timer-outer {
+/* #timer-outer {
     width: 15rem;
     height: 15rem;
 
@@ -64,7 +64,7 @@ body {
     font-size: 1.1rem;
     margin-top: 0.8rem;
     cursor: pointer;
-}
+} */
 
 footer {
     width: 100%;
