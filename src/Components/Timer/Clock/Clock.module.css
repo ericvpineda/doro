@@ -1,0 +1,47 @@
+.timerOuter {
+    width: 15rem;
+    height: 15rem;
+
+    box-shadow: 0 -3em 6em #17171a,
+    0.2em -0.2em 2em rgba(255, 255, 255, 0.7);
+
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+}
+
+.timerRing {
+    width: 14rem;
+    height: 14rem;
+
+    padding: 3rem;
+    border-radius: 50%;
+    
+    box-shadow: inset 0rem 0rem 3rem rgba(0, 0, 0, 0.45);
+    background-color: #212529;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.timer {
+    margin-top: 1rem;
+}
+
+.timer span {
+    font-size: 1.2rem;
+    color: white;
+    text-shadow: 0rem 2rem 2rem rgba(255,255,255,0.6);
+}
+
+.timerControl {
+    letter-spacing: 0.2em;
+    color: white;
+    text-shadow: 0rem 2rem 2rem rgba(255,255,255,0.6);
+    font-weight: 650;
+    font-size: 1.1rem;
+    margin-top: 0.8rem;
+    cursor: pointer;
+}
