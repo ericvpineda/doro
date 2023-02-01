@@ -8,5 +8,8 @@
         "default_title": "Doro",
         "default_popup": "index.html"
     }, 
+    "background": {
+        "service_worker": "background.js"
+    },
     "permissions": ["storage", "alarms"]
 }
