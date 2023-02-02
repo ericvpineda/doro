@@ -4,7 +4,11 @@ import Description from '../Description/Description';
 import Time from '../Time/Time';
 import styles from './UserInput.module.css'
 
-const UserInput: FC = () => {
+interface pageUpdate {
+    setShowTimerHandler: (param: boolean) => void;
+}
+
+const UserInput: FC<pageUpdate> = (props): JSX.Element => {
 
     const [hours, setHours] = useState(0)
     const [minutes, setMinutes] = useState(0)
@@ -23,10 +27,8 @@ const UserInput: FC = () => {
             }
         })
 
-        // REMOVE: 
-        chrome.storage.local.get(["hours", "minutes"], (res) => {
-            console.log("UserInput: hours=", res.hours, "minutes=", res.minutes)
-        })
+        // Change page to timer gui window
+        props.setShowTimerHandler(true)
     }
 
     return (

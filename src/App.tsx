@@ -13,7 +13,7 @@ const App: FC = () => {
 
     return (
         <Fragment>
-            {!showTimer && <UserInput/>}
+            {!showTimer && <UserInput setShowTimerHandler={setShowTimer}></UserInput>}
             {showTimer && <Timer/>}
             {/* FIX: Update edit button  */}
             <button onClick={onClickHandler} className={styles.editBtn + " btn btn-primary"}>Edit</button>
