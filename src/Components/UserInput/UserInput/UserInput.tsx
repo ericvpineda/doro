@@ -10,8 +10,7 @@ const UserInput: FC = () => {
     const [minutes, setMinutes] = useState(0)
     const [description, setDescript] = useState('') 
 
-    const onClickHandler = (event: MouseEvent<HTMLButtonElement>) => {
-        event.preventDefault()
+    const onClickHandler = () => {
         chrome.storage.local.set({
             hours,
             minutes,

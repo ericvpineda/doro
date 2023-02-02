@@ -11,6 +11,7 @@ chrome.alarms.onAlarm.addListener((alarm) => {
         const min = res.minutes || 0;
         const sec = res.seconds || 0; 
         // const setTime = res.setTime;
+        
         console.log("Background script=", hour, min, sec)
         if (!isRunning) {
             return 
