@@ -1,7 +1,26 @@
-.editBtn {
+
+.toEditButton {
+
+    height: 2rem;
+    width: 2rem;
+
+    color: white;
+
     position: absolute;
-    top: 0;
-    left: 0;
-    color: greenyellow; 
+    top: 1rem;
+    left: 1rem;
+    cursor: pointer;
+}
+
+.toClockButton {
+
+    height: 2rem;
+    width: 2rem;
+
+    color: #212529;
+
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
     cursor: pointer;
 }
