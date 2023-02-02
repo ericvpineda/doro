@@ -16,7 +16,6 @@ const App: FC = () => {
     <Fragment>
       {!showTimer && <UserInput setShowTimerHandler={setShowTimer}></UserInput>}
       {showTimer && <Timer />}
-      {/* FIX: Update edit button  */}
       {showTimer ? (
         <GearFill
           onClick={onClickHandler}
