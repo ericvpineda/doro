@@ -15,10 +15,19 @@ const Time: FC<TimeFunctions> = (props): JSX.Element => {
     const hours = +event.target.value;
     if (hours > 24) {
         setShowHourError(true)
-        // props.setHours()
     } else {
         props.setHours(hours)
         setShowHourError(false)
+    }
+  };
+
+  const setMinutesHandler = (event: ChangeEvent<HTMLInputElement>) => {
+    const minutes = +event.target.value;
+    if (minutes > 59) {
+        setShowMinuteError(true)
+    } else {
+        props.setMinutes(minutes)
+        setShowMinuteError(false)
     }
   };
 
@@ -28,17 +37,6 @@ const Time: FC<TimeFunctions> = (props): JSX.Element => {
         event.preventDefault()
     }
   }
-
-  const setMinutesHandler = (event: ChangeEvent<HTMLInputElement>) => {
-    const minutes = +event.target.value;
-    if (minutes > 24) {
-        setShowMinuteError(true)
-        // props.setHours()
-    } else {
-        props.setHours(minutes)
-        setShowMinuteError(false)
-    }
-  };
 
   return (
     <Fragment>
