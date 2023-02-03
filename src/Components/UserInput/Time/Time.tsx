@@ -8,10 +8,18 @@ interface TimeFunctions {
 
 const Time: FC<TimeFunctions> = (props): JSX.Element => {
 
-  const [showError, setShowError] = useState(false)
+  const [showHourError, setShowHourError] = useState(false)
+  const [showMinuteError, setShowMinuteError] = useState(false)
 
   const setHoursHandler = (event: ChangeEvent<HTMLInputElement>) => {
-    props.setHours(+event.target.value)
+    const hours = +event.target.value;
+    if (hours > 24) {
+        setShowHourError(true)
+        // props.setHours()
+    } else {
+        props.setHours(hours)
+        setShowHourError(false)
+    }
   };
 
   const validateTime = (event: KeyboardEvent) => {
@@ -22,7 +30,14 @@ const Time: FC<TimeFunctions> = (props): JSX.Element => {
   }
 
   const setMinutesHandler = (event: ChangeEvent<HTMLInputElement>) => {
-    props.setMinutes(+event.target.value);
+    const minutes = +event.target.value;
+    if (minutes > 24) {
+        setShowMinuteError(true)
+        // props.setHours()
+    } else {
+        props.setHours(minutes)
+        setShowMinuteError(false)
+    }
   };
 
   return (
@@ -44,7 +59,7 @@ const Time: FC<TimeFunctions> = (props): JSX.Element => {
             placeholder="Set hours..."
             onKeyDown={validateTime}
           />
-          {showError && <div className="text-danger fs-6">Must be integer between 0 and 24.</div>}
+          {showHourError && <div className="text-danger fs-6">Must be between 0 to 24.</div>}
         </div>
       </div>
 
@@ -63,7 +78,9 @@ const Time: FC<TimeFunctions> = (props): JSX.Element => {
             min="0"
             max="59"
             placeholder="Set minutes..."
+            onKeyDown={validateTime}
           />
+          {showMinuteError && <div className="text-danger fs-6">Must be between 0 to 59.</div>}
         </div>
       </div>
     </Fragment>

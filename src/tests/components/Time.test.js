@@ -1,5 +1,7 @@
 // Tests for Time Input Component
 import { render, fireEvent } from "@testing-library/react";
+import userEvent from "@testing-library/user-event"
+
 import Time from "../../Components/UserInput/Time/Time";
 
 // Tests to run
@@ -15,17 +17,19 @@ describe("When user selects hours input element", () => {
     expect(input.value).toBe("23");
   });
 
-  it("input negative hours shows error description", () => {
+  it("input negative hours shows error description", async () => {
+    const user = userEvent.setup()
     const timeComp = render(<Time setHours={() => {}} />);
     const input = timeComp.getByLabelText("Hours");
-    fireEvent.change(input, { target: { value: -23 } });
-    expect(timeComp.getByLabelText("Input must be an integer between 0-24.")).toBeTruthy();
+    await user.type(input, "-1");
+    expect(input.value).toBe("1");
   });
 
-  xit("input floating point value shows error description", () => {
+  it("input floating point value shows error description", async () => {
+    const user = userEvent.setup()
     const timeComp = render(<Time setHours={() => {}} />);
-    const input = timeComp.getByLabelText("Hours");
-    fireEvent.change(input, { target: { value: 2.3 } });
+    const input = timeComp.getByLabelText("Minutes");
+    await user.type(input, "2.3");
     expect(input.value).toBe("23");
   });
 });
