@@ -1,5 +1,5 @@
-import React from "react";
-import { FC, ChangeEvent, Fragment } from "react";
+import React, { KeyboardEvent } from "react";
+import { FC, ChangeEvent, Fragment, useState } from "react";
 
 interface TimeFunctions {
   setHours: (param: number) => void;
@@ -7,9 +7,19 @@ interface TimeFunctions {
 }
 
 const Time: FC<TimeFunctions> = (props): JSX.Element => {
+
+  const [showError, setShowError] = useState(false)
+
   const setHoursHandler = (event: ChangeEvent<HTMLInputElement>) => {
-    props.setHours(+event.target.value);
+    props.setHours(+event.target.value)
   };
+
+  const validateTime = (event: KeyboardEvent) => {
+    const key = event.key;
+    if (key === '.' || key === '-') {
+        event.preventDefault()
+    }
+  }
 
   const setMinutesHandler = (event: ChangeEvent<HTMLInputElement>) => {
     props.setMinutes(+event.target.value);
@@ -32,7 +42,9 @@ const Time: FC<TimeFunctions> = (props): JSX.Element => {
             min="0"
             max="24"
             placeholder="Set hours..."
+            onKeyDown={validateTime}
           />
+          {showError && <div className="text-danger fs-6">Must be integer between 0 and 24.</div>}
         </div>
       </div>
 
