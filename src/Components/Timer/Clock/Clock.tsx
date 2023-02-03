@@ -1,4 +1,4 @@
-import React, {FC, useEffect, useState, MouseEvent} from 'react'
+import React, {FC, useEffect, useState} from 'react'
 import styles from './Clock.module.css'
 
 const Clock: FC = () => {
@@ -6,6 +6,7 @@ const Clock: FC = () => {
     const [timer, setTimer] = useState({ hours: "00", minutes: "00", seconds: "00" });
     const [controlText, setControlText] = useState("Start")
 
+    // Helper function to update clock time and effects
     const updateTime = () => {
         const progressRing = document.getElementById("timer-outer")! as HTMLElement;
         chrome.storage.local.get(["hours", "minutes", "seconds", "isRunning", "setTime"], (res) => {
@@ -21,19 +22,15 @@ const Clock: FC = () => {
                 const curr_time: number = (res.hours * 3600) + (res.minutes * 60) + res.seconds
                 const end_time: number = res.setTime.hours * 3600 + res.setTime.minutes * 60
                 const degree: number = 360 - ((curr_time / end_time) * 360)
-                console.log(degree, curr_time, end_time, curr_time/end_time)
                 progressRing.style.background = `conic-gradient(
                     lightgreen ${degree}deg,
                     #212529 ${degree}deg 
                 )`
             } 
-            // else {
-            //     // Update clock gui
-            //     progressRing.style.background = `conic-gradient(#212529 0deg, lightgreen 0deg )`
-            // }
         })
     }
 
+    // Update start / pause button on clock gui
     const setControlTextHandler = () => {
         chrome.storage.local.get(["isRunning", "hours", "minutes", "seconds"], (res) => {
             
@@ -52,8 +49,6 @@ const Clock: FC = () => {
     useEffect(() => {
         chrome.storage.onChanged.addListener(() => { updateTime() })
     }, [])
-
-    
 
     return (
         <div>

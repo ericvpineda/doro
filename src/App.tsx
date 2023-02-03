@@ -2,10 +2,10 @@ import React, { FC, Fragment, useEffect, useState } from "react";
 import UserInput from "./Components/UserInput/UserInput/UserInput";
 import Timer from "./Components/Timer/Timer/Timer";
 import styles from "./App.module.css";
-import { GearFill, ArrowLeftCircle } from "react-bootstrap-icons";
+import { GearFill, ArrowLeftCircle, Spotify } from "react-bootstrap-icons";
 
 const App: FC = () => {
-  const [showTimer, setShowTimer] = useState(false);
+  const [showTimer, setShowTimer] = useState(true);
 
   // Set current window
   const onClickHandler = () => {
@@ -14,18 +14,23 @@ const App: FC = () => {
 
   return (
     <Fragment>
-      {!showTimer && <UserInput setShowTimerHandler={setShowTimer}></UserInput>}
-      {showTimer && <Timer />}
-      {showTimer ? (
-        <GearFill
-          onClick={onClickHandler}
-          className={styles.toEditButton}
-        ></GearFill>
+       <Spotify className={styles.spotifyButton}></Spotify>
+      {!showTimer ? (
+        <>
+          <UserInput setShowTimerHandler={setShowTimer}></UserInput>
+          <ArrowLeftCircle
+            onClick={onClickHandler}
+            className={styles.clockButton}
+          ></ArrowLeftCircle>
+        </>
       ) : (
-        <ArrowLeftCircle
-          onClick={onClickHandler}
-          className={styles.toClockButton}
-        ></ArrowLeftCircle>
+        <>
+          <Timer />
+          <GearFill
+            onClick={onClickHandler}
+            className={styles.editButton}
+          ></GearFill>
+        </>
       )}
     </Fragment>
   );

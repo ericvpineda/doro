@@ -7,7 +7,8 @@ module.exports = {
     devtool: 'cheap-module-source-map',
     // Tells webpack where to start looking
     entry: {
-        index: path.resolve('src/index.tsx')
+        index: path.resolve('src/index.tsx'),
+        background: path.resolve('src/background/background.ts')
     },  
     module: { // allow webpack to handle other file times
         rules: [{

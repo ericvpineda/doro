@@ -15,7 +15,8 @@ const UserInput: FC<pageUpdate> = (props): JSX.Element => {
     const [description, setDescript] = useState('') 
 
     const onClickHandler = () => {
-        console.log("set hours, minutes=", hours, minutes)
+        // TODO: Check for errors, if so, show error messgae 
+
         chrome.storage.local.set({
             hours,
             minutes,
