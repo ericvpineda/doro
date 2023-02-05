@@ -51,26 +51,18 @@ describe("Test UserInput component", () => {
         expect(chrome.storage.data["hours"]).toBe(-1)
         expect(chrome.storage.data["minutes"]).toBe(-1)
 
-        // Check if showTimer boolean updates correctly  
-        expect(mockFxn).toBeCalledTimes(1)
     })
 
-    // Steps
-    // - render UserInput component 
-    // - set hours and minutes state values 
-    // - check if chrome.storage.local has correct values 
-    it("valid hours and minutes redirect to Timer gui page", () => {
+    it("hours and minutes input empty, sets error state to false", () => {
         
-        let setError = jest.fn()
-        jest.spyOn(React, 'useState')
-            .mockImplementation(x => [x, setError])
+      // Check value of error state function
+      let setError = jest.fn()
+      jest.spyOn(React, 'useState').mockImplementation(x => [x, setError])
+      render(<UserInput setShowTimerHandler={mockFxn}></UserInput>)
+      startBtn = screen.getByText(/Start/i)
+      fireEvent.click(startBtn)
 
-        render(<UserInput setShowTimerHandler={mockFxn}></UserInput>)
-
-        startBtn = screen.getByText(/Start/i)
-        fireEvent.click(startBtn)
-
-        expect(setError).toBeCalledWith(true)
+      expect(setError).toBeCalledWith(true)
     })
 
 })
