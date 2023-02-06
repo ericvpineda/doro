@@ -38,6 +38,7 @@ describe("Test hours input element", () => {
 
   it("input number larger 24 shows error message", async () => {
     await user.type(input, "25")
+    fireEvent.focusOut(input)
     const errorComp = screen.getByText(/Must be between 0 to 24./i)
     expect(errorComp).toBeVisible()
   })
@@ -69,6 +70,7 @@ describe("Test minutes input element", () => {
 
   it("input number larger than 59 shows error message", async () => {
     await user.type(input, "60")
+    fireEvent.focusOut(input)
     const errorComp = screen.getByText(/Must be between 0 to 59./i)
     expect(errorComp).toBeVisible()
   })

@@ -2,7 +2,7 @@ import React, { FC, Fragment, useEffect, useState } from "react";
 import UserInput from "./Components/UserInput/UserInput/UserInput";
 import Timer from "./Components/Timer/Timer/Timer";
 import styles from "./App.module.css";
-import { GearFill, ArrowLeftCircle, Spotify } from "react-bootstrap-icons";
+import { GearFill, ArrowRightCircle, Spotify } from "react-bootstrap-icons";
 
 const App: FC = () => {
   const [showTimer, setShowTimer] = useState(true);
@@ -18,10 +18,10 @@ const App: FC = () => {
       {!showTimer ? (
         <>
           <UserInput setShowTimerHandler={setShowTimer}></UserInput>
-          <ArrowLeftCircle
+          <ArrowRightCircle
             onClick={onClickHandler}
             className={styles.clockButton}
-          ></ArrowLeftCircle>
+          ></ArrowRightCircle>
         </>
       ) : (
         <>

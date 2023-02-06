@@ -7,10 +7,8 @@ import App from './App.tsx'
 
 describe("Test App component", () => {
     
-    let settingBtn;
     beforeEach(() => {
         render(render(<App></App>))    
-        settingBtn = getBy
     }) 
 
     test.todo("valid time input shows timer clock gui component")

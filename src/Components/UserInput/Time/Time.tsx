@@ -48,7 +48,7 @@ const Time: FC<TimeFunctions> = (props): JSX.Element => {
         </div>
         <div className="offset-1 col">
           <input
-            onChange={setHoursHandler}
+            onBlur={setHoursHandler}
             id="hours"
             className="form-control"
             type="number"
@@ -69,7 +69,7 @@ const Time: FC<TimeFunctions> = (props): JSX.Element => {
         </div>
         <div className="offset-1 col">
           <input
-            onChange={setMinutesHandler}
+            onBlur={setMinutesHandler}
             id="minutes"
             className="form-control"
             type="number"

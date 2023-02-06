@@ -31,6 +31,7 @@ describe("Test description input element", () => {
 
     it("input description with greater than 30 characters shows error message", async () => {
         await user.type(input, "This message is over the limit.")
+        fireEvent.focusOut(input)
         const errorComp = screen.getByText(/Character limit 0 to 30./i)
         expect(errorComp).toBeVisible()
     })

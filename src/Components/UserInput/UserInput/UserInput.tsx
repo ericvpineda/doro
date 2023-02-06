@@ -15,31 +15,31 @@ const UserInput: FC<pageUpdate> = (props): JSX.Element => {
     const [minutes, setMinutes] = useState(0)
     const [descript, setDescript] = useState('') 
     // TODO: Allow user to update default message
-    const [defaultMsg, setDefaultMsg] = useState("Simply working...")
+    const [defaultMsg, setDefaultMsg] = useState("Working...")
 
     const onClickHandler = () => {
         // TODO: Check for errors, if so, show error messgae 
         if (hours == 0 && minutes == 0) {
             setShowError(true)
-            return;
+        } else {
+            chrome.storage.local.set({
+                hours,
+                minutes,
+                seconds: 0,
+                description: descript.length === 0 ? defaultMsg : descript,
+                isRunning: true,
+                setTime: {
+                    hours, 
+                    minutes
+                }
+            })
+    
+            // Prevent error message from showing
+            setShowError(false)
+    
+            // Change page to timer gui window
+            props.setShowTimerHandler(true)
         } 
-        chrome.storage.local.set({
-            hours,
-            minutes,
-            seconds: 0,
-            description: descript.length === 0 ? defaultMsg : descript,
-            isRunning: true,
-            setTime: {
-                hours, 
-                minutes
-            }
-        })
-
-        // Prevent error message from showing
-        setShowError(false)
-
-        // Change page to timer gui window
-        props.setShowTimerHandler(true)
     }
 
     return (
