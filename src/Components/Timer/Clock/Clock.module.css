@@ -8,6 +8,8 @@
     display: grid;
     place-items: center;
     border-radius: 50%;
+    
+    cursor: pointer;
 }
 
 .timerRing {
@@ -43,5 +45,4 @@
     font-weight: 650;
     font-size: 1.1rem;
     margin-top: 0.8rem;
-    cursor: pointer;
 }

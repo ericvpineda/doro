@@ -51,23 +51,21 @@ const Clock: FC = () => {
     }, [])
 
     return (
-        <div>
-            <div id="timer-outer" className={styles.timerOuter}>
+            <div id="timer-outer" className={styles.timerOuter} onClick={() => setControlTextHandler()}>
                 <div className={styles.timerRing}>
                     <div className={styles.timer}>
-                        <span id="hours">{timer.hours}</span>
+                        <span id="hours" data-testid="test-hours">{timer.hours}</span>
                         <span>:</span>
-                        <span id="minutes">{timer.minutes}</span>
+                        <span id="minutes" data-testid="test-minutes">{timer.minutes}</span>
                         <span>:</span>
-                        <span id="seconds">{timer.seconds}</span>
+                        <span id="seconds" data-testid="test-seconds">{timer.seconds}</span>
                     </div>
                     {/* <!-- FIX: Change out with picture later  --> */}
-                    <div onClick={() => setControlTextHandler()} className={styles.timerControl} id="timer-control">
+                    <div className={styles.timerControl} id="timer-control">
                         {controlText}
                     </div>
                 </div>
             </div>
-        </div>
     )
 }
 

@@ -1,0 +1,9 @@
+.textArea {
+    overflow-x: hidden;
+    resize: none;
+    display: none;
+}
+
+.textArea::-webkit-scrollbar {
+    display: none;
+}

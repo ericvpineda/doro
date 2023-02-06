@@ -12,7 +12,10 @@ const FocusText: FC = () => {
 
     return (
         <footer className={styles.focusBox}>
+            {description === "" ? 
+            <div>Doro</div> :
             <div>Task: <span className={styles.description}>{description}</span></div>
+            }
         </footer>
     )
 }
