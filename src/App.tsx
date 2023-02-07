@@ -4,6 +4,7 @@ import Timer from "./Components/Timer/Timer/Timer";
 import styles from "./App.module.css";
 import { GearFill, ArrowRightCircle, Spotify } from "react-bootstrap-icons";
 
+
 const App: FC = () => {
   const [showTimer, setShowTimer] = useState(true);
 
@@ -12,9 +13,16 @@ const App: FC = () => {
     setShowTimer(!showTimer);
   };
 
+  const spotifyBtnHandler = () => {
+    chrome.runtime.sendMessage({message: "login"});
+  };
+
   return (
     <Fragment>
-       <Spotify className={styles.spotifyButton}></Spotify>
+      <Spotify
+        onClick={spotifyBtnHandler}
+        className={styles.spotifyButton}
+      ></Spotify>
       {!showTimer ? (
         <>
           <UserInput setShowTimerHandler={setShowTimer}></UserInput>

@@ -22,10 +22,12 @@ const Clock: FC = () => {
                 const curr_time: number = (res.hours * 3600) + (res.minutes * 60) + res.seconds
                 const end_time: number = res.setTime.hours * 3600 + res.setTime.minutes * 60
                 const degree: number = 360 - ((curr_time / end_time) * 360)
-                progressRing.style.background = `conic-gradient(
-                    lightgreen ${degree}deg,
-                    #212529 ${degree}deg 
-                )`
+                if (progressRing) {
+                    progressRing.style.background = `conic-gradient(
+                        lightgreen ${degree}deg,
+                        #212529 ${degree}deg 
+                    )`
+                }
             } 
         })
     }
