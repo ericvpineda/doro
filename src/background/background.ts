@@ -1,32 +1,42 @@
 const random = require("random-string-generator");
 
 // Spotify Login Listener
-const client_id = encodeURIComponent("9b8675b2d72647fb9fdd3c06474cfde9");
+const clientID = encodeURIComponent("a1794c4b3ff54d829531b3941ecf5620");
 const state = encodeURIComponent(random(43));
 const scope = encodeURIComponent("user-read-private user-read-email");
-const redirect_uri = encodeURIComponent(
-  "http://fmgfhpilgipjjbkogcbigkdbiocnhfke.chromiumapp.org"
-);
-const authorization_uri = "https://accounts.spotify.com/authorize?"
-const response_type = encodeURIComponent("code");
+const uri = encodeURIComponent(chrome.identity.getRedirectURL());
+const authURI = "https://accounts.spotify.com/authorize?";
+const type = encodeURIComponent("code");
+const dialog = encodeURIComponent("true");
+
 // code_challenge_method: 'S256',
 // code_challenge: state
-const url = authorization_uri + `
-    client_id=${client_id},
-    scope=${scope},
-    redirect_uri=${redirect_uri},
-    response_type=${response_type},
-    state=${state},
-  `
-console.log(url)
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log(request);
-  sendResponse("Received request")
-});
 
-// chrome.identity.launchWebAuthFlow({ url, interactive: true}, function(res) {
-//     console.log(res);
-// })
+const url =
+  authURI +
+  `client_id=${clientID}&redirect_uri=${uri}&response_type=${type}&state=${state}&scope=${scope}&show_dialog=${dialog}`;
+
+const signedIn = false;
+
+chrome.runtime.onMessage.addListener((req, sender, res) => {
+  if (req.message === "signin" && !signedIn) {
+    chrome.identity.launchWebAuthFlow(
+      { url, interactive: true },
+      function (redirectURL) {
+        if (chrome.runtime.lastError) {
+          res("error: " + chrome.runtime.lastError.message);
+          return;
+        }
+        const urlParams = new URLSearchParams(redirectURL)
+        if (urlParams.has("error") || urlParams.get("state") !== state) {
+          res("error: access_denied");
+          return;
+        }
+        console.log(redirectURL)
+      }
+    );
+  }
+});
 
 // Alarm Functions
 chrome.alarms.create({

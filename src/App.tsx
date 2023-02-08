@@ -14,7 +14,7 @@ const App: FC = () => {
   };
 
   const spotifyBtnHandler = () => {
-    chrome.runtime.sendMessage({message: "login"});
+    chrome.runtime.sendMessage({message: "signin"});
   };
 
   return (
