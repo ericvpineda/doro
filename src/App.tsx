@@ -15,18 +15,20 @@ const App: FC = () => {
     setShowTimer(!showTimer);
   };
 
-  const generateCodeChallenge = () => {
+  const generateChallenge = () => {
     const verfier = random(64);
-    return BASE64.stringify(SHA256(verfier))
+    const codeChallenge = BASE64.stringify(SHA256(verfier))
       .replace(/\+/g, "_")
       .replace(/\//g, "_")
       .replace(/=/g, "");
+      return [codeChallenge, verfier];
+
   };
 
   const spotifyBtnHandler = () => {
     chrome.runtime.sendMessage({
       message: "signin",
-      code_challenge: generateCodeChallenge(),
+      challenge: generateChallenge(),
     });
   };
 

@@ -1,41 +1,52 @@
 const random = require("random-string-generator");
-
-
-// Spotify Login Listener
 const clientID = encodeURIComponent("a1794c4b3ff54d829531b3941ecf5620");
 const state = encodeURIComponent(random(43));
-const verfier = encodeURIComponent(random(43));
 const scope = encodeURIComponent("user-read-private user-read-email");
 const uri = chrome.identity.getRedirectURL();
-const authURI = "https://accounts.spotify.com/authorize?";
 const type = encodeURIComponent("code");
 const dialog = encodeURIComponent("true");
-
-// code_challenge_method: 'S256',
-// code_challenge: state
-
-const url = new URL(authURI);
-url.searchParams.append("response_type", type);
-url.searchParams.append("client_id", clientID);
-url.searchParams.append("scope", scope);
-url.searchParams.append("redirect_uri", uri);
-url.searchParams.append("state", state);
-url.searchParams.append("show_dialog", dialog);
-
-// TODO: add sha256 hash and pcke extension 
-// url.searchParams.append("code_challenge_method", "S256");
-// url.searchParams.append("code_challenge", state);
-
 const signedIn = false;
 
-console.log("Running: Background script...")
-console.log(url.href)
-console.log(chrome.identity.getRedirectURL())
+const createAuthURL = () => {
+  const url = new URL("https://accounts.spotify.com/authorize");
+  url.searchParams.append("client_id", clientID);
+  url.searchParams.append("state", state);
+  url.searchParams.append("scope", scope);
+  url.searchParams.append("redirect_uri", uri);
+  url.searchParams.append("response_type", type);
+  url.searchParams.append("show_dialog", dialog);
+  url.searchParams.append("code_challenge_method", "S256");
+  return url;
+};
 
+const createToken = async (code: string, code_verifier: string) => {
+  const url = new URL("https://accounts.spotify.com/api/token");
+  url.searchParams.append("grant_type", "authorization_code");
+  url.searchParams.append("code", code);
+  url.searchParams.append("code_verifier", code_verifier);
+  url.searchParams.append("redirect_uri", uri);
+  url.searchParams.append("client_id", clientID);
+  const params = new URLSearchParams(url.search);
+  const headers = {
+    "Content-Type": "application/x-www-form-urlencoded",
+  };
+  console.log(url.href)
+  console.log(params.toString())
+
+  const response = await fetch(url.href, {method: "POST", headers, body: params.toString()}).
+    then((response) => response.json())
+    .then((data) => console.log(data))
+    .catch((e) => console.log(e));
+};
+
+console.log("Running: Background script...");
+
+// Spotify Login Listener
 chrome.runtime.onMessage.addListener((req, sender, res) => {
-  console.log("Message received")
   if (req.message === "signin" && !signedIn) {
-    console.log("Passes conditional")
+    const url = createAuthURL();
+    url.searchParams.append("code_challenge", req.challenge[0]);
+
     chrome.identity.launchWebAuthFlow(
       { url: url.href, interactive: true },
       function (redirectURL) {
@@ -43,12 +54,25 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
           console.log("error: " + chrome.runtime.lastError.message);
           return;
         }
-        const urlParams = new URLSearchParams(redirectURL)
+        const urlParams = new URLSearchParams(redirectURL);
         if (urlParams.has("error") || urlParams.get("state") !== state) {
           console.log("error: access_denied");
           return;
         }
-        console.log(redirectURL)
+        if (redirectURL == null) {
+          console.log("error: redirect url is null");
+          return;
+        }
+        const redirectParams = new URL(redirectURL)
+        const code = redirectParams.searchParams.get("code")!;
+        const code_verifier: string = req.challenge[1];
+        
+        // console.log("Redirect url:", redirectURL)
+        // console.log("redirectParams:", redirectParams)
+        // console.log("code_verifier: " + code_verifier);
+        // console.log("code: " + code); 
+
+        createToken(code, code_verifier);
       }
     );
   }
