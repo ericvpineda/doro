@@ -3,7 +3,9 @@ import UserInput from "./Components/UserInput/UserInput/UserInput";
 import Timer from "./Components/Timer/Timer/Timer";
 import styles from "./App.module.css";
 import { GearFill, ArrowRightCircle, Spotify } from "react-bootstrap-icons";
-
+const SHA256 = require("crypto-js/sha256");
+const BASE64 = require("crypto-js/enc-base64");
+const random = require("random-string-generator");
 
 const App: FC = () => {
   const [showTimer, setShowTimer] = useState(true);
@@ -13,9 +15,22 @@ const App: FC = () => {
     setShowTimer(!showTimer);
   };
 
-  const spotifyBtnHandler = () => {
-    chrome.runtime.sendMessage({message: "signin"});
+  const generateCodeChallenge = () => {
+    const verfier = random(64);
+    return BASE64.stringify(SHA256(verfier))
+      .replace(/\+/g, "_")
+      .replace(/\//g, "_")
+      .replace(/=/g, "");
   };
+
+  const spotifyBtnHandler = () => {
+    chrome.runtime.sendMessage({
+      message: "signin",
+      code_challenge: generateCodeChallenge(),
+    });
+  };
+
+  console.log("Running: App.js");
 
   return (
     <Fragment>
