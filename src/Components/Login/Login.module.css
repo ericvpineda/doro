@@ -1,0 +1,11 @@
+.spotifyButton {
+    height: 2rem;
+    width: 2rem;
+
+    color: lightgreen;
+
+    position: absolute;
+    top: 4rem;
+    right: 1rem;
+    cursor: pointer;
+}
