@@ -26,10 +26,10 @@ const Timer: FC<Prop> = (props) => {
     return (
         <Fragment>
             <div className={styles.body}>
-                {accessToken === "" ? 
-                    <Clock></Clock> :
+                {/* {accessToken === "" ? 
+                    <Clock></Clock> : */}
                     <SpotifyPlayer accessToken={accessToken}></SpotifyPlayer>
-                }
+                {/* } */}
                 <FocusText></FocusText>
             </div>
             <GearFill onClick={setShowTimer} className={styles.editButton}></GearFill>

@@ -43,6 +43,7 @@ const Login: FC<Props> = (props) => {
         { url: createAuthURL(info), interactive: true },
         (response) => {
           if (chrome.runtime.lastError) {
+            console.log(response)
             console.log("error: " + chrome.runtime.lastError.message);
             return;
           }
