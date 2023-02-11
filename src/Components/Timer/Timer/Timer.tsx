@@ -11,25 +11,18 @@ interface Prop {
 }
 
 const Timer: FC<Prop> = (props) => {
-    const [accessToken, setAccessToken] = useState("")
 
     const setShowTimer = () => {
         props.setShowTimerHandler(false)
     }
 
-    useEffect(() => {
-        if (props.accessToken) {
-            setAccessToken(props.accessToken)
-        }
-    }, [props.accessToken])
-
     return (
         <Fragment>
             <div className={styles.body}>
-                {/* {accessToken === "" ? 
-                    <Clock></Clock> : */}
-                    <SpotifyPlayer accessToken={accessToken}></SpotifyPlayer>
-                {/* } */}
+                {props.accessToken === "" ? 
+                    <Clock></Clock> :
+                    <SpotifyPlayer accessToken={props.accessToken}></SpotifyPlayer>
+                }
                 <FocusText></FocusText>
             </div>
             <GearFill onClick={setShowTimer} className={styles.editButton}></GearFill>

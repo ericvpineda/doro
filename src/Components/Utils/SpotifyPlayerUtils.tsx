@@ -5,7 +5,6 @@ const request = async (method: string, path: string, accessToken: string) => {
         "Authorization": `Bearer ${accessToken}`
       };
     return await fetch(url.href, {method , headers})
-    
 }
 
 export default request;

@@ -9,17 +9,24 @@ interface Prop {
 const SpotifyPlayer: FC<Prop> = (props) => {
     const [artist, setArtist] = useState('')
     const [track, setTrack] = useState('')
+    const [accessToken, setAccessToken] = useState("")
+   
 
     // Get initial track data (on initial load)
     useEffect(() => {
-        request("GET", "/currently-playing", props.accessToken)
+        // Note: will not render immediately 
+        setAccessToken(props.accessToken)
+        if (props.accessToken !== "") {
+            request("GET", "/currently-playing", props.accessToken)
             .then((res) => res.json())
             .then((data) => {
-                setArtist(data.item.artists[0].name)
                 setTrack(data.item.name)
+                setArtist(data.item.artists[0].name)
             })
             .catch((e) => {console.log(e)})
-    }, [])
+        }
+        
+    }, [props.accessToken])
  
     return (
         <Fragment>

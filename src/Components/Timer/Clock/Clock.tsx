@@ -10,8 +10,7 @@ const Clock: FC = () => {
     const updateTime = () => {
         const progressRing = document.getElementById("timer-outer")! as HTMLElement;
         chrome.storage.local.get(["hours", "minutes", "seconds", "isRunning", "setTime"], (res) => {
-            
-            if (res.isRunning) {
+            if (res != null && !(res.hours == 0 && res.minutes == 0 && res.seconds == -1)) {
                 // Update clock time ui 
                 const hours: string = res.hours >= 10 ? res.hours.toString() : "0" + res.hours
                 const minutes: string = res.minutes >= 10 ? res.minutes.toString() : "0" + res.minutes
@@ -39,13 +38,18 @@ const Clock: FC = () => {
             // FIX: Improve way to check start and stop button 
             if (!(res.hours == 0 && res.minutes == 0 && res.seconds == 0)) {
                 chrome.storage.local.set({ isRunning: !res.isRunning })
-                setControlText(res.isRunning ? "Pause" : "Start")
+                setControlText(res.isRunning ? "Start" : "Pause")
             }  
         })
     }
    
     // Initial re-render (allow initial set timer to show up)
-    useEffect(() => { updateTime() }, [])
+    useEffect(() => { 
+        chrome.storage.local.get(["isRunning", "hours", "minutes", "seconds"], (res) => {
+            setControlText(res.isRunning? "Pause" : "Start")
+        })
+        updateTime() 
+    }, [])
 
     // Note: Assumed that isRunning is true
     useEffect(() => {

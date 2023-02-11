@@ -8,6 +8,8 @@ const App: FC = () => {
   const [showTimer, setShowTimer] = useState(true);
   const [accessToken, setAccessToken] = useState("");
 
+  console.log("App.tsx=", accessToken);
+
   return (
     <Fragment>
       <Login setAccessTokenHandler={setAccessToken}></Login>
