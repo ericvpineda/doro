@@ -1,8 +1,9 @@
 import React from 'react'
-import {FC, useState, MouseEvent} from 'react'
+import {FC, useState, Fragment} from 'react'
 import Description from '../Description/Description';
 import Time from '../Time/Time';
 import styles from './UserInput.module.css'
+import { ArrowRightCircle } from "react-bootstrap-icons";
 
 interface pageUpdate {
     setShowTimerHandler: (param: boolean) => void;
@@ -17,7 +18,7 @@ const UserInput: FC<pageUpdate> = (props): JSX.Element => {
     // TODO: Allow user to update default message
     const [defaultMsg, setDefaultMsg] = useState("Working...")
 
-    const onClickHandler = () => {
+    const onSubmitHandler = () => {
         // TODO: Check for errors, if so, show error messgae 
         if (hours == 0 && minutes == 0) {
             setShowError(true)
@@ -42,17 +43,23 @@ const UserInput: FC<pageUpdate> = (props): JSX.Element => {
         } 
     }
 
-    return (
-        <div className={styles.body + " d-flex flex-column justify-content-center"}>
-            <h3 className='mb-3 text-center'>Set Timer</h3>
-            <div className='container'>
-                <Time setHours={setHours} setMinutes={setMinutes}/>
-                <Description setDescript={setDescript} />
-            </div>
-            <button onClick={onClickHandler} className='btn btn-success mt-3'>Start</button>
-            {showError && <div className='text-danger fs-6'>Input valid hours or minutes.</div>}
-        </div>
-    )
-}
+    const showTimerHandler = () => {
+        props.setShowTimerHandler(true)
+    }
 
-export default UserInput; 
+    return (
+        <Fragment>
+            <div className={styles.body + " d-flex flex-column justify-content-center"}>
+                <h3 className='mb-3 text-center'>Set Timer</h3>
+                <div className='container'>
+                    <Time setHours={setHours} setMinutes={setMinutes}/>
+                    <Description setDescript={setDescript} />
+                </div>
+                <button onClick={onSubmitHandler} className='btn btn-success mt-3'>Start</button>
+                {showError && <div className='text-danger fs-6'>Input valid hours or minutes.</div>}
+            </div>
+            <ArrowRightCircle onClick={showTimerHandler} className={styles.clockButton}></ArrowRightCircle>
+        </Fragment>
+    )}
+
+    export default UserInput;

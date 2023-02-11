@@ -6,7 +6,7 @@ import {
   createAuthURL,
   requestAccessToken,
   requestRefreshToken,
-} from "../Utils/challenge";
+} from "../Utils/SpotifyAuthUtils";
 
 const random = require("random-string-generator");
 const info = {
@@ -21,22 +21,16 @@ interface Props {
   setAccessTokenHandler: (param: string) => void;
 }
 
-// idea
-// - move info out of component 
-//  - issue: still need to set variables before passing into fxns
-
 const Login: FC<Props> = (props) => {
   const [signedIn, setSignedIn] = useState(false);
-  const [accessToken, setAccessToken] = useState("");
   const [refreshToken, setRefreshToken] = useState("");
   const [expiresIn, setExpiresIn] = useState(0);
 
   const setAccessTokenHandler = (data: any) => {
-    setAccessToken(data.access_token);
     setRefreshToken(data.refresh_token);
     setExpiresIn(data.expires_in);
     setSignedIn(true);
-    // props.setAccessTokenHandler(data.access_token);
+    props.setAccessTokenHandler(data.access_token);
   };
 
   const spotifyBtnHandler = () => {

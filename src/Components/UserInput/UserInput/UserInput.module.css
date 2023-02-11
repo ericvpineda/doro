@@ -4,3 +4,16 @@
     width: inherit;
     padding: 5rem;
 }
+
+.clockButton {
+
+    height: 2rem;
+    width: 2rem;
+
+    color: #212529;
+
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    cursor: pointer;
+}
