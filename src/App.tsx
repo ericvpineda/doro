@@ -1,4 +1,4 @@
-import React, { FC, Fragment, useState } from "react";
+import React, { FC, Fragment, useState, useEffect } from "react";
 import UserInput from "./Components/UserInput/UserInput/UserInput";
 import Timer from "./Components/Timer/Timer/Timer";
 import Login from "./Components/Login/Login";
@@ -8,7 +8,9 @@ const App: FC = () => {
   const [showTimer, setShowTimer] = useState(true);
   const [accessToken, setAccessToken] = useState("");
 
-  console.log("App.tsx=", accessToken);
+  useEffect(() => {
+    
+  })
 
   return (
     <Fragment>

@@ -11,15 +11,22 @@ interface Prop {
 }
 
 const Timer: FC<Prop> = (props) => {
+    const [showPlayer, setShowPlayer] = useState(false)
 
     const setShowTimer = () => {
         props.setShowTimerHandler(false)
     }
 
+    useEffect(() => {
+        chrome.storage.sync.get(['signedIn'], (result) => {
+            setShowPlayer(result.signedIn)
+        })
+    }, [])
+
     return (
         <Fragment>
             <div className={styles.body}>
-                {props.accessToken === "" ? 
+                {showPlayer ? 
                     <Clock></Clock> :
                     <SpotifyPlayer accessToken={props.accessToken}></SpotifyPlayer>
                 }

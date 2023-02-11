@@ -33,6 +33,10 @@ const Login: FC<Props> = (props) => {
     props.setAccessTokenHandler(data.access_token);
   };
 
+  const setUserLoginStatus = (status: boolean) => {
+    chrome.storage.local.set({ signedIn: status });
+  }
+
   const spotifyBtnHandler = () => {
     if (!signedIn) {
       const [challenge, verifier] = generateChallenge();
@@ -66,8 +70,12 @@ const Login: FC<Props> = (props) => {
             .then((res) => res.json())
             .then((data) => {
               setAccessTokenHandler(data);
+              setUserLoginStatus(true)
             })
-            .catch((e) => console.log(e));
+            .catch((e) => {
+              console.log(e)
+              setUserLoginStatus(false)
+            });
         }
       );
     }
@@ -85,8 +93,12 @@ const Login: FC<Props> = (props) => {
         .then((res) => res.json())
         .then((data) => {
           setAccessTokenHandler(data);
+          setUserLoginStatus(true)
         })
-        .catch((e) => console.log(e));
+        .catch((e) => {
+          console.log(e)
+          setUserLoginStatus(false)
+        });
     }, (expiresIn - 60) * 1000);
     return () => clearTimeout(timeout);
   }, [refreshToken, expiresIn]);
