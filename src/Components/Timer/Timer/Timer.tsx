@@ -6,7 +6,7 @@ import SpotifyPlayer from '../SpotifyPlayer/SpotifyPlayer'
 import { GearFill } from "react-bootstrap-icons";
 
 interface Prop {
-    accessToken: string;
+    showPlayer: boolean;
     setShowTimerHandler: (param: boolean) => void;
 }
 
@@ -16,19 +16,25 @@ const Timer: FC<Prop> = (props) => {
     const setShowTimer = () => {
         props.setShowTimerHandler(false)
     }
-
+    console.log("Render timer")
+    // Note:
+    // - how to change what is shown based on whether user is signed in 
+    // - need something in component to re-render
+    //  - doesnt work
+    //   - listen to storage local changes -- will rerun component many times (once timer on)
     useEffect(() => {
-        chrome.storage.sync.get(['signedIn'], (result) => {
+        chrome.storage.local.get(['signedIn'], (result) => {
+            console.log("Signed in=", result)
             setShowPlayer(result.signedIn)
         })
-    }, [])
+    }, [props.showPlayer])
 
     return (
         <Fragment>
             <div className={styles.body}>
                 {showPlayer ? 
-                    <Clock></Clock> :
-                    <SpotifyPlayer accessToken={props.accessToken}></SpotifyPlayer>
+                    <SpotifyPlayer></SpotifyPlayer> :
+                    <Clock></Clock>
                 }
                 <FocusText></FocusText>
             </div>

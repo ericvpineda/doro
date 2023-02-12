@@ -7,7 +7,6 @@ import {
   requestAccessToken,
   requestRefreshToken,
 } from "../Utils/SpotifyAuthUtils";
-
 const random = require("random-string-generator");
 const info = {
     state: encodeURIComponent(random(43)),
@@ -18,7 +17,7 @@ const info = {
 }
 
 interface Props {
-  setAccessTokenHandler: (param: string) => void;
+  setShowPlayer: (signedIn: boolean) => void;
 }
 
 const Login: FC<Props> = (props) => {
@@ -30,7 +29,14 @@ const Login: FC<Props> = (props) => {
     setRefreshToken(data.refresh_token);
     setExpiresIn(data.expires_in);
     setSignedIn(true);
-    props.setAccessTokenHandler(data.access_token);
+    chrome.storage.local.set({ 
+      signedIn: true,
+      refreshToken: data.refresh_token,
+      expiresIn: data.expires_in,
+      accessToken: data.access_token,
+      endTime: data.expires_in * 1000 + new Date().getTime(),
+    });
+    props.setShowPlayer(true);
   };
 
   const setUserLoginStatus = (status: boolean) => {
@@ -70,7 +76,6 @@ const Login: FC<Props> = (props) => {
             .then((res) => res.json())
             .then((data) => {
               setAccessTokenHandler(data);
-              setUserLoginStatus(true)
             })
             .catch((e) => {
               console.log(e)
@@ -93,7 +98,6 @@ const Login: FC<Props> = (props) => {
         .then((res) => res.json())
         .then((data) => {
           setAccessTokenHandler(data);
-          setUserLoginStatus(true)
         })
         .catch((e) => {
           console.log(e)
@@ -102,6 +106,17 @@ const Login: FC<Props> = (props) => {
     }, (expiresIn - 60) * 1000);
     return () => clearTimeout(timeout);
   }, [refreshToken, expiresIn]);
+
+  useEffect(() => {
+    chrome.storage.local.get(["signedIn", "refreshToken", "expiresIn", "endTime"], (result) => {
+      const currTime = new Date().getTime();
+      if (result.signedIn && currTime < result.endTime) {
+        setSignedIn(result.signedIn);
+        setRefreshToken(result.refreshToken);
+        setExpiresIn(result.expiresIn);
+      }
+    })
+  }, [])
 
   return (
     <Spotify

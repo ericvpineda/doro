@@ -2,36 +2,44 @@ import React, {FC, Fragment, useState, useEffect} from 'react'
 import request from '../../Utils/SpotifyPlayerUtils';
 import { PlayFill, SkipEndFill, SkipStartFill } from 'react-bootstrap-icons';
 
-interface Prop {
-    accessToken: string;
-}
-
-const SpotifyPlayer: FC<Prop> = (props) => {
+const SpotifyPlayer: FC = (props) => {
     const [artist, setArtist] = useState('')
     const [track, setTrack] = useState('')
+    const [imageUrl, setImageUrl] = useState('')
     const [accessToken, setAccessToken] = useState("")
-   
 
-    // Get initial track data (on initial load)
+    // Get accesstoken and initial track data (on initial load)
     useEffect(() => {
-        // Note: will not render immediately 
-        setAccessToken(props.accessToken)
-        if (props.accessToken !== "") {
-            request("GET", "/currently-playing", props.accessToken)
-            .then((res) => res.json())
-            .then((data) => {
-                setTrack(data.item.name)
-                setArtist(data.item.artists[0].name)
-            })
-            .catch((e) => {console.log(e)})
-        }
-        
-    }, [props.accessToken])
+        chrome.storage.local.get(["accessToken", "endTime", "signedIn"], (res) => {
+            const currTime = new Date().getTime()
+            console.log(res.signedIn, currTime, res.endTime)
+            if (res.signedIn && currTime < res.endTime) {
+                console.log("Getting spotify player...")
+                request("GET", "/currently-playing", res.accessToken)
+                .then((res) => res.json())
+                .then((data) => {
+                    setTrack(data.item.name)
+                    setArtist(data.item.artists[0].name)
+                    setImageUrl(data.item.album.images[0].url)
+                    setAccessToken(res.accessToken)
+                })
+                .catch((e) => {console.log(e)})
+            } else {
+                // chrome.storage.local.set({
+                //     accessToken: "",
+                //     endTime: 0,
+                //     signedIn: false,
+                //     refreshToken: "",
+                //     expiresIn: 0,
+                // })
+            }
+        })
+    }, [])
  
     return (
         <Fragment>
             <div className="d-flex flex-column align-items-center">
-                <img className="w-50 h-50 mb-3" src="https://images.unsplash.com/photo-1515405295579-ba7b45403062?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=580&q=80" alt="" />
+                <img className="w-50 h-50 mb-3" src={imageUrl} alt="" />
                 <div className='text-center mb-2'>
                     <div className='text-white'>{track}</div>
                     <div className='text-white fst-italic fw-light'>{artist}</div>

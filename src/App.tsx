@@ -6,18 +6,14 @@ import Login from "./Components/Login/Login";
 
 const App: FC = () => {
   const [showTimer, setShowTimer] = useState(true);
-  const [accessToken, setAccessToken] = useState("");
-
-  useEffect(() => {
-    
-  })
+  const [showPlayer, setShowPlayer] = useState(false);
 
   return (
     <Fragment>
-      <Login setAccessTokenHandler={setAccessToken}></Login>
+      <Login setShowPlayer={setShowPlayer}></Login>
       {!showTimer ? 
         (<UserInput setShowTimerHandler={setShowTimer}></UserInput>) : 
-        (<Timer accessToken={accessToken} setShowTimerHandler={setShowTimer}/>)}
+        (<Timer showPlayer={showPlayer} setShowTimerHandler={setShowTimer}/>)}
     </Fragment>
   );
 };

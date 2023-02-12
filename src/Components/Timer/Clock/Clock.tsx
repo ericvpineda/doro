@@ -10,7 +10,7 @@ const Clock: FC = () => {
     const updateTime = () => {
         const progressRing = document.getElementById("timer-outer")! as HTMLElement;
         chrome.storage.local.get(["hours", "minutes", "seconds", "isRunning", "setTime"], (res) => {
-            if (res != null && !(res.hours == 0 && res.minutes == 0 && res.seconds == -1)) {
+            if (res.isRunning && !(res.hours == 0 && res.minutes == 0 && res.seconds == -1)) {
                 // Update clock time ui 
                 const hours: string = res.hours >= 10 ? res.hours.toString() : "0" + res.hours
                 const minutes: string = res.minutes >= 10 ? res.minutes.toString() : "0" + res.minutes
@@ -53,7 +53,9 @@ const Clock: FC = () => {
 
     // Note: Assumed that isRunning is true
     useEffect(() => {
-        chrome.storage.onChanged.addListener(() => { updateTime() })
+        chrome.storage.onChanged.addListener(() => { 
+            updateTime() 
+        })
     }, [])
 
     return (
