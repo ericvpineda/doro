@@ -1,0 +1,19 @@
+.background {
+
+    position: absolute;
+    top: 4rem;
+    right: 0.8rem;
+    cursor: pointer;
+
+    border-radius: 50%;
+}
+
+.image {
+    
+    max-height: 2.5rem;
+    max-width: 2.5rem;
+
+    border-radius: 50%;
+    cursor: pointer;
+
+}

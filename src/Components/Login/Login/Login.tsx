@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useEffect, useState, Fragment } from "react";
 import { Spotify } from "react-bootstrap-icons";
 import styles from "./Login.module.css";
 import {
@@ -6,7 +6,9 @@ import {
   createAuthURL,
   requestAccessToken,
   requestRefreshToken,
-} from "../Utils/SpotifyAuthUtils";
+} from "../../Utils/SpotifyAuthUtils";
+import ProfilePic from "../ProfilePic/ProfilePic";
+
 const random = require("random-string-generator");
 const info = {
     state: encodeURIComponent(random(43)),
@@ -17,7 +19,7 @@ const info = {
 }
 
 interface Props {
-  setShowPlayer: (signedIn: boolean) => void;
+  setSignedIn: (signedIn: boolean) => void;
 }
 
 const Login: FC<Props> = (props) => {
@@ -36,8 +38,20 @@ const Login: FC<Props> = (props) => {
       accessToken: data.access_token,
       endTime: data.expires_in * 1000 + new Date().getTime(),
     });
-    props.setShowPlayer(true);
+    props.setSignedIn(true);
   };
+
+  const signOut = () => {
+    chrome.storage.local.set({
+      signedIn: false,
+      refreshToken: "",
+      expiresIn: "",
+      accessToken: "",
+      endTime: "",
+    })
+    setSignedIn(false)
+    props.setSignedIn(false);
+  }
 
   const setUserLoginStatus = (status: boolean) => {
     chrome.storage.local.set({ signedIn: status });
@@ -117,12 +131,14 @@ const Login: FC<Props> = (props) => {
       }
     })
   }, [])
-
+  
   return (
-    <Spotify
-      onClick={spotifyBtnHandler}
-      className={styles.spotifyButton}
-    ></Spotify>
+    <Fragment>
+    {signedIn ? 
+      <ProfilePic signOut={signOut}></ProfilePic> :
+      <Spotify onClick={spotifyBtnHandler} className={styles.spotifyButton}></Spotify>
+    }
+    </Fragment>
   );
 };
 
