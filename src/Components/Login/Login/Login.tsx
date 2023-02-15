@@ -7,7 +7,7 @@ import {
   requestAccessToken,
   requestRefreshToken,
 } from "../../Utils/SpotifyAuthUtils";
-import ProfilePic from "../ProfilePic/ProfilePic";
+import Profile from "../Profile/Profile";
 
 const random = require("random-string-generator");
 const info = {
@@ -17,6 +17,7 @@ const info = {
     verifier: "",
     refreshToken: "",
 }
+
 
 interface Props {
   setSignedIn: (signedIn: boolean) => void;
@@ -37,6 +38,7 @@ const Login: FC<Props> = (props) => {
       expiresIn: data.expires_in,
       accessToken: data.access_token,
       endTime: data.expires_in * 1000 + new Date().getTime(),
+      profileUrl: ""
     });
     props.setSignedIn(true);
   };
@@ -48,6 +50,7 @@ const Login: FC<Props> = (props) => {
       expiresIn: "",
       accessToken: "",
       endTime: "",
+      profileUrl: "",
     })
     setSignedIn(false)
     props.setSignedIn(false);
@@ -135,7 +138,7 @@ const Login: FC<Props> = (props) => {
   return (
     <Fragment>
     {signedIn ? 
-      <ProfilePic signOut={signOut}></ProfilePic> :
+      <Profile signOut={signOut}></Profile> :
       <Spotify onClick={spotifyBtnHandler} className={styles.spotifyButton}></Spotify>
     }
     </Fragment>

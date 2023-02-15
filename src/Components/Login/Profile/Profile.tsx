@@ -1,12 +1,12 @@
 import React, {FC, useEffect} from 'react'
-import styles from './ProfilePic.module.css'
+import styles from './Profile.module.css'
 import request from '../../Utils/SpotifyPlayerUtils';
 
 interface Props {
     signOut: (param: boolean) => void
 }
 
-const ProfilePic: FC<Props> = (props) => {
+const Profile: FC<Props> = (props) => {
   const [profileUrl, setProfileUrl] = React.useState("")
 
   const signOutHandler = () => {
@@ -14,17 +14,18 @@ const ProfilePic: FC<Props> = (props) => {
   }
 
   useEffect(() => {
-    if (profileUrl == "") {
-        chrome.storage.local.get(['accessToken'], (res) => {
-            if (res.accessToken) {
-                request("GET", "", res.accessToken)
-                .then(res => {return res.json()})
-                .then((data) => {
-                    setProfileUrl(data.images[0].url)
-                })
-            }
-        })
-    }
+    chrome.storage.local.get(['accessToken', 'profileUrl', 'signedIn'], (res) => {
+      if (res.signedIn && res.profileUrl != "") {
+          setProfileUrl(res.profileUrl)
+        } else if (res.accessToken) {
+              request("GET", "", res.accessToken)
+              .then(res => {return res.json()})
+              .then((data) => {
+                  setProfileUrl(data.images[0].url)
+                  chrome.storage.local.set({'profileUrl': data.images[0].url})
+              })
+          }
+      })
   }, [])
 
   return (
@@ -39,4 +40,4 @@ const ProfilePic: FC<Props> = (props) => {
   )
 }
 
-export default ProfilePic;
+export default Profile;

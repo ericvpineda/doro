@@ -2,7 +2,7 @@ import pkceChallenge from "pkce-challenge";
 
 const client = {
   id: encodeURIComponent("9b8675b2d72647fb9fdd3c06474cfde9"),
-  scope: encodeURIComponent("user-read-private user-read-email user-read-currently-playing user-modify-playback-state"),
+  scope: encodeURIComponent("streaming user-read-email user-read-currently-playing user-read-private user-modify-playback-state user-read-playback-state"),
   uri: chrome.identity.getRedirectURL(),
 };
 

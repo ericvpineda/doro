@@ -12,6 +12,6 @@
         "service_worker": "background.js",
         "type": "module"
     },
-    "permissions": ["storage", "alarms", "identity"],
-    "host_permissions": ["https://accounts.spotify.com/*"]
+    "permissions": ["storage", "alarms", "identity", "scripting"],
+    "host_permissions": ["https://*.spotify.com/*"]
 }

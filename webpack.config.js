@@ -8,7 +8,7 @@ module.exports = {
     // Tells webpack where to start looking
     entry: {
         index: path.resolve('src/index.tsx'),
-        background: path.resolve('src/background/background.ts')
+        background: path.resolve('src/background/background.ts'),
     },  
     module: { // allow webpack to handle other file times
         rules: [{
@@ -31,7 +31,12 @@ module.exports = {
             patterns: [{
                 from: path.resolve('src/manifest.json'),
                 to: path.resolve('dist')
-            }]
+            },
+            {
+                from: path.resolve('src/js/spotify-player.js'),
+                to: path.resolve('dist')
+            }
+        ]
         }),
         ...getHtmlPlugins([
             'index',
