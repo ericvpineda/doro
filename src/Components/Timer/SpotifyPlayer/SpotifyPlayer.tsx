@@ -1,7 +1,7 @@
 import React, { FC, Fragment, useState, useEffect } from "react";
-import request from "../../Utils/SpotifyPlayerUtils";
+import {request} from "../../../Utils/SpotifyPlayerUtils";
 import { PlayFill, SkipEndFill, SkipStartFill } from "react-bootstrap-icons";
-// import SpotifyPlayBack from "./SpotifyPlayBack";
+import usePlayer from "../../../hooks/usePlayer";
 
 const SpotifyPlayer: FC = (props) => {
   const [artist, setArtist] = useState("");
@@ -9,7 +9,7 @@ const SpotifyPlayer: FC = (props) => {
   const [imageUrl, setImageUrl] = useState("");
   const [accessToken, setAccessToken] = useState("");
   const [isPlaying, setIsPlaying] = useState(false);
-
+  const [setPlayerAction, error] = usePlayer();
 
   // Get accesstoken and initial track data (on initial load
   // - issue: multiple calls to spotify api
@@ -26,7 +26,6 @@ const SpotifyPlayer: FC = (props) => {
             setTrack(data.item.name);
             setArtist(data.item.artists[0].name);
             setImageUrl(data.item.album.images[0].url);
-            setAccessToken(res.accessToken);
           })
           .catch((e) => {
             console.log(e);
@@ -44,7 +43,7 @@ const SpotifyPlayer: FC = (props) => {
   //   }
   // }
 
-  // Note: Use later when spotify tab is removed 
+  // Note: Use later when spotify tab is removed
   // chrome.tabs.query({lastFocusedWindow: true}, tabs => {
   //   console.log(tabs)
   //   tabs.forEach(tab => {
@@ -56,10 +55,10 @@ const SpotifyPlayer: FC = (props) => {
   //   })
   // })
 
-//   chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-//     console.log("Listener:", tab.url)
-//   }
-// )
+  //   chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  //     console.log("Listener:", tab.url)
+  //   }
+  // )
   // window.onSpotifyWebPlaybackSDKReady = () => {
   //   console.log("Ready");
   //   const player = new Spotify.Player({
@@ -67,67 +66,24 @@ const SpotifyPlayer: FC = (props) => {
   //     getOAuthToken: () => {accessToken},
   //     volume: 0.5
   //   })
-  // } 
+  // }
 
   const togglePlay = () => {
     // request("PUT", "/player/pause", accessToken).catch((e) => console.log(e));
-    // chrome.storage.local.get(["tabId"], (res) => {      
+    // chrome.storage.local.get(["tabId"], (res) => {
     //   chrome.scripting.executeScript({
     //     target: { tabId: res.tabId },
     //     func: Pause,
-
     //   })
     //   .then((injectedResults) => {console.log(injectedResults);})
     // })
-    setIsPlaying(!isPlaying);
-    }
+    // setIsPlaying(!isPlaying);
+    // console.log(typeof player)
+    setPlayerAction(1);
+    console.log(error)
+  };
   // const ready = useWebPlaybackSDKReady();
   // console.log("Ready=", ready);
-
-  useEffect(() => {
-    // Append script to document
-    const script = document.createElement('script');
-    script.src = "./spotify-player.js"
-    script.async = true;
-    document.head.appendChild(script)
-
-    // Get accesstoken from storage
-    let accessToken = ""
-    chrome.storage.local.get(["accessToken"], (result) => {
-      accessToken = result.accessToken;
-    })
-
-    // Will be executed when spotify script loaded
-    window.onSpotifyWebPlaybackSDKReady = () => {
-
-      const player = new window.Spotify.Player({
-          name: "Eric",
-          getOAuthToken: callback => {callback(accessToken)},
-          volume: 0.5
-        })
-        // Connect playback sdk instance to spotify
-        player.connect().then((success) => {if (success) {
-          console.log("Connected to Spotify")
-        }})
-        // Check if devicce is unique
-        player.addListener('ready', ({ device_id }) => {
-          console.log('The Web Playback SDK is ready to play music!');
-          console.log('Device ID', device_id);
-        })
-        // Check if playback is prohibited by browser rules
-        player.addListener('autoplay_failed', () => {
-          console.log('Autoplay is not allowed by the browser autoplay rules');
-        });
-
-        // Handler for play button click
-        document.getElementById('togglePlay')!.onclick = () => {
-          console.log("togglePlay")
-          // Ensure playback is triggered by sync event-path ()
-          player.activateElement();
-          player.togglePlay()
-        }; 
-      }
-  }, [])
 
   return (
     <Fragment>
@@ -142,10 +98,10 @@ const SpotifyPlayer: FC = (props) => {
             className="me-2"
             color="white"
             size={20}
-            ></SkipStartFill>
+          ></SkipStartFill>
           <PlayFill
-            // onClick={togglePlay}
-            id="togglePlay"
+            onClick={togglePlay}
+            // id="togglePlay"
             className="me-1"
             color="white"
             size={30}

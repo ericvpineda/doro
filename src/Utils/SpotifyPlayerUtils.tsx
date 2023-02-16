@@ -1,3 +1,10 @@
+enum PlayerActions {
+  Pause = 0,
+  Play, 
+  Next, 
+  Prev,
+}
+
 const request = async (method: string, path: string, accessToken: string) => {
     const url = new URL("https://api.spotify.com/v1/me" + path);
     const headers = {
@@ -7,4 +14,4 @@ const request = async (method: string, path: string, accessToken: string) => {
     return await fetch(url.href, {method , headers})
 }
 
-export default request;
+export {request, PlayerActions};
