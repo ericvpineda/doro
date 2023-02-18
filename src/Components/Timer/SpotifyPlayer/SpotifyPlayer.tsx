@@ -1,7 +1,5 @@
 import React, { FC, Fragment, useState, useEffect } from "react";
-import {request} from "../../../Utils/SpotifyPlayerUtils";
 import { PlayFill, SkipEndFill, SkipStartFill } from "react-bootstrap-icons";
-import usePlayer from "../../../hooks/usePlayer";
 
 const SpotifyPlayer: FC = (props) => {
   const [artist, setArtist] = useState("");
@@ -9,7 +7,6 @@ const SpotifyPlayer: FC = (props) => {
   const [imageUrl, setImageUrl] = useState("");
   const [accessToken, setAccessToken] = useState("");
   const [isPlaying, setIsPlaying] = useState(false);
-  const [setPlayerAction, error] = usePlayer();
 
   // Get accesstoken and initial track data (on initial load
   // - issue: multiple calls to spotify api
@@ -17,29 +14,29 @@ const SpotifyPlayer: FC = (props) => {
   //      - save artist data into storage?
   //          - issue: what if change track on diff device
   useEffect(() => {
-    chrome.storage.local.get(["accessToken", "endTime", "signedIn"], (res) => {
-      const currTime = new Date().getTime();
-      if (res.signedIn && currTime < res.endTime) {
-        request("GET", "/player/currently-playing", res.accessToken)
-          .then((res) => res.json())
-          .then((data) => {
-            setTrack(data.item.name);
-            setArtist(data.item.artists[0].name);
-            setImageUrl(data.item.album.images[0].url);
-          })
-          .catch((e) => {
-            console.log(e);
-          });
-      }
-    });
+    // chrome.storage.local.get(["accessToken", "endTime", "signedIn"], (res) => {
+    //   const currTime = new Date().getTime();
+    //   if (res.signedIn && currTime < res.endTime) {
+    //     request("GET", "/player/currently-playing", res.accessToken)
+    //       .then((res) => res.json())
+    //       .then((data) => {
+    //         setTrack(data.item.name);
+    //         setArtist(data.item.artists[0].name);
+    //         setImageUrl(data.item.album.images[0].url);
+    //       })
+    //       .catch((e) => {
+    //         console.log(e);
+    //       });
+    //   }
+    // });
   }, []);
 
   // Note: Use later when implementing free spotify account
   // function Pause () {
-  //   const btn = document.querySelector("[data-testid='control-button-playpause']") as HTMLElement;
-  //   if (btn.getAttribute('aria-label') == "Play") {
+  //   const btn = document.querySelector('[data-testid="control-button-playpause"]') as HTMLElement;
+  //   if (btn !== null && btn.getAttribute('aria-label') === "Pause") {
   //     btn.click();
-  //     return "Play"
+  //     return "pause"
   //   }
   // }
 
@@ -70,25 +67,24 @@ const SpotifyPlayer: FC = (props) => {
 
   const togglePlay = () => {
     // request("PUT", "/player/pause", accessToken).catch((e) => console.log(e));
+    // Note: used for html manipulation (script injection)
     // chrome.storage.local.get(["tabId"], (res) => {
-    //   chrome.scripting.executeScript({
-    //     target: { tabId: res.tabId },
-    //     func: Pause,
-    //   })
-    //   .then((injectedResults) => {console.log(injectedResults);})
+    //   console.log(res.tabId)
+    // chrome.scripting.executeScript({
+    //   target: { tabId: res.tabId },
+    //   func: Pause,
+    // })
+    // .then((injectedResults) => {console.log(injectedResults);})
     // })
     // setIsPlaying(!isPlaying);
     // console.log(typeof player)
-    setPlayerAction(1);
-    console.log(error)
   };
-  // const ready = useWebPlaybackSDKReady();
-  // console.log("Ready=", ready);
 
   return (
     <Fragment>
       <div className="d-flex flex-column align-items-center">
-        <img className="w-50 h-50 mb-3" src={imageUrl} alt="" />
+        // TODO: Put filler image here (to wait for loading images)
+        {imageUrl && <img className="w-50 h-50 mb-3" src={imageUrl} alt="" />}
         <div className="text-center mb-2">
           {/* <div className='text-white'>{track}</div> */}
           <div className="text-white fst-italic fw-light">{artist}</div>

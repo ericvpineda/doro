@@ -1,6 +1,6 @@
 import React, { FC, useEffect } from "react";
 import styles from "./Profile.module.css";
-import {request} from "../../../Utils/SpotifyPlayerUtils";
+import {PlayerActions, Status} from "../../../Utils/SpotifyUtils";
 
 interface Props {
   signOut: () => void;
@@ -14,23 +14,15 @@ const Profile: FC<Props> = (props) => {
   };
 
   useEffect(() => {
-    chrome.storage.local.get(
-      ["accessToken", "profileUrl", "signedIn"],
-      (res) => {
-        if (res.signedIn && res.profileUrl != "") {
-          setProfileUrl(res.profileUrl);
-        } else if (res.accessToken) {
-          request("GET", "", res.accessToken)
-            .then((res: any) => {
-              return res.json();
-            })
-            .then((data: any) => {
-              setProfileUrl(data.images[0].url);
-              chrome.storage.local.set({ profileUrl: data.images[0].url });
-            });
+      chrome.runtime.sendMessage({ message: PlayerActions.GETPROFILE }, (res) => {
+        if (res.status === Status.SUCCESS) {
+          setProfileUrl(res.data);
+        } else if (res.status === Status.FAILURE) {
+          console.log(res.error);
+        } else {
+          console.log("Unknown error when getting profile url.");
         }
-      }
-    );
+      })
   }, []);
 
   return (
