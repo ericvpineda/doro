@@ -18,8 +18,13 @@ const Timer: FC<Prop> = (props) => {
   };
 
   useEffect(() => {
-    chrome.storage.local.get(["signedIn"], (result) => {
-      setSignedIn(result.signedIn);
+    chrome.storage.local.get(["signedIn", "endTime", "accessToken"], (res) => {
+      let cacheSignedIn = res.signedIn;
+      if (res.endTime <= new Date().getTime()) {
+        cacheSignedIn = false;
+        chrome.storage.local.set({ signedIn: cacheSignedIn });
+      }
+      setSignedIn(cacheSignedIn);
     });
   }, []);
 
