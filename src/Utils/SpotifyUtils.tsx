@@ -3,7 +3,8 @@ enum PlayerActions {
   PLAY,
   NEXT, 
   PREVIOUS, 
-  GETPROFILE, 
+  GET_PROFILE, 
+  GET_CURRENTLY_PLAYING
 }
 
 enum Status {

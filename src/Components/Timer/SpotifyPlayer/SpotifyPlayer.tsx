@@ -1,12 +1,12 @@
 import React, { FC, Fragment, useState, useEffect } from "react";
 import { PlayFill, SkipEndFill, SkipStartFill } from "react-bootstrap-icons";
+import { PlayerActions, Status } from "../../../Utils/SpotifyUtils";
 
 const SpotifyPlayer: FC = (props) => {
   const [artist, setArtist] = useState("");
   const [track, setTrack] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
-  const [accessToken, setAccessToken] = useState("");
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [albumUrl, setAlbumUrl] = useState("");
+  // const [isPlaying, setIsPlaying] = useState(false);
 
   // Get accesstoken and initial track data (on initial load
   // - issue: multiple calls to spotify api
@@ -20,9 +20,9 @@ const SpotifyPlayer: FC = (props) => {
     //     request("GET", "/player/currently-playing", res.accessToken)
     //       .then((res) => res.json())
     //       .then((data) => {
-    //         setTrack(data.item.name);
-    //         setArtist(data.item.artists[0].name);
-    //         setImageUrl(data.item.album.images[0].url);
+            // setTrack(data.item.name);
+            // setArtist(data.item.artists[0].name);
+            // setAlbumUrl(data.item.album.images[0].url);
     //       })
     //       .catch((e) => {
     //         console.log(e);
@@ -30,6 +30,22 @@ const SpotifyPlayer: FC = (props) => {
     //   }
     // });
   }, []);
+
+  useEffect(() => {
+    chrome.runtime.sendMessage({ message: PlayerActions.GET_CURRENTLY_PLAYING }, (res) => {
+      if (res.status === Status.SUCCESS) {
+        setTrack(res.data.track);
+        setArtist(res.data.artist);
+        setAlbumUrl(res.data.albumUrl);
+      } else if (res.status === Status.FAILURE) {
+        console.log(res);
+      } else if (res.status === Status.ERROR) {
+        console.log(res);
+      } else {
+        console.log("Unknown error when getting profile url.");
+      }
+    })
+}, []);
 
   // Note: Use later when implementing free spotify account
   // function Pause () {
@@ -84,7 +100,7 @@ const SpotifyPlayer: FC = (props) => {
     <Fragment>
       <div className="d-flex flex-column align-items-center">
         // TODO: Put filler image here (to wait for loading images)
-        {imageUrl && <img className="w-50 h-50 mb-3" src={imageUrl} alt="" />}
+        {albumUrl && <img className="w-50 h-50 mb-3" src={albumUrl} alt="" />}
         <div className="text-center mb-2">
           {/* <div className='text-white'>{track}</div> */}
           <div className="text-white fst-italic fw-light">{artist}</div>

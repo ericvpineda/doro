@@ -14,11 +14,13 @@ const Profile: FC<Props> = (props) => {
   };
 
   useEffect(() => {
-      chrome.runtime.sendMessage({ message: PlayerActions.GETPROFILE }, (res) => {
+      chrome.runtime.sendMessage({ message: PlayerActions.GET_PROFILE }, (res) => {
         if (res.status === Status.SUCCESS) {
-          setProfileUrl(res.data);
+          setProfileUrl(res.data.profileUrl);
         } else if (res.status === Status.FAILURE) {
-          console.log(res.error);
+          console.log(res);
+        } else if (res.status === Status.ERROR) {
+          console.log(res);
         } else {
           console.log("Unknown error when getting profile url.");
         }

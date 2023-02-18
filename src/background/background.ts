@@ -19,29 +19,56 @@ const request = async (method: string, path: string, accessToken: string) => {
 const getUserProfile = async (params: any) => {
   let response = {};
   if (params.profileUrl !== "") {
-    response = { status: Status.SUCCESS, data: params.profileUrl }
+    response = {
+      status: Status.SUCCESS,
+      data: { profileUrl: params.profileUrl },
+    };
   } else {
     await request("GET", "", params.accessToken)
-    .then((res) => res.json())
-    .then((data) => {
-      const profileUrl = data.images[0].url;
-      response = { status: Status.SUCCESS, data: profileUrl };
-      chrome.storage.local.set({"profileUrl": profileUrl});
-    })
-    .catch((err) => {
-      response = { status: Status.FAILURE, error: err };
-    });
+      .then((res) => res.json())
+      .then((data) => {
+        const profileUrl = data.images[0].url;
+        response = { status: Status.SUCCESS, data: { profileUrl } };
+        chrome.storage.local.set({ profileUrl: profileUrl });
+      })
+      .catch((err) => {
+        response = { status: Status.FAILURE, error: err };
+      });
   }
   return response;
 };
 
+// Helper method to get currenlty playing song
+// - Note: Cant cache data since user could change song on different player
+const getCurrentlyPlaying = async (params: any) => {
+  let response = {};
+  await request("GET", "/player/currently-playing", params.accessToken)
+    .then((res) => res.json())
+    .then((data) => {
+      response = {
+        status: Status.SUCCESS,
+        data: {
+          track: data.item.name,
+          artist: data.item.artists[0].name,
+          albumUrl: data.item.album.images[0].url,
+          duration: data.item.duration_ms,
+        },
+      };
+    })
+    .catch((err) => {
+      response = { status: Status.FAILURE, error: err };
+    });
+  return response;
+};
+
 // Listen for spotify playback actions events
+// - Note:
+//  - should condition check endtime instead of signedIn?
 chrome.runtime.onMessage.addListener((req, sender, res) => {
   chrome.storage.local.get(
     ["accessToken", "profileUrl", "signedIn"],
     (result: any) => {
       if (result.signedIn && result.accessToken) {
-        const accessToken = result.accessToken;
         switch (req.message) {
           case PlayerActions.PLAY:
             break;
@@ -51,8 +78,11 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
             break;
           case PlayerActions.PREVIOUS:
             break;
-          case PlayerActions.GETPROFILE:
+          case PlayerActions.GET_PROFILE:
             getUserProfile(result).then((response) => res(response));
+            break;
+          case PlayerActions.GET_CURRENTLY_PLAYING:
+            getCurrentlyPlaying(result).then((response) => res(response));
             break;
           default:
             res({
