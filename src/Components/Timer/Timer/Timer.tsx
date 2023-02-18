@@ -31,7 +31,7 @@ const Timer: FC<Prop> = (props) => {
   return (
     <Fragment>
       <Login setSignedIn={setSignedIn}></Login>
-      <div className={styles.body}>
+      <div id="timer" className={styles.body}>
         {signedIn ? <SpotifyPlayer></SpotifyPlayer> : <Clock></Clock>}
         <FocusText></FocusText>
       </div>

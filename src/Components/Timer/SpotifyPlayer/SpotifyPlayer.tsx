@@ -13,23 +13,6 @@ const SpotifyPlayer: FC = (props) => {
   //  - possible solutions:
   //      - save artist data into storage?
   //          - issue: what if change track on diff device
-  useEffect(() => {
-    // chrome.storage.local.get(["accessToken", "endTime", "signedIn"], (res) => {
-    //   const currTime = new Date().getTime();
-    //   if (res.signedIn && currTime < res.endTime) {
-    //     request("GET", "/player/currently-playing", res.accessToken)
-    //       .then((res) => res.json())
-    //       .then((data) => {
-            // setTrack(data.item.name);
-            // setArtist(data.item.artists[0].name);
-            // setAlbumUrl(data.item.album.images[0].url);
-    //       })
-    //       .catch((e) => {
-    //         console.log(e);
-    //       });
-    //   }
-    // });
-  }, []);
 
   useEffect(() => {
     chrome.runtime.sendMessage({ message: PlayerActions.GET_CURRENTLY_PLAYING }, (res) => {
@@ -68,20 +51,7 @@ const SpotifyPlayer: FC = (props) => {
   //   })
   // })
 
-  //   chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  //     console.log("Listener:", tab.url)
-  //   }
-  // )
-  // window.onSpotifyWebPlaybackSDKReady = () => {
-  //   console.log("Ready");
-  //   const player = new Spotify.Player({
-  //     name: "Eric",
-  //     getOAuthToken: () => {accessToken},
-  //     volume: 0.5
-  //   })
-  // }
-
-  const togglePlay = () => {
+  const togglePause = () => {
     // request("PUT", "/player/pause", accessToken).catch((e) => console.log(e));
     // Note: used for html manipulation (script injection)
     // chrome.storage.local.get(["tabId"], (res) => {
@@ -94,15 +64,17 @@ const SpotifyPlayer: FC = (props) => {
     // })
     // setIsPlaying(!isPlaying);
     // console.log(typeof player)
+    console.log("togglePause");
+
   };
 
   return (
     <Fragment>
-      <div className="d-flex flex-column align-items-center">
+      <div className="d-flex flex-column align-items-center justify-content-center">
         // TODO: Put filler image here (to wait for loading images)
-        {albumUrl && <img className="w-50 h-50 mb-3" src={albumUrl} alt="" />}
+        {albumUrl && <img className="w-25 h-25 mb-3" src={albumUrl} alt="" />}
         <div className="text-center mb-2">
-          {/* <div className='text-white'>{track}</div> */}
+          <div className='text-white'>{track}</div>
           <div className="text-white fst-italic fw-light">{artist}</div>
         </div>
         <div>
@@ -112,8 +84,7 @@ const SpotifyPlayer: FC = (props) => {
             size={20}
           ></SkipStartFill>
           <PlayFill
-            onClick={togglePlay}
-            // id="togglePlay"
+            onClick={togglePause}
             className="me-1"
             color="white"
             size={30}

@@ -39,7 +39,11 @@ const getUserProfile = async (params: any) => {
 };
 
 // Helper method to get currenlty playing song
-// - Note: Cant cache data since user could change song on different player
+// - Note: 
+//  - Cant cache data since user could change song on different player
+//  - TODO: 
+//    - add time scale bar to gui
+//    - Limit length of album name and artist name (or add revolving style)
 const getCurrentlyPlaying = async (params: any) => {
   let response = {};
   await request("GET", "/player/currently-playing", params.accessToken)

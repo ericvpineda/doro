@@ -1,4 +1,4 @@
-import React, {FC, useState, useEffect} from 'react'
+import React, {FC, useState, Fragment} from 'react'
 import styles from './FocusText.module.css'
 
 const FocusText: FC = () => {
@@ -11,12 +11,12 @@ const FocusText: FC = () => {
     })
 
     return (
-        <footer className={styles.focusBox}>
-            {description === "" ? 
-            <div>Doro</div> :
-            <div>Task: <span className={styles.description}>{description}</span></div>
-            }
-        </footer>
+            <Fragment>
+                {description === "" ?
+                <footer className={styles.focusBox}>Doro</footer> :
+                <footer className={styles.focusBox}>Task: <span className={styles.description}>{description}</span></footer>
+                }
+            </Fragment>
     )
 }
 
