@@ -1,0 +1,15 @@
+.image {
+    width: 10rem;
+    height: 10rem;
+
+    margin-bottom: 0.5rem;
+}
+
+.playerContainer {
+    margin-bottom: 1rem;
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}

@@ -1,11 +1,12 @@
 import React, { FC, Fragment, useState, useEffect } from "react";
+import { PlayerActions, Status } from "../../../Utils/SpotifyUtils";
+import styles from "./SpotifyPlayer.module.css";
 import {
   PlayFill,
   SkipEndFill,
   SkipStartFill,
   PauseFill,
 } from "react-bootstrap-icons";
-import { PlayerActions, Status } from "../../../Utils/SpotifyUtils";
 
 const SpotifyPlayer: FC = (props) => {
   const [artist, setArtist] = useState("");
@@ -19,41 +20,43 @@ const SpotifyPlayer: FC = (props) => {
   //      - save artist data into storage?
   //          - issue: what if change track on diff device
 
-  useEffect(() => getTrack(), []);
-
+  
   // Note: Use later when implementing free spotify account
   // function Pause () {
-  //   const btn = document.querySelector('[data-testid="control-button-playpause"]') as HTMLElement;
-  //   if (btn !== null && btn.getAttribute('aria-label') === "Pause") {
-  //     btn.click();
-  //     return "pause"
-  //   }
-  // }
-
-  // Note: Use later when spotify tab is removed
-  // chrome.tabs.query({lastFocusedWindow: true}, tabs => {
-  //   console.log(tabs)
-  //   tabs.forEach(tab => {
-  //     console.log(tab.url)
-  //     const re = new RegExp("^https:\/\/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.spotify.com");
-  //     if (tab.url != null ) {
-  //       console.log(re.test(tab.url))
-  //     }
-  //   })
-  // })
-
-  // request("PUT", "/player/pause", accessToken).catch((e) => console.log(e));
+    //   const btn = document.querySelector('[data-testid="control-button-playpause"]') as HTMLElement;
+    //   if (btn !== null && btn.getAttribute('aria-label') === "Pause") {
+      //     btn.click();
+      //     return "pause"
+      //   }
+      // }
+      
+      // Note: Use later when spotify tab is removed
+      // chrome.tabs.query({lastFocusedWindow: true}, tabs => {
+        //   console.log(tabs)
+        //   tabs.forEach(tab => {
+          //     console.log(tab.url)
+          //     const re = new RegExp("^https:\/\/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.spotify.com");
+          //     if (tab.url != null ) {
+            //       console.log(re.test(tab.url))
+            //     }
+            //   })
+            // })
+            
+            // request("PUT", "/player/pause", accessToken).catch((e) => console.log(e));
   // Note: used for html manipulation (script injection)
   // chrome.storage.local.get(["tabId"], (res) => {
-  //   console.log(res.tabId)
-  // chrome.scripting.executeScript({
-  //   target: { tabId: res.tabId },
-  //   func: Pause,
-  // })
-  // .then((injectedResults) => {console.log(injectedResults);})
-  // })
-  // setIsPlaying(!isPlaying);
-  // console.log(typeof player)
+    //   console.log(res.tabId)
+    // chrome.scripting.executeScript({
+      //   target: { tabId: res.tabId },
+      //   func: Pause,
+      // })
+      // .then((injectedResults) => {console.log(injectedResults);})
+      // })
+      // setIsPlaying(!isPlaying);
+      // console.log(typeof player)
+
+      // On popup open, get track data
+      useEffect(() => getTrack(), []);
 
   const getTrack = () => {
     chrome.runtime.sendMessage(
@@ -133,9 +136,9 @@ const SpotifyPlayer: FC = (props) => {
 
   return (
     <Fragment>
-      <div className="d-flex flex-column align-items-center justify-content-center">
+      <div className={styles.playerContainer}>
         // TODO: Put filler image here (to wait for loading images)
-        {albumUrl && <img className="w-25 h-25 mb-2" src={albumUrl} alt="" />}
+        {albumUrl && <img className={styles.image} src={albumUrl} alt="" />}
         <div className="text-center mb-2">
           <div className="text-white">{track}</div>
           <div className="text-white fst-italic fw-light">{artist}</div>
@@ -147,7 +150,6 @@ const SpotifyPlayer: FC = (props) => {
             color="white"
             size={20}
           ></SkipStartFill>
-
           {!isPlaying ? (
             <PlayFill
               onClick={trackPlay}
@@ -158,16 +160,14 @@ const SpotifyPlayer: FC = (props) => {
           ) : (
             <PauseFill
               onClick={trackPause}
-              className="me-1"
+              className="me-2"
               color="white"
               size={30}
             ></PauseFill>
           )}
-
           <SkipEndFill onClick={trackNext} color="white" size={20}></SkipEndFill>
         </div>
       </div>
-      {/* <button className="btn btn-success" onClick={getCurrentTrack}>Get Current</button> */}
     </Fragment>
   );
 };
