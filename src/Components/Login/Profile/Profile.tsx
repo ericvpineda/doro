@@ -1,6 +1,6 @@
 import React, { FC, useEffect } from "react";
-import styles from "./Profile.module.css";
 import {PlayerActions, Status} from "../../../Utils/SpotifyUtils";
+import "./Profile.css";
 
 interface Props {
   signOut: () => void;
@@ -28,20 +28,20 @@ const Profile: FC<Props> = (props) => {
   }, []);
 
   return (
-    <div className={styles.background}>
-      <button
-        className="btn btn-secondary dropdown-toggle"
-        type="button"
-        data-bs-toggle="dropdown"
-        aria-expanded="false"
-      >
-        <img src={profileUrl} className={styles.image} />
-      </button>
-      <ul className="dropdown-menu dropdown-menu-dark">
-        <li onClick={signOutHandler} className="text-center">
-          Sign out
-        </li>
-      </ul>
+    <div className="background">
+      <div className="btn-group">
+        <button
+          className="btn btn-secondary dropdown-toggle"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+        <img src={profileUrl} className="image"/>
+        </button>
+          <ul className="dropdown-menu dropdown-menu-dark">
+            <li onClick={signOutHandler} className="dropdown-item">Sign out</li>
+          </ul>
+      </div>
     </div>
   );
 };

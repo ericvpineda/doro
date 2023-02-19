@@ -134,10 +134,10 @@ const SpotifyPlayer: FC = (props) => {
     });
   };
 
+  // TODO: Put filler image here (to wait for loading images)
   return (
     <Fragment>
       <div className={styles.playerContainer}>
-        // TODO: Put filler image here (to wait for loading images)
         {albumUrl && <img className={styles.image} src={albumUrl} alt="" />}
         <div className="text-center mb-2">
           <div className="text-white">{track}</div>

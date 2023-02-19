@@ -1,0 +1,29 @@
+.background {
+
+    position: fixed;
+    top: 0.7rem;
+    right: 4rem;
+
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.image {
+    
+    max-height: 2.5rem;
+    max-width: 2.5rem;
+
+    border-radius: 50%;
+    cursor: pointer;
+
+}
+
+ul.dropdown-menu {
+    min-width: 0;
+    text-align: center;
+    --bs-dropdown-padding-y: 0;
+}
+
+li.dropdown-item {
+    padding: 0.5rem 2rem;
+}
