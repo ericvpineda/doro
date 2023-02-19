@@ -55,7 +55,8 @@ const getCurrentlyPlaying = async (params: any) => {
           track: data.item.name,
           artist: data.item.artists[0].name,
           albumUrl: data.item.album.images[0].url,
-          duration: data.item.duration_ms,
+          isPlaying: data.is_playing,
+          // duration: data.item.duration_ms,
         },
       };
     })
@@ -65,9 +66,10 @@ const getCurrentlyPlaying = async (params: any) => {
   return response;
 };
 
-const trackPause = async (params: any) => {
+// Helper method to respond to player requests
+const trackCommand = async (params: any, method: string, path: string) => {
   let response = {};
-  await request("PUT", "/player/pause", params.accessToken)
+  await request(method, "/player/" + path, params.accessToken)
     .then(() => { response = { status: Status.SUCCESS }; })
     .catch((err) => {
       response = { status: Status.FAILURE, error: err };
@@ -85,13 +87,16 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
       if (result.signedIn && result.accessToken) {
         switch (req.message) {
           case PlayerActions.PLAY:
+            trackCommand(result, "PUT", "play").then((response) => {res(response)})
             break;
           case PlayerActions.PAUSE:
-            trackPause(result).then((response) => res(response));
+            trackCommand(result, "PUT", "pause").then((response) => res(response));
             break;
           case PlayerActions.NEXT:
+            trackCommand(result, "POST", "next").then((response) => res(response));
             break;
           case PlayerActions.PREVIOUS:
+            trackCommand(result, "POST", "previous").then((response) => res(response));
             break;
           case PlayerActions.GET_PROFILE:
             getUserProfile(result).then((response) => res(response));
