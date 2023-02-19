@@ -65,6 +65,16 @@ const getCurrentlyPlaying = async (params: any) => {
   return response;
 };
 
+const trackPause = async (params: any) => {
+  let response = {};
+  await request("PUT", "/player/pause", params.accessToken)
+    .then(() => { response = { status: Status.SUCCESS }; })
+    .catch((err) => {
+      response = { status: Status.FAILURE, error: err };
+    });
+  return response;
+}
+
 // Listen for spotify playback actions events
 // - Note:
 //  - should condition check endtime instead of signedIn?
@@ -77,6 +87,7 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
           case PlayerActions.PLAY:
             break;
           case PlayerActions.PAUSE:
+            trackPause(result).then((response) => res(response));
             break;
           case PlayerActions.NEXT:
             break;

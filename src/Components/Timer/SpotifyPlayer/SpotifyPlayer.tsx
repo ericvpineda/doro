@@ -51,8 +51,7 @@ const SpotifyPlayer: FC = (props) => {
   //   })
   // })
 
-  const togglePause = () => {
-    // request("PUT", "/player/pause", accessToken).catch((e) => console.log(e));
+      // request("PUT", "/player/pause", accessToken).catch((e) => console.log(e));
     // Note: used for html manipulation (script injection)
     // chrome.storage.local.get(["tabId"], (res) => {
     //   console.log(res.tabId)
@@ -64,15 +63,26 @@ const SpotifyPlayer: FC = (props) => {
     // })
     // setIsPlaying(!isPlaying);
     // console.log(typeof player)
-    console.log("togglePause");
 
+  const trackPause = () => {
+    chrome.runtime.sendMessage({ message: PlayerActions.PAUSE }, (res) => {
+      if (res.status === Status.SUCCESS) {
+        // pass
+      } else if (res.status === Status.FAILURE) {
+        console.log(res);
+      } else if (res.status === Status.ERROR) {
+        console.log(res);
+      } else {
+        console.log("Unknown error when pausing track.");
+      }
+    })
   };
 
   return (
     <Fragment>
       <div className="d-flex flex-column align-items-center justify-content-center">
         // TODO: Put filler image here (to wait for loading images)
-        {albumUrl && <img className="w-25 h-25 mb-3" src={albumUrl} alt="" />}
+        {albumUrl && <img className="w-25 h-25 mb-2" src={albumUrl} alt="" />}
         <div className="text-center mb-2">
           <div className='text-white'>{track}</div>
           <div className="text-white fst-italic fw-light">{artist}</div>
@@ -84,7 +94,7 @@ const SpotifyPlayer: FC = (props) => {
             size={20}
           ></SkipStartFill>
           <PlayFill
-            onClick={togglePause}
+            onClick={trackPause}
             className="me-1"
             color="white"
             size={30}
