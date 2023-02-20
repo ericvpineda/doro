@@ -4,7 +4,9 @@ enum PlayerActions {
   NEXT, 
   PREVIOUS, 
   GET_PROFILE, 
-  GET_CURRENTLY_PLAYING
+  GET_CURRENTLY_PLAYING,
+  SAVE_TRACK,
+  REMOVE_SAVED_TRACK
 }
 
 enum Status {

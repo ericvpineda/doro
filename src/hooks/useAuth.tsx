@@ -2,10 +2,12 @@ import React, { useState, useEffect } from "react";
 import generateChallenge from "../Utils/AuthUtils";
 const random = require("random-string-generator");
 
-// Helper object for argument into authentication functions 
+// Helper object for argument into authentication functions
 const client = {
   id: encodeURIComponent("9b8675b2d72647fb9fdd3c06474cfde9"),
-  scope: encodeURIComponent("streaming user-read-email user-read-currently-playing user-read-private user-modify-playback-state user-read-playback-state"),
+  scope: encodeURIComponent(
+    "user-library-read user-library-modify streaming user-read-email user-read-currently-playing user-read-private user-modify-playback-state user-read-playback-state"
+  ),
   uri: chrome.identity.getRedirectURL(),
   state: encodeURIComponent(random(43)),
   authCode: "",
@@ -47,7 +49,7 @@ const useAuth = (): [boolean, () => void, () => void] => {
     const headers = {
       "Content-Type": "application/x-www-form-urlencoded",
     };
-        // Post request to get access tokenx
+    // Post request to get access tokenx
     return await fetch(url.href, {
       method: "POST",
       headers,
@@ -70,7 +72,6 @@ const useAuth = (): [boolean, () => void, () => void] => {
       body: params.toString(),
     });
   };
-
 
   // Helper function to set user credentials
   const setAccessTokenHandler = (data: any) => {
@@ -95,12 +96,12 @@ const useAuth = (): [boolean, () => void, () => void] => {
       expiresIn: "",
       accessToken: "",
       endTime: "",
-      profileUrl: ""
+      profileUrl: "",
     });
     setSignedIn(false);
   };
 
-  // Launch user auth flow 
+  // Launch user auth flow
   const trySignIn = () => {
     if (!signedIn) {
       const [challenge, verifier] = generateChallenge();
@@ -110,7 +111,6 @@ const useAuth = (): [boolean, () => void, () => void] => {
       chrome.identity.launchWebAuthFlow(
         { url: createAuthURL(client), interactive: true },
         (response) => {
-          
           if (chrome.runtime.lastError) {
             console.log("error: " + chrome.runtime.lastError.message);
             return;
@@ -144,7 +144,7 @@ const useAuth = (): [boolean, () => void, () => void] => {
       );
     }
   };
-  
+
   // Update state variables upon opening extension
   useEffect(() => {
     chrome.storage.local.get(

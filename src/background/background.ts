@@ -12,7 +12,7 @@ const request = async (method: string, path: string, accessToken: string) => {
     "Content-Type": "application/json",
     Authorization: `Bearer ${accessToken}`,
   };
-  return await fetch(url.href, { method, headers });
+  return await fetch(url.href, { method, headers});
 };
 
 // Helper method to get get user profile
@@ -56,6 +56,7 @@ const getCurrentlyPlaying = async (params: any) => {
           artist: data.item.artists[0].name,
           albumUrl: data.item.album.images[0].url,
           isPlaying: data.is_playing,
+          id: data.item.id
           // duration: data.item.duration_ms,
         },
       };
@@ -69,7 +70,7 @@ const getCurrentlyPlaying = async (params: any) => {
 // Helper method to respond to player requests
 const trackCommand = async (params: any, method: string, path: string) => {
   let response = {};
-  await request(method, "/player/" + path, params.accessToken)
+  await request(method, path, params.accessToken)
     .then(() => { response = { status: Status.SUCCESS }; })
     .catch((err) => {
       response = { status: Status.FAILURE, error: err };
@@ -87,22 +88,26 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
       if (result.signedIn && result.accessToken) {
         switch (req.message) {
           case PlayerActions.PLAY:
-            trackCommand(result, "PUT", "play").then((response) => {res(response)})
+            trackCommand(result, "PUT", "/player/play").then((response) => {res(response)})
             break;
           case PlayerActions.PAUSE:
-            trackCommand(result, "PUT", "pause").then((response) => res(response));
+            trackCommand(result, "PUT", "/player/pause").then((response) => res(response));
             break;
           case PlayerActions.NEXT:
-            trackCommand(result, "POST", "next").then((response) => res(response));
+            trackCommand(result, "POST", "/player/next").then((response) => res(response));
             break;
           case PlayerActions.PREVIOUS:
-            trackCommand(result, "POST", "previous").then((response) => res(response));
+            trackCommand(result, "POST", "/player/previous").then((response) => res(response));
             break;
           case PlayerActions.GET_PROFILE:
             getUserProfile(result).then((response) => res(response));
             break;
           case PlayerActions.GET_CURRENTLY_PLAYING:
             getCurrentlyPlaying(result).then((response) => res(response));
+            break;
+          case PlayerActions.SAVE_TRACK:
+            const query = new URLSearchParams({"ids": req.query});
+            trackCommand(result, "PUT", "/tracks?"+ query.toString()).then((response) => res(response));
             break;
           default:
             res({

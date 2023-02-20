@@ -32,4 +32,5 @@
     position: fixed;
     top: 4.5rem;
     right: 2rem;
+    cursor: pointer;
 }
