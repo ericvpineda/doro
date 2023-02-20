@@ -3,7 +3,7 @@ import {FC, useState, Fragment} from 'react'
 import Description from '../Description/Description';
 import Time from '../Time/Time';
 import styles from './UserInput.module.css'
-import { Stopwatch } from "react-bootstrap-icons";
+import { ArrowReturnRight } from "react-bootstrap-icons";
 
 interface pageUpdate {
     setShowTimerHandler: (param: boolean) => void;
@@ -58,7 +58,7 @@ const UserInput: FC<pageUpdate> = (props): JSX.Element => {
                 <button onClick={onSubmitHandler} className='btn btn-success mt-3'>Start</button>
                 {showError && <div className='text-danger fs-6'>Input valid hours or minutes.</div>}
             </div>
-            <Stopwatch onClick={showTimerHandler} className={styles.clockButton}></Stopwatch>
+            <ArrowReturnRight onClick={showTimerHandler} className={styles.clockButton}></ArrowReturnRight>
         </Fragment>
     )}
 
