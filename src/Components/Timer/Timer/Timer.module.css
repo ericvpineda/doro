@@ -12,14 +12,24 @@
 
 
 .editButton {
-    height: 2rem;
+    height: 1.8rem;
     width: 2rem;
 
     color: white;
 
     position: absolute;
-    top: 1rem;
-    right: 1rem;
+    top: 2rem;
+    right: 2rem;
     cursor: pointer;
 }
 
+.switch {
+    height: 2rem;
+    width: 2rem;
+
+    color: white;
+    
+    position: fixed;
+    top: 4.5rem;
+    right: 2rem;
+}

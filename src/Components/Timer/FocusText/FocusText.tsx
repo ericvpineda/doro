@@ -12,7 +12,7 @@ const FocusText: FC = () => {
 
     return (
             <Fragment>
-                {description === "" ?
+                {description === undefined ?
                 <footer className={styles.focusBox}>Doro</footer> :
                 <footer className={styles.focusBox}>Task: <span className={styles.description}>{description}</span></footer>
                 }

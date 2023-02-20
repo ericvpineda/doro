@@ -95,7 +95,7 @@ const useAuth = (): [boolean, () => void, () => void] => {
       expiresIn: "",
       accessToken: "",
       endTime: "",
-      profileUrl: "",
+      profileUrl: ""
     });
     setSignedIn(false);
   };
