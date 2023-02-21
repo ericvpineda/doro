@@ -8,7 +8,15 @@ import {
   PauseFill,
   Heart,
   HeartFill,
+  HeartHalf,
+  VolumeOff,
 } from "react-bootstrap-icons";
+import { Box, Grid, Slider, IconButton } from "@material-ui/core";
+import VolumeDownIcon from "@material-ui/icons/VolumeDown";
+import VolumeUpIcon from "@material-ui/icons";
+import VolumeOffIcon from "@material-ui/icons";
+import { createTheme } from "@material-ui/core/styles";
+import { ThemeProvider } from "@material-ui/styles";
 
 const SpotifyPlayer: FC = (props) => {
   const [artist, setArtist] = useState("");
@@ -17,6 +25,7 @@ const SpotifyPlayer: FC = (props) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [trackId, setTrackId] = useState("");
   const [trackSaved, setTrackSaved] = useState(false);
+  const [volume, setVolume] = useState(0);
 
   // Get accesstoken and initial track data (on initial load
   // - issue: multiple calls to spotify api
@@ -173,6 +182,63 @@ const SpotifyPlayer: FC = (props) => {
         }
       }
     );
+  };
+
+  const showHeart = () => {
+    if (artist === "") {
+      return (
+        <HeartHalf
+          className={styles.playerControls + " me-3"}
+          size={18}
+        ></HeartHalf>
+      );
+    } else if (trackSaved) {
+      return (
+        <HeartFill
+          onClick={trackRemoveSaved}
+          className={styles.playerControls + " me-3"}
+          size={18}
+        ></HeartFill>
+      );
+    } else {
+      return (
+        <Heart
+          onClick={trackSave}
+          className={styles.playerControls + " me-3"}
+          size={18}
+        ></Heart>
+      );
+    }
+  };
+
+  // Show volume control when mouse hover over volume icon
+  const showVolume = () => {
+    console.log("Show volume");
+  };
+
+  const muiTheme = createTheme({
+    overrides: {
+      MuiSlider: {
+        thumb: {
+          color: "green",
+        },
+        track: {
+          color: "green",
+        },
+        rail: {
+          color: "black",
+        },
+      },
+    },
+  });
+
+  const volumeChangeUI = (value: any) => {
+    setVolume(value);
+  };
+  console.log("Render spotify player");
+
+  const volumeChangeSpotify = (value: any) => {
+    console.log(value);
   }
 
   // TODO: Put filler image here (to wait for loading images)
@@ -184,20 +250,9 @@ const SpotifyPlayer: FC = (props) => {
           <div className="text-white">{track}</div>
           <div className="text-white fst-italic fw-light">{artist}</div>
         </div>
-        <div>
-          {trackSaved ? (
-            <HeartFill
-              onClick={trackRemoveSaved}
-              className={styles.playerControls + " me-3"}
-              size={18}
-            ></HeartFill>
-          ) : (
-            <Heart
-              onClick={trackSave}
-              className={styles.playerControls + " me-3"}
-              size={18}
-            ></Heart>
-          )}
+        <div className="d-flex flex-row justify-content-center align-items-center">
+          <Box width={100}></Box>
+          {showHeart()}
           <SkipStartFill
             onClick={trackPrevious}
             className={styles.playerControls + " me-2"}
@@ -222,6 +277,25 @@ const SpotifyPlayer: FC = (props) => {
             color="white"
             size={20}
           ></SkipEndFill>
+          <Box width={125}>
+            <Grid container spacing={0} alignItems="center">
+              <Grid item md>
+                <IconButton>
+                  <VolumeDownIcon className={styles.playerControls} />
+                </IconButton>
+              </Grid>
+              <Grid item xs>
+                <ThemeProvider theme={muiTheme}>
+                  <Slider
+                    className="pb-2"
+                    value={volume}
+                    onChange={(_, val) => volumeChangeUI(val)}
+                    onChangeCommitted={(_, val) => volumeChangeSpotify(val)}
+                  ></Slider>
+                </ThemeProvider>
+              </Grid>
+            </Grid>
+          </Box>
         </div>
       </div>
     </Fragment>

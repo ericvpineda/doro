@@ -54,6 +54,8 @@ interface TrackData {
 //  - TODO: 
 //    - add time scale bar to gui
 //    - Limit length of album name and artist name (or add revolving style)
+// - Question
+//  - 
 const getCurrentlyPlaying = async (params: any) => {
   let response = {
     status: Status.NOT_SET,
