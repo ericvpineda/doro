@@ -38,6 +38,16 @@ const getUserProfile = async (params: any) => {
   return response;
 };
 
+// Used to currently playing track data
+interface TrackData {
+  id: string,
+  track: string,
+  artist: string,
+  albumUrl: string,
+  isPlaying: boolean,
+  isSaved: boolean,
+}
+
 // Helper method to get currenlty playing song
 // - Note: 
 //  - Cant cache data since user could change song on different player
@@ -45,24 +55,37 @@ const getUserProfile = async (params: any) => {
 //    - add time scale bar to gui
 //    - Limit length of album name and artist name (or add revolving style)
 const getCurrentlyPlaying = async (params: any) => {
-  let response = {};
-  await request("GET", "/player/currently-playing", params.accessToken)
+  let response = {
+    status: Status.NOT_SET,
+    data: {},
+    error: ""
+  };
+  let trackData: TrackData;
+  const accessToken = params.accessToken
+  // Get track, artist, album image, isPlaying, and track id
+  await request("GET", "/player/currently-playing", accessToken)
     .then((res) => res.json())
     .then((data) => {
-      response = {
-        status: Status.SUCCESS,
-        data: {
+      response.status = Status.SUCCESS
+      trackData = {
           track: data.item.name,
           artist: data.item.artists[0].name,
           albumUrl: data.item.album.images[0].url,
           isPlaying: data.is_playing,
-          id: data.item.id
+          id: data.item.id,
+          isSaved: false
           // duration: data.item.duration_ms,
-        },
-      };
+        }
+      const query = new URLSearchParams({"ids": trackData.id});
+      return request("GET", "/tracks/contains?" + query.toString(), accessToken)
+    })
+    .then((res) => res.json())
+    .then((data) => {
+      trackData.isSaved = data[0];
+      response.data = trackData;
     })
     .catch((err) => {
-      response = { status: Status.FAILURE, error: err };
+      response = { status: Status.FAILURE, data: {}, error: err };
     });
   return response;
 };

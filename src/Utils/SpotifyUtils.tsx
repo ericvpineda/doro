@@ -10,7 +10,8 @@ enum PlayerActions {
 }
 
 enum Status {
-  SUCCESS = 0,
+  NOT_SET = -1,
+  SUCCESS,
   FAILURE,
   ERROR
 }

@@ -71,6 +71,7 @@ const SpotifyPlayer: FC = (props) => {
           setAlbumUrl(res.data.albumUrl);
           setIsPlaying(res.data.isPlaying);
           setTrackId(res.data.id);
+          setTrackSaved(res.data.isSaved);
         } else if (res.status === Status.FAILURE) {
           console.log(res);
         } else if (res.status === Status.ERROR) {
