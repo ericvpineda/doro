@@ -86,6 +86,7 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
     ["accessToken", "profileUrl", "signedIn"],
     (result: any) => {
       if (result.signedIn && result.accessToken) {
+        let query: any;
         switch (req.message) {
           case PlayerActions.PLAY:
             trackCommand(result, "PUT", "/player/play").then((response) => {res(response)})
@@ -106,9 +107,13 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
             getCurrentlyPlaying(result).then((response) => res(response));
             break;
           case PlayerActions.SAVE_TRACK:
-            const query = new URLSearchParams({"ids": req.query});
+            query = new URLSearchParams({"ids": req.query});
             trackCommand(result, "PUT", "/tracks?"+ query.toString()).then((response) => res(response));
             break;
+          case PlayerActions.REMOVE_SAVED_TRACK: 
+            query = new URLSearchParams({"ids": req.query});
+            trackCommand(result, "DELETE", "/tracks?"+ query.toString()).then((response) => res(response));
+            break
           default:
             res({
               status: Status.ERROR,

@@ -15,7 +15,8 @@ const SpotifyPlayer: FC = (props) => {
   const [track, setTrack] = useState("");
   const [albumUrl, setAlbumUrl] = useState("");
   const [isPlaying, setIsPlaying] = useState(false);
-  const [trackId, setTrackId] = useState("")
+  const [trackId, setTrackId] = useState("");
+  const [trackSaved, setTrackSaved] = useState(false);
 
   // Get accesstoken and initial track data (on initial load
   // - issue: multiple calls to spotify api
@@ -69,7 +70,7 @@ const SpotifyPlayer: FC = (props) => {
           setArtist(res.data.artist);
           setAlbumUrl(res.data.albumUrl);
           setIsPlaying(res.data.isPlaying);
-          setTrackId(res.data.id)
+          setTrackId(res.data.id);
         } else if (res.status === Status.FAILURE) {
           console.log(res);
         } else if (res.status === Status.ERROR) {
@@ -109,7 +110,6 @@ const SpotifyPlayer: FC = (props) => {
     });
   };
 
-
   const trackNext = () => {
     chrome.runtime.sendMessage({ message: PlayerActions.NEXT }, (res) => {
       if (res.status === Status.SUCCESS) {
@@ -138,20 +138,40 @@ const SpotifyPlayer: FC = (props) => {
     });
   };
 
+  // Save track to user LIKED playlist
   const trackSave = () => {
-    chrome.runtime.sendMessage({ message: PlayerActions.SAVE_TRACK, query: trackId }, (res) => {
-      if (res.status === Status.SUCCESS) {
-        // getTrack();
-        console.log("Track saved successfully.");
-
-      } else if (res.status === Status.FAILURE) {
-        console.log(res);
-      } else if (res.status === Status.ERROR) {
-        console.log(res);
-      } else {
-        console.log("Unknown error when getting previous track.");
+    chrome.runtime.sendMessage(
+      { message: PlayerActions.SAVE_TRACK, query: trackId },
+      (res) => {
+        if (res.status === Status.SUCCESS) {
+          setTrackSaved(true);
+        } else if (res.status === Status.FAILURE) {
+          console.log(res);
+        } else if (res.status === Status.ERROR) {
+          console.log(res);
+        } else {
+          console.log("Unknown error when saving user track.");
+        }
       }
-    });
+    );
+  };
+
+  // Remove track from user LIKED playlist
+  const trackRemoveSaved = () => {
+    chrome.runtime.sendMessage(
+      { message: PlayerActions.REMOVE_SAVED_TRACK, query: trackId },
+      (res) => {
+        if (res.status === Status.SUCCESS) {
+          setTrackSaved(false);
+        } else if (res.status === Status.FAILURE) {
+          console.log(res);
+        } else if (res.status === Status.ERROR) {
+          console.log(res);
+        } else {
+          console.log("Unknown error when removing user track.");
+        }
+      }
+    );
   }
 
   // TODO: Put filler image here (to wait for loading images)
@@ -164,8 +184,19 @@ const SpotifyPlayer: FC = (props) => {
           <div className="text-white fst-italic fw-light">{artist}</div>
         </div>
         <div>
-          <Heart onClick={trackSave} className={styles.playerControls + " me-3"} size={18}>
-          </Heart>
+          {trackSaved ? (
+            <HeartFill
+              onClick={trackRemoveSaved}
+              className={styles.playerControls + " me-3"}
+              size={18}
+            ></HeartFill>
+          ) : (
+            <Heart
+              onClick={trackSave}
+              className={styles.playerControls + " me-3"}
+              size={18}
+            ></Heart>
+          )}
           <SkipStartFill
             onClick={trackPrevious}
             className={styles.playerControls + " me-2"}
