@@ -7,7 +7,7 @@
 
 .playerContainer {
     margin-top: 1.5rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2.5rem;
     
     display: flex;
     flex-direction: column;
@@ -16,6 +16,24 @@
 }
 
 .playerControls {
+
+    margin-top: -0.8rem;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.playerControlIcons {
     color: white;
     cursor: pointer;
+}
+
+.playerSeekTrack {
+    position: fixed;
+    bottom: 1.7rem;
+}
+
+.playerSeekTime {
+    color: white;
 }

@@ -18,6 +18,7 @@ import VolumeOffIcon from "@material-ui/icons/VolumeOff";
 import { createTheme } from "@material-ui/core/styles";
 import { ThemeProvider } from "@material-ui/styles";
 import debounce from "lodash.debounce";
+import Typography from "@material-ui/core/Typography"
 
 const SpotifyPlayer: FC = (props) => {
   const [artist, setArtist] = useState("");
@@ -194,7 +195,7 @@ const SpotifyPlayer: FC = (props) => {
     if (artist === "") {
       return (
         <HeartHalf
-          className={styles.playerControls + " me-3"}
+          className={styles.playerControlIcons + " me-3"}
           size={18}
         ></HeartHalf>
       );
@@ -202,7 +203,7 @@ const SpotifyPlayer: FC = (props) => {
       return (
         <HeartFill
           onClick={trackRemoveSaved}
-          className={styles.playerControls + " me-3"}
+          className={styles.playerControlIcons + " me-3"}
           size={18}
         ></HeartFill>
       );
@@ -210,7 +211,7 @@ const SpotifyPlayer: FC = (props) => {
       return (
         <Heart
           onClick={trackSave}
-          className={styles.playerControls + " me-3"}
+          className={styles.playerControlIcons + " me-3"}
           size={18}
         ></Heart>
       );
@@ -280,11 +281,11 @@ const SpotifyPlayer: FC = (props) => {
 
   const getVolumeIcon = () => {
     if (volume === 0) {
-      return <VolumeOffIcon className={styles.playerControls} />;
+      return <VolumeOffIcon className={styles.playerControlIcons} />;
     } else if (volume < 50) {
-      return <VolumeDownIcon className={styles.playerControls} />;
+      return <VolumeDownIcon className={styles.playerControlIcons} />;
     } else {
-      return <VolumeUpIcon className={styles.playerControls} />;
+      return <VolumeUpIcon className={styles.playerControlIcons} />;
     }
   };
 
@@ -307,34 +308,34 @@ const SpotifyPlayer: FC = (props) => {
           <div className="text-white">{track}</div>
           <div className="text-white fst-italic fw-light">{artist}</div>
         </div>
-        <div className="d-flex flex-row justify-content-center align-items-center">
+        <div className={styles.playerControls}>
           <Box width={100}></Box>
           {showHeart()}
           <SkipStartFill
             onClick={trackPrevious}
-            className={styles.playerControls + " me-2"}
+            className={styles.playerControlIcons + " me-2"}
             size={20}
           ></SkipStartFill>
           {!isPlaying ? (
             <PlayFill
               onClick={trackPlay}
-              className={styles.playerControls + " me-2"}
+              className={styles.playerControlIcons + " me-2"}
               size={30}
             ></PlayFill>
           ) : (
             <PauseFill
               onClick={trackPause}
-              className={styles.playerControls + " me-2"}
+              className={styles.playerControlIcons + " me-2"}
               size={30}
             ></PauseFill>
           )}
           <SkipEndFill
-            className={styles.playerControls}
+            className={styles.playerControlIcons}
             onClick={trackNext}
             color="white"
             size={20}
           ></SkipEndFill>
-          <Box width={125}>
+          <Box width={130}>
             <Grid container spacing={0} alignItems="center">
               <Grid item md>
                 <IconButton
@@ -363,6 +364,34 @@ const SpotifyPlayer: FC = (props) => {
               </Grid>
             </Grid>
           </Box>
+          <div className={styles.playerSeekTrack}>
+            <Box width={350}>
+              <Grid container spacing={1} alignItems="center">
+              <Grid item className={styles.playerSeekTime + " me-2"}>
+                  <span>00</span>
+                  <span>:</span>
+                  <span>00</span>
+                </Grid>
+                <Grid item xs>
+                  <ThemeProvider theme={muiTheme}>
+                    <Slider
+                      className="pb-1"
+                      // value={volume}
+                      // onChange={(_, val) => debounceChangeHandler(val)}
+                      // onChangeCommitted={(_, val) =>
+                      //   trackVolumeChangeCommitted(val)
+                      // }
+                    ></Slider>
+                  </ThemeProvider>
+                </Grid>
+                <Grid item className={styles.playerSeekTime + " ms-2"}>
+                  <span>00</span>
+                  <span>:</span>
+                  <span>00</span>
+                </Grid>
+              </Grid>
+            </Box>
+          </div>
         </div>
       </div>
     </Fragment>
