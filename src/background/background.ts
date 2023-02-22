@@ -47,6 +47,8 @@ interface TrackData {
   isPlaying: boolean;
   deviceId: string;
   volumePercent: number;
+  progressMs: number;
+  durationMs: number;
   isSaved: boolean;
 }
 
@@ -80,7 +82,8 @@ const getCurrentlyPlaying = async (params: any) => {
         deviceId: data.device.id,
         volumePercent: data.device.volume_percent,
         isSaved: false,
-        // duration: data.item.duration_ms,
+        durationMs: data.item.duration_ms,
+        progressMs: data.progress_ms
       };
       const query = new URLSearchParams({ ids: trackData.id });
       return request(

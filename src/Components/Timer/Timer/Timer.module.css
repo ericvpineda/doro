@@ -18,8 +18,8 @@
     color: white;
 
     position: absolute;
-    top: 2rem;
-    right: 2rem;
+    top: 2.1rem;
+    right: 1rem;
     cursor: pointer;
 }
 
@@ -30,7 +30,7 @@
     color: white;
     
     position: fixed;
-    top: 4.5rem;
-    right: 2rem;
+    bottom: 4.5rem;
+    right: 1rem;
     cursor: pointer;
 }
