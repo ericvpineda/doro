@@ -46,6 +46,7 @@ interface TrackData {
   albumUrl: string;
   isPlaying: boolean;
   deviceId: string;
+  volumePercent: number;
   isSaved: boolean;
 }
 
@@ -77,6 +78,7 @@ const getCurrentlyPlaying = async (params: any) => {
         isPlaying: data.is_playing,
         id: data.item.id,
         deviceId: data.device.id,
+        volumePercent: data.device.volume_percent,
         isSaved: false,
         // duration: data.item.duration_ms,
       };
