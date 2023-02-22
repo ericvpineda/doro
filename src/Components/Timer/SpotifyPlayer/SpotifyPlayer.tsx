@@ -243,27 +243,25 @@ const SpotifyPlayer: FC = (props) => {
   const debounceChangeHandler = useMemo(() => debounce(volumeChangeUI, 25), []);
 
   // Get volume value after mouse-up from mouse click
-  const trackVolumeChangeCommitted = (percent: any) => {
-    if (volume !== percent) {
-      chrome.runtime.sendMessage(
-        { 
-          message: PlayerActions.SET_VOLUME,
-          query: { percent, deviceId },
-        },
-        (res) => {
-          if (res.status === Status.SUCCESS) {
-            // setTrackSaved(false);
-            // console.log("Volume was set successfully");
-          } else if (res.status === Status.FAILURE) {
-            console.log(res);
-          } else if (res.status === Status.ERROR) {
-            console.log(res);
-          } else {
-            console.log("Unknown error when setting track volume.");
-          }
+  const trackVolumeChangeCommitted = (volumePercent: any) => {
+    chrome.runtime.sendMessage(
+      { 
+        message: PlayerActions.SET_VOLUME,
+        query: { volumePercent, deviceId },
+      },
+      (res) => {
+        if (res.status === Status.SUCCESS) {
+          // setTrackSaved(false);
+          console.log("Volume was set successfully");
+        } else if (res.status === Status.FAILURE) {
+          console.log(res);
+        } else if (res.status === Status.ERROR) {
+          console.log(res);
+        } else {
+          console.log("Unknown error when setting track volume.");
         }
-      );
-    }
+      }
+    );
   };
 
   console.log("Render spotify player");
