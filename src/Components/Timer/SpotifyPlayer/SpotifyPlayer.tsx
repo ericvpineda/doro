@@ -13,8 +13,8 @@ import {
 } from "react-bootstrap-icons";
 import { Box, Grid, Slider, IconButton } from "@material-ui/core";
 import VolumeDownIcon from "@material-ui/icons/VolumeDown";
-import VolumeUpIcon from "@material-ui/icons";
-import VolumeOffIcon from "@material-ui/icons";
+import VolumeUpIcon from "@material-ui/icons/VolumeUp";
+import VolumeOffIcon from "@material-ui/icons/VolumeOff";
 import { createTheme } from "@material-ui/core/styles";
 import { ThemeProvider } from "@material-ui/styles";
 import debounce from "lodash.debounce";
@@ -28,6 +28,8 @@ const SpotifyPlayer: FC = (props) => {
   const [trackSaved, setTrackSaved] = useState(false);
   const [volume, setVolume] = useState(0);
   const [deviceId, setDeviceId] = useState("");
+  const [volumeCached, setVolumeCached] = useState(volume);
+  const [showVolumeTrack, setShowVolumeTrack] = useState(false);
 
   // Get accesstoken and initial track data (on initial load
   // - issue: multiple calls to spotify api
@@ -84,7 +86,7 @@ const SpotifyPlayer: FC = (props) => {
           setTrackId(res.data.id);
           setTrackSaved(res.data.isSaved);
           setDeviceId(res.data.deviceId);
-          setVolume(res.data.volumePercent)
+          setVolume(res.data.volumePercent);
         } else if (res.status === Status.FAILURE) {
           console.log(res);
         } else if (res.status === Status.ERROR) {
@@ -245,14 +247,15 @@ const SpotifyPlayer: FC = (props) => {
   // Get volume value after mouse-up from mouse click
   const trackVolumeChangeCommitted = (volumePercent: any) => {
     chrome.runtime.sendMessage(
-      { 
+      {
         message: PlayerActions.SET_VOLUME,
         query: { volumePercent, deviceId },
       },
       (res) => {
         if (res.status === Status.SUCCESS) {
-          // setTrackSaved(false);
-          console.log("Volume was set successfully");
+          if (volume !== 0) {
+            setVolumeCached(volume);
+          }
         } else if (res.status === Status.FAILURE) {
           console.log(res);
         } else if (res.status === Status.ERROR) {
@@ -262,6 +265,35 @@ const SpotifyPlayer: FC = (props) => {
         }
       }
     );
+  };
+
+  const muteVolumeHandler = () => {
+    if (volume > 0) {
+      setVolume(0);
+      trackVolumeChangeCommitted(0);
+    } else {
+      setVolume(volumeCached);
+      trackVolumeChangeCommitted(volumeCached);
+      setVolumeCached(0);
+    }
+  };
+
+  const getVolumeIcon = () => {
+    if (volume === 0) {
+      return <VolumeOffIcon className={styles.playerControls} />;
+    } else if (volume < 50) {
+      return <VolumeDownIcon className={styles.playerControls} />;
+    } else {
+      return <VolumeUpIcon className={styles.playerControls} />;
+    }
+  };
+
+  const onMouseEnterHandler = () => {
+    setShowVolumeTrack(true);
+  };
+
+  const onMouseLeaveHandler = () => {
+    setShowVolumeTrack(false);
   };
 
   console.log("Render spotify player");
@@ -305,21 +337,29 @@ const SpotifyPlayer: FC = (props) => {
           <Box width={125}>
             <Grid container spacing={0} alignItems="center">
               <Grid item md>
-                <IconButton>
-                  <VolumeDownIcon className={styles.playerControls} />
+                <IconButton
+                  onMouseEnter={onMouseEnterHandler}
+                  onMouseLeave={onMouseLeaveHandler}
+                  onClick={muteVolumeHandler}
+                >
+                  {getVolumeIcon()}
                 </IconButton>
               </Grid>
               <Grid item xs>
-                <ThemeProvider theme={muiTheme}>
-                  <Slider
-                    className="pb-2"
-                    value={volume}
-                    onChange={(_, val) => debounceChangeHandler(val)}
-                    onChangeCommitted={(_, val) =>
-                      trackVolumeChangeCommitted(val)
-                    }
-                  ></Slider>
-                </ThemeProvider>
+                {showVolumeTrack && (
+                  <ThemeProvider theme={muiTheme}>
+                    <Slider
+                      className="pb-2"
+                      value={volume}
+                      onChange={(_, val) => debounceChangeHandler(val)}
+                      onChangeCommitted={(_, val) =>
+                        trackVolumeChangeCommitted(val)
+                      }
+                      onMouseEnter={onMouseEnterHandler}
+                      onMouseLeave={onMouseLeaveHandler}
+                    ></Slider>
+                  </ThemeProvider>
+                )}
               </Grid>
             </Grid>
           </Box>
