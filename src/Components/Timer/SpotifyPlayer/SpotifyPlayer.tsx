@@ -1,4 +1,4 @@
-import React, { FC, Fragment, useState, useEffect } from "react";
+import React, { FC, Fragment, useState, useEffect, useMemo } from "react";
 import { PlayerActions, Status } from "../../../Utils/SpotifyUtils";
 import styles from "./SpotifyPlayer.module.css";
 import {
@@ -17,6 +17,7 @@ import VolumeUpIcon from "@material-ui/icons";
 import VolumeOffIcon from "@material-ui/icons";
 import { createTheme } from "@material-ui/core/styles";
 import { ThemeProvider } from "@material-ui/styles";
+import debounce from "lodash.debounce";
 
 const SpotifyPlayer: FC = (props) => {
   const [artist, setArtist] = useState("");
@@ -26,6 +27,7 @@ const SpotifyPlayer: FC = (props) => {
   const [trackId, setTrackId] = useState("");
   const [trackSaved, setTrackSaved] = useState(false);
   const [volume, setVolume] = useState(0);
+  const [deviceId, setDeviceId] = useState("");
 
   // Get accesstoken and initial track data (on initial load
   // - issue: multiple calls to spotify api
@@ -81,12 +83,13 @@ const SpotifyPlayer: FC = (props) => {
           setIsPlaying(res.data.isPlaying);
           setTrackId(res.data.id);
           setTrackSaved(res.data.isSaved);
+          setDeviceId(res.data.deviceId);
         } else if (res.status === Status.FAILURE) {
           console.log(res);
         } else if (res.status === Status.ERROR) {
           console.log(res);
         } else {
-          console.log("Unknown error when getting profile url.");
+          console.log("Unknown error when getting track data.");
         }
       }
     );
@@ -211,11 +214,7 @@ const SpotifyPlayer: FC = (props) => {
     }
   };
 
-  // Show volume control when mouse hover over volume icon
-  const showVolume = () => {
-    console.log("Show volume");
-  };
-
+  // Theme for volume slider
   const muiTheme = createTheme({
     overrides: {
       MuiSlider: {
@@ -232,14 +231,39 @@ const SpotifyPlayer: FC = (props) => {
     },
   });
 
+  // State function for change volume UI
   const volumeChangeUI = (value: any) => {
     setVolume(value);
   };
-  console.log("Render spotify player");
 
-  const volumeChangeSpotify = (value: any) => {
-    console.log(value);
-  }
+  // Show volume control when mouse hover over volume icon
+  // FIX: Implement debounce on slider?
+  // - Note: only this function re-rendered, does not make getTrack() request
+  const debounceChangeHandler = useMemo(() => debounce(volumeChangeUI, 25), []);
+
+  // Get volume value after mouse-up from mouse click
+  const trackVolumeChangeCommitted = (volumePercent: any) => {
+    chrome.runtime.sendMessage(
+      { 
+        message: PlayerActions.SET_VOLUME,
+        query: { volumePercent, deviceId },
+      },
+      (res) => {
+        if (res.status === Status.SUCCESS) {
+          // setTrackSaved(false);
+          // console.log("Volume was set successfully");
+        } else if (res.status === Status.FAILURE) {
+          console.log(res);
+        } else if (res.status === Status.ERROR) {
+          console.log(res);
+        } else {
+          console.log("Unknown error when setting track volume.");
+        }
+      }
+    );
+  };
+
+  console.log("Render spotify player");
 
   // TODO: Put filler image here (to wait for loading images)
   return (
@@ -289,8 +313,10 @@ const SpotifyPlayer: FC = (props) => {
                   <Slider
                     className="pb-2"
                     value={volume}
-                    onChange={(_, val) => volumeChangeUI(val)}
-                    onChangeCommitted={(_, val) => volumeChangeSpotify(val)}
+                    onChange={(_, val) => debounceChangeHandler(val)}
+                    onChangeCommitted={(_, val) =>
+                      trackVolumeChangeCommitted(val)
+                    }
                   ></Slider>
                 </ThemeProvider>
               </Grid>

@@ -12,74 +12,80 @@ const request = async (method: string, path: string, accessToken: string) => {
     "Content-Type": "application/json",
     Authorization: `Bearer ${accessToken}`,
   };
-  return await fetch(url.href, { method, headers});
+  return await fetch(url.href, { method, headers });
 };
 
 // Helper method to get get user profile
+// - Note: must always get update user profile
 const getUserProfile = async (params: any) => {
   let response = {};
-  if (params.profileUrl !== "") {
-    response = {
-      status: Status.SUCCESS,
-      data: { profileUrl: params.profileUrl },
-    };
-  } else {
-    await request("GET", "", params.accessToken)
-      .then((res) => res.json())
-      .then((data) => {
-        const profileUrl = data.images[0].url;
-        response = { status: Status.SUCCESS, data: { profileUrl } };
-        chrome.storage.local.set({ profileUrl: profileUrl });
-      })
-      .catch((err) => {
-        response = { status: Status.FAILURE, error: err };
-      });
-  }
+  await request("GET", "", params.accessToken)
+    .then((res) => res.json())
+    .then((data) => {
+      const profileUrl = data.images[0].url;
+      response = { status: Status.SUCCESS, data: { profileUrl } };
+      chrome.storage.local.set({ profileUrl: profileUrl });
+    })
+    .catch((err) => {
+      response = {
+        status: Status.FAILURE,
+        error: {
+          message: "Failure when getting user profile.",
+          details: err,
+        },
+      };
+    });
   return response;
 };
 
 // Used to currently playing track data
 interface TrackData {
-  id: string,
-  track: string,
-  artist: string,
-  albumUrl: string,
-  isPlaying: boolean,
-  isSaved: boolean,
+  id: string;
+  track: string;
+  artist: string;
+  albumUrl: string;
+  isPlaying: boolean;
+  deviceId: string;
+  isSaved: boolean;
 }
 
 // Helper method to get currenlty playing song
-// - Note: 
+// - Note:
 //  - Cant cache data since user could change song on different player
-//  - TODO: 
+//  - TODO:
 //    - add time scale bar to gui
 //    - Limit length of album name and artist name (or add revolving style)
 // - Question
-//  - 
+//  -
 const getCurrentlyPlaying = async (params: any) => {
   let response = {
     status: Status.NOT_SET,
     data: {},
-    error: ""
+    error: {},
   };
   let trackData: TrackData;
-  const accessToken = params.accessToken
+  const accessToken = params.accessToken;
   // Get track, artist, album image, isPlaying, and track id
-  await request("GET", "/player/currently-playing", accessToken)
+  await request("GET", "/player", accessToken)
     .then((res) => res.json())
     .then((data) => {
-      response.status = Status.SUCCESS
+      response.status = Status.SUCCESS;
       trackData = {
-          track: data.item.name,
-          artist: data.item.artists[0].name,
-          albumUrl: data.item.album.images[0].url,
-          isPlaying: data.is_playing,
-          id: data.item.id,
-          isSaved: false
-          // duration: data.item.duration_ms,
-        }
-      const query = new URLSearchParams({"ids": trackData.id});
-      return request("GET", "/tracks/contains?" + query.toString(), accessToken)
+        track: data.item.name,
+        artist: data.item.artists[0].name,
+        albumUrl: data.item.album.images[0].url,
+        isPlaying: data.is_playing,
+        id: data.item.id,
+        deviceId: data.device.id,
+        isSaved: false,
+        // duration: data.item.duration_ms,
+      };
+      const query = new URLSearchParams({ ids: trackData.id });
+      return request(
+        "GET",
+        "/tracks/contains?" + query.toString(),
+        accessToken
+      );
     })
     .then((res) => res.json())
     .then((data) => {
@@ -87,7 +93,11 @@ const getCurrentlyPlaying = async (params: any) => {
       response.data = trackData;
     })
     .catch((err) => {
-      response = { status: Status.FAILURE, data: {}, error: err };
+      response = {
+        status: Status.FAILURE,
+        data: {},
+        error: { message: "Failure when getting track data.", details: err },
+      };
     });
   return response;
 };
@@ -96,64 +106,92 @@ const getCurrentlyPlaying = async (params: any) => {
 const trackCommand = async (params: any, method: string, path: string) => {
   let response = {};
   await request(method, path, params.accessToken)
-    .then(() => { response = { status: Status.SUCCESS }; })
+    .then(() => {
+      response = { status: Status.SUCCESS };
+    })
     .catch((err) => {
-      response = { status: Status.FAILURE, error: err };
+      response = {
+        status: Status.FAILURE,
+        error: {
+          message: "Failure when completing track command.",
+          details: err,
+        },
+      };
     });
   return response;
-}
+};
 
 // Listen for spotify playback actions events
 // - Note:
 //  - should condition check endtime instead of signedIn?
 chrome.runtime.onMessage.addListener((req, sender, res) => {
-  chrome.storage.local.get(
-    ["accessToken", "profileUrl", "signedIn"],
-    (result: any) => {
-      if (result.signedIn && result.accessToken) {
-        let query: any;
-        switch (req.message) {
-          case PlayerActions.PLAY:
-            trackCommand(result, "PUT", "/player/play").then((response) => {res(response)})
-            break;
-          case PlayerActions.PAUSE:
-            trackCommand(result, "PUT", "/player/pause").then((response) => res(response));
-            break;
-          case PlayerActions.NEXT:
-            trackCommand(result, "POST", "/player/next").then((response) => res(response));
-            break;
-          case PlayerActions.PREVIOUS:
-            trackCommand(result, "POST", "/player/previous").then((response) => res(response));
-            break;
-          case PlayerActions.GET_PROFILE:
-            getUserProfile(result).then((response) => res(response));
-            break;
-          case PlayerActions.GET_CURRENTLY_PLAYING:
-            getCurrentlyPlaying(result).then((response) => res(response));
-            break;
-          case PlayerActions.SAVE_TRACK:
-            query = new URLSearchParams({"ids": req.query});
-            trackCommand(result, "PUT", "/tracks?"+ query.toString()).then((response) => res(response));
-            break;
-          case PlayerActions.REMOVE_SAVED_TRACK: 
-            query = new URLSearchParams({"ids": req.query});
-            trackCommand(result, "DELETE", "/tracks?"+ query.toString()).then((response) => res(response));
-            break
-          default:
-            res({
-              status: Status.ERROR,
-              error: "Unknown error occurred.",
-            });
-            break;
-        }
-      } else {
-        res({
-          status: Status.ERROR,
-          error: "User is not authenticated.",
-        });
+  chrome.storage.local.get(["accessToken", "signedIn"], (result: any) => {
+    if (result.signedIn && result.accessToken) {
+      let query: any;
+      switch (req.message) {
+        case PlayerActions.PLAY:
+          trackCommand(result, "PUT", "/player/play").then((response) => {
+            res(response);
+          });
+          break;
+        case PlayerActions.PAUSE:
+          trackCommand(result, "PUT", "/player/pause").then((response) =>
+            res(response)
+          );
+          break;
+        case PlayerActions.NEXT:
+          trackCommand(result, "POST", "/player/next").then((response) =>
+            res(response)
+          );
+          break;
+        case PlayerActions.PREVIOUS:
+          trackCommand(result, "POST", "/player/previous").then((response) =>
+            res(response)
+          );
+          break;
+        case PlayerActions.GET_PROFILE:
+          getUserProfile(result).then((response) => res(response));
+          break;
+        case PlayerActions.GET_CURRENTLY_PLAYING:
+          getCurrentlyPlaying(result).then((response) => res(response));
+          break;
+        case PlayerActions.SAVE_TRACK:
+          query = new URLSearchParams({ ids: req.query });
+          trackCommand(result, "PUT", "/tracks?" + query.toString()).then(
+            (response) => res(response)
+          );
+          break;
+        case PlayerActions.REMOVE_SAVED_TRACK:
+          query = new URLSearchParams({ ids: req.query });
+          trackCommand(result, "DELETE", "/tracks?" + query.toString()).then(
+            (response) => res(response)
+          );
+          break;
+        case PlayerActions.SET_VOLUME:
+          query = new URLSearchParams({
+            volume_percent: req.query["volumePercent"],
+            device_id: req.query["deviceId"],
+          });
+          trackCommand(
+            result,
+            "PUT",
+            "/player/volume?" + query.toString()
+          ).then((response) => res(response));
+          break;
+        default:
+          res({
+            status: Status.ERROR,
+            error: "Unknown error occurred.",
+          });
+          break;
       }
+    } else {
+      res({
+        status: Status.ERROR,
+        error: "User is not authenticated.",
+      });
     }
-  );
+  });
   return true;
 });
 

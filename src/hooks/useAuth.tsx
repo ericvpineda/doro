@@ -84,7 +84,6 @@ const useAuth = (): [boolean, () => void, () => void] => {
       expiresIn: data.expires_in,
       accessToken: data.access_token,
       endTime: data.expires_in * 1000 + new Date().getTime(),
-      profileUrl: "",
     });
   };
 
@@ -96,7 +95,6 @@ const useAuth = (): [boolean, () => void, () => void] => {
       expiresIn: "",
       accessToken: "",
       endTime: "",
-      profileUrl: "",
     });
     setSignedIn(false);
   };
