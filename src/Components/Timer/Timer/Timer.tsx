@@ -20,14 +20,14 @@ const Timer: FC<Prop> = (props) => {
   };
 
   useEffect(() => {
-    chrome.storage.local.get(["signedIn", "endTime", "accessToken"], (res) => {
+    chrome.storage.local.get(["signedIn", "endTime", "accessToken", "showPlayer"], (res) => {
       let cacheSignedIn = res.signedIn;
       if (res.accessToken === "" || res.endTime <= new Date().getTime()) {
         cacheSignedIn = false;
         chrome.storage.local.set({ signedIn: cacheSignedIn });
       } else {
         setShowSwitch(true)
-        setShowPlayer(true)
+        setShowPlayer(res.showPlayer)
       }
       setSignedIn(cacheSignedIn);
     });
@@ -41,6 +41,7 @@ const Timer: FC<Prop> = (props) => {
 
   // Renders switch for clock/music player icon
   const renderSwitch = () => {
+    chrome.storage.local.set({showPlayer})
     if (showPlayer) {
       return <ToggleOn className={styles.switch} onClick={() => setShowPlayer(false)} ></ToggleOn>
     }
