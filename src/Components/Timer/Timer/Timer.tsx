@@ -27,7 +27,7 @@ const Timer: FC<Prop> = (props) => {
         chrome.storage.local.set({ signedIn: cacheSignedIn });
       } else {
         setShowSwitch(true)
-        setShowPlayer(res.showPlayer)
+        setShowPlayer(res.showPlayer !== undefined ? res.showPlayer : true)
       }
       setSignedIn(cacheSignedIn);
     });

@@ -86,17 +86,21 @@ const SpotifyPlayer: FC = (props) => {
   useEffect(() => {
     if (thumbPosition >= 0) {
       const updateTime = setInterval(() => {
-        const updatedProgress = progressMs + 1000;
-        setProgressMs(updatedProgress);
-        const updatedPosition = getThumbPosition(updatedProgress, durationMs);
-        setThumbPosition(updatedPosition);
-        if (updatedProgress >= durationMs - 3000) {
-          getTrack();
+        if (isPlaying) {
+          const updatedProgress = progressMs + 1000;
+          setProgressMs(updatedProgress);
+          const updatedPosition = getThumbPosition(updatedProgress, durationMs);
+          setThumbPosition(updatedPosition);
+          if (updatedProgress >= durationMs - 3000) {
+            getTrack();
+          }
+        } else {
+          getTrack()
         }
       }, 1000);
       return () => clearInterval(updateTime);
     }
-  }, [thumbPosition, progressMs, durationMs]);
+  }, [thumbPosition, progressMs, durationMs, isPlaying]);
 
   const getTrack = () => {
     chrome.runtime.sendMessage(
@@ -120,8 +124,10 @@ const SpotifyPlayer: FC = (props) => {
             setDurationMs(duration);
             setThumbPosition(getThumbPosition(progress, duration));
           } else if (res.status === Status.FAILURE) {
+            setThumbPosition(-1);
             console.log(res);
           } else if (res.status === Status.ERROR) {
+            setThumbPosition(-1);
             console.log(res);
           }
         } else {
@@ -174,17 +180,22 @@ const SpotifyPlayer: FC = (props) => {
   };
 
   const trackPrevious = () => {
-    chrome.runtime.sendMessage({ message: PlayerActions.PREVIOUS }, (res) => {
-      if (res.status === Status.SUCCESS) {
-        getTrack();
-      } else if (res.status === Status.FAILURE) {
-        console.log(res);
-      } else if (res.status === Status.ERROR) {
-        console.log(res);
-      } else {
-        console.log("Unknown error when getting previous track.");
-      }
-    });
+    if (thumbPosition > 0) {
+      thumbSeekChangeCommitted(0);
+      thumbSeekUI(0)
+    } else {
+      chrome.runtime.sendMessage({ message: PlayerActions.PREVIOUS }, (res) => {
+        if (res.status === Status.SUCCESS) {
+          getTrack();
+        } else if (res.status === Status.FAILURE) {
+          console.log(res);
+        } else if (res.status === Status.ERROR) {
+          console.log(res);
+        } else {
+          console.log("Unknown error when getting previous track.");
+        }
+      });
+    }
   };
 
   // Save track to user LIKED playlist
