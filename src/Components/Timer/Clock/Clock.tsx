@@ -1,6 +1,11 @@
 import React, { FC, useEffect, useState, Fragment } from "react";
 import styles from "./Clock.module.css";
-import { XCircleFill, ArrowCounterclockwise } from "react-bootstrap-icons";
+import {
+  PlayFill,
+  PauseFill,
+  XCircleFill,
+  ArrowCounterclockwise,
+} from "react-bootstrap-icons";
 
 const Clock: FC = () => {
   const [timer, setTimer] = useState({
@@ -8,7 +13,7 @@ const Clock: FC = () => {
     minutes: "00",
     seconds: "00",
   });
-  const [controlText, setControlText] = useState("Start");
+  const [isPlay, setIsPlay] = useState(false);
   const [isCleared, setIsCleared] = useState(true);
 
   // Helper function to update clock time and effects
@@ -51,7 +56,7 @@ const Clock: FC = () => {
   };
 
   // Update start / pause button on clock gui
-  const setControlTextHandler = () => {
+  const setIsPlayerHandler = () => {
     chrome.storage.local.get(
       ["isRunning", "hours", "minutes", "seconds"],
       (res) => {
@@ -61,7 +66,7 @@ const Clock: FC = () => {
           (res.hours !== 0 || res.minutes !== 0 || res.seconds !== 0)
         ) {
           chrome.storage.local.set({ isRunning: !res.isRunning });
-          setControlText(res.isRunning ? "Start" : "Pause");
+          setIsPlay(res.isRunning ? true : false);
         }
       }
     );
@@ -75,28 +80,27 @@ const Clock: FC = () => {
       seconds: 0,
       isCleared: true,
     });
-    setControlText("Start");
+    setIsPlay(true);
     setIsCleared(true);
   };
 
   const resetTimer = () => {
     chrome.storage.local.get(["setTime"], (res) => {
-        const origTime = res.setTime;
-        chrome.storage.local.set({
-            hours: origTime.hours,
-            minutes: origTime.minutes,
-            seconds: 0
-        })
-    })
-    updateTime()
-    
-  }
+      const origTime = res.setTime;
+      chrome.storage.local.set({
+        hours: origTime.hours,
+        minutes: origTime.minutes,
+        seconds: 0,
+      });
+    });
+    updateTime();
+  };
 
   // Initial re-render (allow initial set timer to show up)
   useEffect(() => {
     chrome.storage.local.get(["isRunning", "seconds", "isCleared"], (res) => {
       if (res.seconds !== undefined) {
-        setControlText(res.isRunning ? "Pause" : "Start");
+        setIsPlay(res.isRunning ? false : true);
         setIsCleared(res.isCleared);
       }
     });
@@ -115,7 +119,7 @@ const Clock: FC = () => {
   }
   return (
     <div id="timer-outer" className={styles.timerOuter}>
-      <div className={styles.timerRing} onClick={() => setControlTextHandler()}>
+      <div className={styles.timerRing} onClick={() => setIsPlayerHandler()}>
         <div className={styles.timer}>
           <span id="hours" data-testid="test-hours">
             {timer.hours}
@@ -129,9 +133,6 @@ const Clock: FC = () => {
             {timer.seconds}
           </span>
         </div>
-        <div className={styles.timerControl} id="timer-control">
-          {controlText}
-        </div>
       </div>
       {!isCleared && (
         <Fragment>
@@ -143,6 +144,15 @@ const Clock: FC = () => {
             className={styles.resetButton}
             onClick={resetTimer}
           ></ArrowCounterclockwise>
+          {isPlay ? (
+            <PlayFill className={styles.timerControl}
+            onClick={() => setIsPlayerHandler()}
+            ></PlayFill>
+          ) : (
+            <PauseFill className={styles.timerControl}
+            onClick={() => setIsPlayerHandler()}
+            ></PauseFill>
+          )}
         </Fragment>
       )}
     </div>
