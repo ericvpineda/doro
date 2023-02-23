@@ -9,8 +9,8 @@ const Clock: FC = () => {
     // Helper function to update clock time and effects
     const updateTime = () => {
         const progressRing = document.getElementById("timer-outer")! as HTMLElement;
-        chrome.storage.local.get(["hours", "minutes", "seconds", "isRunning", "setTime"], (res) => {
-            if (res.isRunning && !(res.hours == 0 && res.minutes == 0 && res.seconds == -1)) {
+        chrome.storage.local.get(["hours", "minutes", "seconds", "setTime"], (res) => {
+            if (res.seconds !== undefined && !(res.hours == 0 && res.minutes == 0 && res.seconds == -1)) {
                 // Update clock time ui 
                 const hours: string = res.hours >= 10 ? res.hours.toString() : "0" + res.hours
                 const minutes: string = res.minutes >= 10 ? res.minutes.toString() : "0" + res.minutes
@@ -46,6 +46,7 @@ const Clock: FC = () => {
     // Initial re-render (allow initial set timer to show up)
     useEffect(() => { 
         chrome.storage.local.get(["isRunning", "hours", "minutes", "seconds"], (res) => {
+            if (res.seconds)
             setControlText(res.isRunning? "Pause" : "Start")
         })
         updateTime() 
