@@ -38,6 +38,7 @@ const SpotifyPlayer: FC = (props) => {
   const [durationMs, setDurationMs] = useState(0);
   const [progressMs, setProgressMs] = useState(0);
   const [thumbPosition, setThumbPosition] = useState(0);
+  const [showThumbTrack, setShowThumbTrack] = useState(false);
 
   // Get accesstoken and initial track data (on initial load
   // - issue: multiple calls to spotify api
@@ -95,7 +96,7 @@ const SpotifyPlayer: FC = (props) => {
             getTrack();
           }
         } else {
-          getTrack()
+          getTrack();
         }
       }, 1000);
       return () => clearInterval(updateTime);
@@ -182,7 +183,7 @@ const SpotifyPlayer: FC = (props) => {
   const trackPrevious = () => {
     if (thumbPosition > 0) {
       thumbSeekChangeCommitted(0);
-      thumbSeekUI(0)
+      thumbSeekUI(0);
     } else {
       chrome.runtime.sendMessage({ message: PlayerActions.PREVIOUS }, (res) => {
         if (res.status === Status.SUCCESS) {
@@ -323,6 +324,16 @@ const SpotifyPlayer: FC = (props) => {
     setShowVolumeTrack(false);
   };
 
+  const onMouseEnterThumbTrack = () => {
+    console.log("Showing thumb track");
+    setShowThumbTrack(true);
+  };
+
+  const onMouseLeaveThumbTrack = () => {
+    console.log("Closing thumb track");
+    setShowThumbTrack(false);
+  };
+
   // Theme for volume slider
   const muiTheme = createTheme({
     overrides: {
@@ -388,7 +399,11 @@ const SpotifyPlayer: FC = (props) => {
           <div className="text-white">{track}</div>
           <div className="text-white fst-italic fw-light">{artist}</div>
         </div>
-        <div className={styles.playerControls}>
+        <div
+          className={styles.playerControls}
+          onMouseEnter={onMouseEnterThumbTrack}
+          onMouseLeave={onMouseLeaveThumbTrack}
+        >
           <Box width={100}></Box>
           {showHeart()}
           <SkipStartFill
@@ -446,26 +461,28 @@ const SpotifyPlayer: FC = (props) => {
           </Box>
           <div className={styles.playerSeekTrack}>
             <Box width={350}>
-              <Grid container spacing={1} alignItems="center">
-                <Grid item className={styles.playerSeekTime + " me-2"}>
-                  {createTrackTime(progressMs)}
+              {showThumbTrack && (
+                <Grid container spacing={1} alignItems="center">
+                  <Grid item className={styles.playerSeekTime + " me-2"}>
+                    {createTrackTime(progressMs)}
+                  </Grid>
+                  <Grid item xs>
+                    <ThemeProvider theme={muiTheme}>
+                      <Slider
+                        className="pb-1"
+                        value={thumbPosition}
+                        onChange={(_, val) => debounceThumbSeekHandler(val)}
+                        onChangeCommitted={(_, val) =>
+                          thumbSeekChangeCommitted(val)
+                        }
+                      ></Slider>
+                    </ThemeProvider>
+                  </Grid>
+                  <Grid item className={styles.playerSeekTime + " ms-2"}>
+                    {createTrackTime(durationMs)}
+                  </Grid>
                 </Grid>
-                <Grid item xs>
-                  <ThemeProvider theme={muiTheme}>
-                    <Slider
-                      className="pb-1"
-                      value={thumbPosition}
-                      onChange={(_, val) => debounceThumbSeekHandler(val)}
-                      onChangeCommitted={(_, val) =>
-                        thumbSeekChangeCommitted(val)
-                      }
-                    ></Slider>
-                  </ThemeProvider>
-                </Grid>
-                <Grid item className={styles.playerSeekTime + " ms-2"}>
-                  {createTrackTime(durationMs)}
-                </Grid>
-              </Grid>
+              )}
             </Box>
           </div>
         </div>
