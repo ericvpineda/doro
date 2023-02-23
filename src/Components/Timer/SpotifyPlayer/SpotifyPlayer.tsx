@@ -330,10 +330,10 @@ const SpotifyPlayer: FC = (props) => {
   });
 
   const thumbSeekUI = (value: any) => {
-    setThumbPosition(value)
-  }
+    setThumbPosition(value);
+  };
 
-  const debounceThumbSeekHandler = useMemo(() => debounce(thumbSeekUI, 25), [])
+  const debounceThumbSeekHandler = useMemo(() => debounce(thumbSeekUI, 25), []);
 
   const thumbSeekChangeCommitted = (percent: any) => {
     const positionMs = Math.floor(durationMs * (percent * 0.01));
@@ -345,19 +345,22 @@ const SpotifyPlayer: FC = (props) => {
       (res) => {
         if (res.status === Status.SUCCESS) {
           const updatedProgressMs = positionMs;
-          setProgressMs(updatedProgressMs)
-          const updatedThumbPos = getThumbPosition(updatedProgressMs, durationMs);
-          setThumbPosition(updatedThumbPos)
+          setProgressMs(updatedProgressMs);
+          const updatedThumbPos = getThumbPosition(
+            updatedProgressMs,
+            durationMs
+          );
+          setThumbPosition(updatedThumbPos);
         } else if (res.status === Status.FAILURE) {
           console.log(res);
         } else if (res.status === Status.ERROR) {
           console.log(res);
         } else {
-          console.log("Unknown error when setting track volume.");
+          console.log("Unknown error when seeking track volume.");
         }
       }
     );
-  }
+  };
 
   console.log("Render spotify player");
 
@@ -365,7 +368,11 @@ const SpotifyPlayer: FC = (props) => {
   return (
     <Fragment>
       <div className={styles.playerContainer}>
-        {albumUrl && <img className={styles.image} src={albumUrl} alt="" />}
+        {albumUrl !== "" ? (
+          <img className={styles.image} src={albumUrl} alt="" />
+        ) : (
+          <img className={styles.image} />
+        )}
         <div className="text-center mb-2">
           <div className="text-white">{track}</div>
           <div className="text-white fst-italic fw-light">{artist}</div>

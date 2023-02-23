@@ -36,7 +36,7 @@ const Clock: FC = () => {
         chrome.storage.local.get(["isRunning", "hours", "minutes", "seconds"], (res) => {
             
             // FIX: Improve way to check start and stop button 
-            if (!(res.hours == 0 && res.minutes == 0 && res.seconds == 0)) {
+            if (res.seconds !== undefined && (res.hours !== 0 || res.minutes !== 0 || res.seconds !== 0)) {
                 chrome.storage.local.set({ isRunning: !res.isRunning })
                 setControlText(res.isRunning ? "Start" : "Pause")
             }  
@@ -57,7 +57,8 @@ const Clock: FC = () => {
             updateTime() 
         })
     }, [])
-
+    
+    {/* <!-- FIX: Change out with picture later  --> */}
     return (
             <div id="timer-outer" className={styles.timerOuter} onClick={() => setControlTextHandler()}>
                 <div className={styles.timerRing}>
@@ -68,7 +69,6 @@ const Clock: FC = () => {
                         <span>:</span>
                         <span id="seconds" data-testid="test-seconds">{timer.seconds}</span>
                     </div>
-                    {/* <!-- FIX: Change out with picture later  --> */}
                     <div className={styles.timerControl} id="timer-control">
                         {controlText}
                     </div>
