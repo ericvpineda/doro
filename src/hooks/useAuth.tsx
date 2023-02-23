@@ -157,8 +157,9 @@ const useAuth = (): [boolean, () => void, () => void] => {
       }
     );
   }, []);
-
+  
   // update refresh token when token expires
+  // TODO: check if this actually requests new refresh token
   useEffect(() => {
     if (!refreshToken || !expiresIn || !signedIn) {
       return;
@@ -177,7 +178,7 @@ const useAuth = (): [boolean, () => void, () => void] => {
           signOut();
         });
     }, (expiresIn - 60) * 1000);
-    return () => clearTimeout(timeout);
+    return () => clearInterval(timeout);
   }, [refreshToken, expiresIn]);
 
   return [signedIn, signOut, trySignIn];

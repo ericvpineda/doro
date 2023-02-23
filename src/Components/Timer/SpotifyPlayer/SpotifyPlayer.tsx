@@ -1,11 +1,19 @@
 import React, { FC, Fragment, useState, useEffect, useMemo } from "react";
+import styles from "./SpotifyPlayer.module.css";
+import { Box, Grid, Slider, IconButton } from "@material-ui/core";
+import VolumeDownIcon from "@material-ui/icons/VolumeDown";
+import VolumeUpIcon from "@material-ui/icons/VolumeUp";
+import VolumeOffIcon from "@material-ui/icons/VolumeOff";
+import { ThemeProvider } from "@material-ui/styles";
+import debounce from "lodash.debounce";
+// Note: do not export this from utils module
+import { createTheme } from "@material-ui/core/styles";
 import {
   PlayerActions,
   Status,
   createTrackTime,
   getThumbPosition,
 } from "../../../Utils/SpotifyUtils";
-import styles from "./SpotifyPlayer.module.css";
 import {
   PlayFill,
   SkipEndFill,
@@ -15,14 +23,6 @@ import {
   HeartFill,
   HeartHalf,
 } from "react-bootstrap-icons";
-import { Box, Grid, Slider, IconButton } from "@material-ui/core";
-import VolumeDownIcon from "@material-ui/icons/VolumeDown";
-import VolumeUpIcon from "@material-ui/icons/VolumeUp";
-import VolumeOffIcon from "@material-ui/icons/VolumeOff";
-import { ThemeProvider } from "@material-ui/styles";
-import debounce from "lodash.debounce";
-// Note: do not export this from utils module
-import { createTheme } from "@material-ui/core/styles";
 
 const SpotifyPlayer: FC = (props) => {
   const [artist, setArtist] = useState("");
@@ -37,6 +37,7 @@ const SpotifyPlayer: FC = (props) => {
   const [showVolumeTrack, setShowVolumeTrack] = useState(false);
   const [durationMs, setDurationMs] = useState(0);
   const [progressMs, setProgressMs] = useState(0);
+  const [thumbPosition, setThumbPosition] = useState(0);
 
   // Get accesstoken and initial track data (on initial load
   // - issue: multiple calls to spotify api
@@ -81,6 +82,22 @@ const SpotifyPlayer: FC = (props) => {
   // On popup open, get track data
   useEffect(() => getTrack(), []);
 
+  // Note: will run sequential to previous useEffect
+  useEffect(() => {
+    if (thumbPosition >= 0) {
+      const updateTime = setInterval(() => {
+        const updatedProgress = progressMs + 1000;
+        setProgressMs(updatedProgress);
+        const updatedPosition = getThumbPosition(updatedProgress, durationMs);
+        setThumbPosition(updatedPosition);
+        if (updatedProgress >= durationMs - 3000) {
+          getTrack();
+        }
+      }, 1000);
+      return () => clearInterval(updateTime);
+    }
+  }, [thumbPosition, progressMs, durationMs]);
+
   const getTrack = () => {
     chrome.runtime.sendMessage(
       { message: PlayerActions.GET_CURRENTLY_PLAYING },
@@ -97,11 +114,11 @@ const SpotifyPlayer: FC = (props) => {
             setVolume(res.data.volumePercent);
             setProgressMs(res.data.progressMs);
             setDurationMs(res.data.durationMs);
-            // const progress = res.data.progressMs;
-            // const duration = res.data.durationMs;
-            // setProgressMs(progress);
-            // setDurationMs(duration);
-            // setThumbPosition(getThumbPosition(progress, duration));
+            const progress = res.data.progressMs;
+            const duration = res.data.durationMs;
+            setProgressMs(progress + 500);
+            setDurationMs(duration);
+            setThumbPosition(getThumbPosition(progress, duration));
           } else if (res.status === Status.FAILURE) {
             console.log(res);
           } else if (res.status === Status.ERROR) {
@@ -295,22 +312,22 @@ const SpotifyPlayer: FC = (props) => {
     setShowVolumeTrack(false);
   };
 
-    // Theme for volume slider
-    const muiTheme = createTheme({
-      overrides: {
-        MuiSlider: {
-          thumb: {
-            color: "green",
-          },
-          track: {
-            color: "green",
-          },
-          rail: {
-            color: "black",
-          },
+  // Theme for volume slider
+  const muiTheme = createTheme({
+    overrides: {
+      MuiSlider: {
+        thumb: {
+          color: "green",
+        },
+        track: {
+          color: "green",
+        },
+        rail: {
+          color: "black",
         },
       },
-    });
+    },
+  });
 
   console.log("Render spotify player");
 
@@ -389,7 +406,7 @@ const SpotifyPlayer: FC = (props) => {
                   <ThemeProvider theme={muiTheme}>
                     <Slider
                       className="pb-1"
-                      value={getThumbPosition(progressMs, durationMs)}
+                      value={thumbPosition}
                       // onChange={(_, val) => debounceChangeHandler(val)}
                       // onChangeCommitted={(_, val) =>
                       //   trackVolumeChangeCommitted(val)
