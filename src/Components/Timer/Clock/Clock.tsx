@@ -33,18 +33,18 @@ const Clock: FC = () => {
           // Update clock gui
           let degree = 0;
           if (res.isCleared === false) {
-              const curr_time: number =
-                res.hours * 3600 + res.minutes * 60 + res.seconds;
-              const end_time: number =
-                res.setTime.hours * 3600 + res.setTime.minutes * 60;
-              degree = 360 - (curr_time / end_time) * 360;
-            }
-            if (progressRing) {
-              progressRing.style.background = `conic-gradient(
+            const curr_time: number =
+              res.hours * 3600 + res.minutes * 60 + res.seconds;
+            const end_time: number =
+              res.setTime.hours * 3600 + res.setTime.minutes * 60;
+            degree = 360 - (curr_time / end_time) * 360;
+          }
+          if (progressRing) {
+            progressRing.style.background = `conic-gradient(
                           lightgreen ${degree}deg,
                           #212529 ${degree}deg 
                       )`;
-            }
+          }
         }
       }
     );
@@ -69,14 +69,27 @@ const Clock: FC = () => {
 
   const clearTimer = () => {
     chrome.storage.local.set({
-        isRunning: false, 
-        hours: 0,
-        minutes: 0,
-        seconds: 0,
-        isCleared: true,
+      isRunning: false,
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+      isCleared: true,
+    });
+    setControlText("Start");
+    setIsCleared(true);
+  };
+
+  const resetTimer = () => {
+    chrome.storage.local.get(["setTime"], (res) => {
+        const origTime = res.setTime;
+        chrome.storage.local.set({
+            hours: origTime.hours,
+            minutes: origTime.minutes,
+            seconds: 0
+        })
     })
-    setControlText("Start")
-    setIsCleared(true)
+    updateTime()
+    
   }
 
   // Initial re-render (allow initial set timer to show up)
@@ -84,7 +97,7 @@ const Clock: FC = () => {
     chrome.storage.local.get(["isRunning", "seconds", "isCleared"], (res) => {
       if (res.seconds !== undefined) {
         setControlText(res.isRunning ? "Pause" : "Start");
-        setIsCleared(res.isCleared)
+        setIsCleared(res.isCleared);
       }
     });
     updateTime();
@@ -122,9 +135,13 @@ const Clock: FC = () => {
       </div>
       {!isCleared && (
         <Fragment>
-          <XCircleFill className={styles.clearButton} onClick={clearTimer}></XCircleFill>
+          <XCircleFill
+            className={styles.clearButton}
+            onClick={clearTimer}
+          ></XCircleFill>
           <ArrowCounterclockwise
             className={styles.resetButton}
+            onClick={resetTimer}
           ></ArrowCounterclockwise>
         </Fragment>
       )}
