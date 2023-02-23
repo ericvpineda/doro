@@ -45,9 +45,10 @@ const Clock: FC = () => {
    
     // Initial re-render (allow initial set timer to show up)
     useEffect(() => { 
-        chrome.storage.local.get(["isRunning", "hours", "minutes", "seconds"], (res) => {
-            if (res.seconds)
-            setControlText(res.isRunning? "Pause" : "Start")
+        chrome.storage.local.get(["isRunning", "seconds"], (res) => {
+            if (res.seconds !== undefined) {
+                setControlText(res.isRunning? "Pause" : "Start")
+            }
         })
         updateTime() 
     }, [])
