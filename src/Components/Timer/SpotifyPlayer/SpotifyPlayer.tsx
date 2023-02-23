@@ -258,7 +258,7 @@ const SpotifyPlayer: FC = (props) => {
   // Show volume control when mouse hover over volume icon
   // FIX: Implement debounce on slider?
   // - Note: only this function re-rendered, does not make getTrack() request
-  const debounceChangeHandler = useMemo(() => debounce(volumeChangeUI, 25), []);
+  const debounceVolumeHandler = useMemo(() => debounce(volumeChangeUI, 25), []);
 
   // Get volume value after mouse-up from mouse click
   const trackVolumeChangeCommitted = (volumePercent: any) => {
@@ -329,6 +329,36 @@ const SpotifyPlayer: FC = (props) => {
     },
   });
 
+  const thumbSeekUI = (value: any) => {
+    setThumbPosition(value)
+  }
+
+  const debounceThumbSeekHandler = useMemo(() => debounce(thumbSeekUI, 25), [])
+
+  const thumbSeekChangeCommitted = (percent: any) => {
+    const positionMs = Math.floor(durationMs * (percent * 0.01));
+    chrome.runtime.sendMessage(
+      {
+        message: PlayerActions.SEEK_POSITION,
+        query: { positionMs, deviceId },
+      },
+      (res) => {
+        if (res.status === Status.SUCCESS) {
+          const updatedProgressMs = positionMs;
+          setProgressMs(updatedProgressMs)
+          const updatedThumbPos = getThumbPosition(updatedProgressMs, durationMs);
+          setThumbPosition(updatedThumbPos)
+        } else if (res.status === Status.FAILURE) {
+          console.log(res);
+        } else if (res.status === Status.ERROR) {
+          console.log(res);
+        } else {
+          console.log("Unknown error when setting track volume.");
+        }
+      }
+    );
+  }
+
   console.log("Render spotify player");
 
   // TODO: Put filler image here (to wait for loading images)
@@ -384,7 +414,7 @@ const SpotifyPlayer: FC = (props) => {
                     <Slider
                       className="pb-2"
                       value={volume}
-                      onChange={(_, val) => debounceChangeHandler(val)}
+                      onChange={(_, val) => debounceVolumeHandler(val)}
                       onChangeCommitted={(_, val) =>
                         trackVolumeChangeCommitted(val)
                       }
@@ -407,10 +437,10 @@ const SpotifyPlayer: FC = (props) => {
                     <Slider
                       className="pb-1"
                       value={thumbPosition}
-                      // onChange={(_, val) => debounceChangeHandler(val)}
-                      // onChangeCommitted={(_, val) =>
-                      //   trackVolumeChangeCommitted(val)
-                      // }
+                      onChange={(_, val) => debounceThumbSeekHandler(val)}
+                      onChangeCommitted={(_, val) =>
+                        thumbSeekChangeCommitted(val)
+                      }
                     ></Slider>
                   </ThemeProvider>
                 </Grid>

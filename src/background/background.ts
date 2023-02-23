@@ -183,6 +183,17 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
             "/player/volume?" + query.toString()
           ).then((response) => res(response));
           break;
+        case PlayerActions.SEEK_POSITION:
+          query = new URLSearchParams({
+            position_ms: req.query["positionMs"],
+            device_id: req.query["deviceId"],
+          });
+          trackCommand(
+            result,
+            "PUT",
+            "/player/seek?" + query.toString()
+          ).then((response) => res(response));
+          break;
         default:
           res({
             status: Status.ERROR,

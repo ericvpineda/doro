@@ -11,6 +11,7 @@ enum PlayerActions {
   SAVE_TRACK,
   REMOVE_SAVED_TRACK,
   SET_VOLUME,
+  SEEK_POSITION
 }
 
 enum Status {
