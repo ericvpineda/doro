@@ -32,7 +32,8 @@ const UserInput: FC<pageUpdate> = (props): JSX.Element => {
                 setTime: {
                     hours, 
                     minutes
-                }
+                },
+                isCleared: false
             })
     
             // Prevent error message from showing
