@@ -30,8 +30,8 @@
 }
 
 .playerSeekTrack {
-    position: fixed;
-    bottom: 1.7rem;
+    position: absolute;
+    bottom: 2rem;
 }
 
 .playerSeekTime {

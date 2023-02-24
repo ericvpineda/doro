@@ -1,9 +1,10 @@
 import React from 'react'
-import {FC, useState, Fragment} from 'react'
+import {FC, useState, Fragment, useContext} from 'react'
 import Description from '../Description/Description';
 import Time from '../Time/Time';
 import styles from './UserInput.module.css'
 import { ArrowReturnRight } from "react-bootstrap-icons";
+import DescriptContext from '../../../hooks/DescriptContext';
 
 interface pageUpdate {
     setShowTimerHandler: (param: boolean) => void;
@@ -17,6 +18,7 @@ const UserInput: FC<pageUpdate> = (props): JSX.Element => {
     const [descript, setDescript] = useState('') 
     // TODO: Allow user to update default message
     const [defaultMsg, setDefaultMsg] = useState("Working...")
+    const ctx = useContext(DescriptContext);
 
     const onSubmitHandler = () => {
         // TODO: Check for errors, if so, show error messgae 
@@ -41,6 +43,9 @@ const UserInput: FC<pageUpdate> = (props): JSX.Element => {
     
             // Change page to timer gui window
             props.setShowTimerHandler(true)
+
+            // Set description booleanto true 
+            ctx.onSetDescript()
         } 
     }
 

@@ -231,7 +231,6 @@ chrome.alarms.onAlarm.addListener((alarm) => {
       if (!isRunning) {
         return;
       }
-
       if (min == 0 && sec == 0 && hour > 0) {
         chrome.storage.local.set({
           hours: hour - 1,

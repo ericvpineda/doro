@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState, Fragment } from "react";
+import React, { FC, useEffect, useState, Fragment, useContext } from "react";
 import styles from "./Clock.module.css";
 import {
   PlayFill,
@@ -6,6 +6,7 @@ import {
   XCircleFill,
   ArrowCounterclockwise,
 } from "react-bootstrap-icons";
+import DescriptContext from "../../../hooks/DescriptContext";
 
 const Clock: FC = () => {
   const [timer, setTimer] = useState({
@@ -15,6 +16,7 @@ const Clock: FC = () => {
   });
   const [isPlay, setIsPlay] = useState(false);
   const [isCleared, setIsCleared] = useState(true);
+  const ctx = useContext(DescriptContext)
 
   // Helper function to update clock time and effects
   const progressRing = document.getElementById("timer-outer")! as HTMLElement;
@@ -50,6 +52,8 @@ const Clock: FC = () => {
                           #212529 ${degree}deg 
                       )`;
           }
+        } else {
+            setIsPlay(true)
         }
       }
     );
@@ -79,9 +83,12 @@ const Clock: FC = () => {
       minutes: 0,
       seconds: 0,
       isCleared: true,
+      description: undefined
     });
     setIsPlay(true);
     setIsCleared(true);
+    // Set show description boolean to false
+    ctx.onClearDescript()
   };
 
   const resetTimer = () => {
@@ -91,8 +98,10 @@ const Clock: FC = () => {
         hours: origTime.hours,
         minutes: origTime.minutes,
         seconds: 0,
+        isRunning: false
       });
     });
+    setIsPlay(true);
     updateTime();
   };
 
