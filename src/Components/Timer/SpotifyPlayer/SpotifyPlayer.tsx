@@ -46,40 +46,6 @@ const SpotifyPlayer: FC = (props) => {
   //      - save artist data into storage?
   //          - issue: what if change track on diff device
 
-  // Note: Use later when implementing free spotify account
-  // function Pause () {
-  //   const btn = document.querySelector('[data-testid="control-button-playpause"]') as HTMLElement;
-  //   if (btn !== null && btn.getAttribute('aria-label') === "Pause") {
-  //     btn.click();
-  //     return "pause"
-  //   }
-  // }
-
-  // Note: Use later when spotify tab is removed
-  // chrome.tabs.query({lastFocusedWindow: true}, tabs => {
-  //   console.log(tabs)
-  //   tabs.forEach(tab => {
-  //     console.log(tab.url)
-  //     const re = new RegExp("^https:\/\/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.spotify.com");
-  //     if (tab.url != null ) {
-  //       console.log(re.test(tab.url))
-  //     }
-  //   })
-  // })
-
-  // request("PUT", "/player/pause", accessToken).catch((e) => console.log(e));
-  // Note: used for html manipulation (script injection)
-  // chrome.storage.local.get(["tabId"], (res) => {
-  //   console.log(res.tabId)
-  // chrome.scripting.executeScript({
-  //   target: { tabId: res.tabId },
-  //   func: Pause,
-  // })
-  // .then((injectedResults) => {console.log(injectedResults);})
-  // })
-  // setIsPlaying(!isPlaying);
-  // console.log(typeof player)
-
   // On popup open, get track data
   useEffect(() => getTrack(), []);
 
