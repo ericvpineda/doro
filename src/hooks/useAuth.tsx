@@ -164,7 +164,6 @@ const useAuth = (): [boolean, () => void, () => void] => {
     if (!refreshToken || !expiresIn || !signedIn) {
       return;
     }
-
     const timeout = setInterval(async () => {
       client.refreshToken = refreshToken;
 

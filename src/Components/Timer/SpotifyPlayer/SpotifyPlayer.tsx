@@ -23,6 +23,7 @@ import {
   HeartFill,
   HeartHalf,
 } from "react-bootstrap-icons";
+import AlbumArt from "./AlbumArt/AlbumArt";
 
 const SpotifyPlayer: FC = (props) => {
   const [artist, setArtist] = useState("");
@@ -39,6 +40,8 @@ const SpotifyPlayer: FC = (props) => {
   const [progressMs, setProgressMs] = useState(0);
   const [thumbPosition, setThumbPosition] = useState(0);
   const [showThumbTrack, setShowThumbTrack] = useState(false);
+  const [dominantColor, setDominantColor] = useState("#212529");
+
 
   // Get accesstoken and initial track data (on initial load
   // - issue: multiple calls to spotify api
@@ -90,6 +93,7 @@ const SpotifyPlayer: FC = (props) => {
             setProgressMs(progress + 500);
             setDurationMs(duration);
             setThumbPosition(getThumbPosition(progress, duration));
+
           } else if (res.status === Status.FAILURE) {
             setThumbPosition(-1);
             console.log(res);
@@ -350,17 +354,15 @@ const SpotifyPlayer: FC = (props) => {
     );
   };
 
-  console.log("Render spotify player");
+  const getDominantColor = (color: string) => {
+    setDominantColor(color);
+  }
 
   // TODO: Put filler image here (to wait for loading images)
   return (
     <Fragment>
       <div className={styles.playerContainer}>
-        {albumUrl !== "" ? (
-          <img className={styles.image} src={albumUrl} alt="" />
-        ) : (
-          <img className={styles.image} />
-        )}
+        <AlbumArt albumUrl={albumUrl} getDominantColorHandler={getDominantColor}></AlbumArt>
         <div className="text-center mb-2">
           <div className="text-white">{track}</div>
           <div className="text-white fst-italic fw-light">{artist}</div>

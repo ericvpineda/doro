@@ -15,7 +15,7 @@ module.exports = {
             use: 'ts-loader', 
             test: /\.tsx?$/,
             exclude: /node_modules/,
-        },
+    },
         {
             use: ['style-loader', 'css-loader'],
             test: /\.css$/i
@@ -35,12 +35,17 @@ module.exports = {
             {
                 from: path.resolve('src/js/spotify-player.js'),
                 to: path.resolve('dist')
+            },
+            {
+                from: path.resolve('src/img/sample_spotify_icon.png'),
+                to: path.resolve('dist/img')
             }
         ]
         }),
         ...getHtmlPlugins([
             'index',
         ]),
+
     ],
     resolve: {
         extensions: ['.tsx', '.ts', '.js'] // What file types apply modules to

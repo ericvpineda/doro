@@ -1,10 +1,3 @@
-.image {
-    width: 10rem;
-    height: 10rem;
-
-    margin-bottom: 0.5rem;
-}
-
 .playerContainer {
     margin-top: 1.5rem;
     margin-bottom: 2.5rem;
@@ -32,8 +25,4 @@
 .playerSeekTrack {
     position: absolute;
     bottom: 2rem;
-}
-
-.playerSeekTime {
-color: white;
 }
