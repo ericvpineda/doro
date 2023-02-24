@@ -83,7 +83,7 @@ const getCurrentlyPlaying = async (params: any) => {
         volumePercent: data.device.volume_percent,
         isSaved: false,
         durationMs: data.item.duration_ms,
-        progressMs: data.progress_ms
+        progressMs: data.progress_ms,
       };
       const query = new URLSearchParams({ ids: trackData.id });
       return request(
@@ -188,11 +188,9 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
             position_ms: req.query["positionMs"],
             device_id: req.query["deviceId"],
           });
-          trackCommand(
-            result,
-            "PUT",
-            "/player/seek?" + query.toString()
-          ).then((response) => res(response));
+          trackCommand(result, "PUT", "/player/seek?" + query.toString()).then(
+            (response) => res(response)
+          );
           break;
         default:
           res({
@@ -249,9 +247,16 @@ chrome.alarms.onAlarm.addListener((alarm) => {
           isRunning: false,
         });
         // Optional: Show timer done notification on user desktop
-        // this.registration.showNotification("Doro -- Timer is done!", {
-        //     body: `${setTime.hours} hour and ${setTime.minutes} minute completed.`
-        // })
+        const message =
+          res.setTime.hours === 0
+            ? `${res.setTime.minutes} minute timer completed.`
+            : `${res.setTime.hours} hour and ${res.setTime.minutes} minute completed.`;
+        chrome.notifications.create({
+          title: "Doro - Promodoro with Spotify Player",
+          message,
+          type: "basic",
+          iconUrl: "./img/sample_spotify_icon.png",
+        });
       }
     }
   );
