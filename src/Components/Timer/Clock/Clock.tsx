@@ -102,7 +102,6 @@ const Clock: FC = () => {
       });
     });
     setIsPlay(true);
-    updateTime();
   };
 
   // Initial re-render (allow initial set timer to show up)
@@ -114,18 +113,15 @@ const Clock: FC = () => {
       }
     });
     updateTime();
-  }, []);
+  }, [isCleared, isPlay]);
 
-  // Note: Assumed that isRunning is true
+  // Update time for each time seconds variable is updated
   useEffect(() => {
     chrome.storage.onChanged.addListener(() => {
       updateTime();
     });
   }, [isCleared]);
 
-  {
-    /* <!-- FIX: Change out with picture later  --> */
-  }
   return (
     <div id="timer-outer" className={styles.timerOuter}>
       <div className={styles.timerRing} onClick={() => setIsPlayerHandler()}>
