@@ -37,7 +37,7 @@ const UserInput: FC<pageUpdate> = (props): JSX.Element => {
                 },
                 isCleared: false
             })
-    
+            
             // Prevent error message from showing
             setShowError(false)
     
@@ -54,18 +54,18 @@ const UserInput: FC<pageUpdate> = (props): JSX.Element => {
     }
 
     return (
-        <Fragment>
-            <div className={styles.body + " d-flex flex-column justify-content-center"}>
+        <div className={styles.body}>
+            <div className={styles.inputContainer + " d-flex flex-column justify-content-center"}>
                 <h3 className='mb-3 text-center'>Set Timer</h3>
                 <div className='container'>
-                    <Time setHours={setHours} setMinutes={setMinutes}/>
-                    <Description setDescript={setDescript} />
+                    <Time hours={hours} minutes={minutes} setHours={setHours} setMinutes={setMinutes}/>
+                    <Description defaultMsg={defaultMsg} descript={descript} setDescript={setDescript} />
                 </div>
                 <button onClick={onSubmitHandler} className='btn btn-success mt-3'>Start</button>
                 {showError && <div className='text-danger fs-6'>Input valid hours or minutes.</div>}
             </div>
             <ArrowReturnRight onClick={showTimerHandler} className={styles.clockButton}></ArrowReturnRight>
-        </Fragment>
+        </div>
     )}
 
     export default UserInput;

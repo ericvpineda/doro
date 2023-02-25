@@ -1,8 +1,23 @@
 .body {
-    background-color: white;
+    background-color: #212529;
     height: inherit;
     width: inherit;
     padding: 5rem;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.inputContainer {
+    display: flex;
+    justify-content: center;
+
+    padding: 1.2rem;
+    border-radius: 10px;
+    
+    background-color: white;
+    box-shadow: 0 5px 20px 0 #5a5a5a;
 }
 
 .clockButton {
@@ -10,7 +25,7 @@
     height: 2rem;
     width: 2rem;
 
-    color: #212529;
+    color: white;
 
     position: absolute;
     bottom: 7rem;

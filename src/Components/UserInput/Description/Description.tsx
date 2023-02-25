@@ -1,9 +1,11 @@
 import React from "react";
-import { FC, ChangeEvent, useState } from "react";
+import { FC, ChangeEvent, useState, useEffect } from "react";
 import styles from './Description.module.css'
 
 interface DescriptFunction {
   setDescript: (param: string) => void;
+  descript: string;
+  defaultMsg: string;
 }
 
 const Description: FC<DescriptFunction> = (props): JSX.Element => {
@@ -19,6 +21,16 @@ const Description: FC<DescriptFunction> = (props): JSX.Element => {
     }
   };
 
+  useEffect(() => {
+    const descriptElem = document.getElementById('description')
+    chrome.storage.local.get(["description"], (res) => {
+      const descriptCache = res.description;
+      if (descriptElem && descriptCache.length > 0 && descriptCache !== props.defaultMsg) {
+        descriptElem.innerHTML = descriptCache
+      }
+    })
+  })
+
   return (
     <div className="row text-nowrap">
       <div className="col-3">
@@ -33,7 +45,7 @@ const Description: FC<DescriptFunction> = (props): JSX.Element => {
           id="description"
           cols={20}
           rows={1}
-          placeholder="Simply working..."
+          placeholder="Working..."
         ></textarea>
         {showError && (
           <div className="text-danger fs-6">

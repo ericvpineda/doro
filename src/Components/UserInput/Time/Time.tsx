@@ -1,9 +1,10 @@
-import React, { KeyboardEvent } from "react";
-import { FC, ChangeEvent, Fragment, useState } from "react";
+import React, { KeyboardEvent, FC, ChangeEvent, Fragment, useState, useEffect } from "react";
 
 interface TimeFunctions {
   setHours: (param: number) => void;
   setMinutes: (param: number) => void;
+  hours: number;
+  minutes: number;
 }
 
 const Time: FC<TimeFunctions> = (props): JSX.Element => {
@@ -37,6 +38,19 @@ const Time: FC<TimeFunctions> = (props): JSX.Element => {
         event.preventDefault()
     }
   }
+
+  useEffect(() => {
+    const minutesElem = document.getElementById('minutes') as HTMLInputElement;
+    const hoursElem = document.getElementById('hours') as HTMLInputElement;
+    chrome.storage.local.get(["setTime"], (res) => {
+      if (res.setTime.minutes > 0 && minutesElem) {
+        minutesElem.setAttribute('value', res.setTime.minutes)
+      }
+      if (res.setTime.hours > 0 && hoursElem) {
+        hoursElem.setAttribute('value', res.setTime.hours)
+      }
+    })
+  })
 
   return (
     <Fragment>
