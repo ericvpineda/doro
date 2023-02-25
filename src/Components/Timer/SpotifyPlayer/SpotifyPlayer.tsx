@@ -407,7 +407,7 @@ const SpotifyPlayer: FC = (props) => {
         <Box width={130}>
           <Stack>
             <Grid item className={styles.trackSlider}>
-              {showVolumeTrack && (
+              {isPlaying && showVolumeTrack && (
                 <ThemeProvider theme={muiTheme}>
                   <Slider
                     value={volume}
@@ -435,7 +435,7 @@ const SpotifyPlayer: FC = (props) => {
         </Box>
         <div className={styles.playerSeekTrack}>
           <Box width={225}>
-            {showThumbTrack && (
+            {isPlaying && showThumbTrack && (
               <Grid container spacing={1} alignItems="center">
                 <Grid item className={styles.playerSeekTime + " me-2"}>
                   {createTrackTime(progressMs)}
