@@ -1,6 +1,7 @@
-import React, { FC, Fragment, useState, useEffect, useMemo } from "react";
+import React, { FC, useState, useEffect, useMemo } from "react";
 import styles from "./SpotifyPlayer.module.css";
 import { Box, Grid, Slider, IconButton } from "@material-ui/core";
+import Stack from "@mui/material/Stack";
 import VolumeDownIcon from "@material-ui/icons/VolumeDown";
 import VolumeUpIcon from "@material-ui/icons/VolumeUp";
 import VolumeOffIcon from "@material-ui/icons/VolumeOff";
@@ -41,7 +42,6 @@ const SpotifyPlayer: FC = (props) => {
   const [thumbPosition, setThumbPosition] = useState(0);
   const [showThumbTrack, setShowThumbTrack] = useState(false);
   const [dominantColor, setDominantColor] = useState("#212529");
-
 
   // Get accesstoken and initial track data (on initial load
   // - issue: multiple calls to spotify api
@@ -93,7 +93,6 @@ const SpotifyPlayer: FC = (props) => {
             setProgressMs(progress + 500);
             setDurationMs(duration);
             setThumbPosition(getThumbPosition(progress, duration));
-
           } else if (res.status === Status.FAILURE) {
             setThumbPosition(-1);
             console.log(res);
@@ -209,7 +208,7 @@ const SpotifyPlayer: FC = (props) => {
     if (artist === "") {
       return (
         <HeartHalf
-          className={styles.playerControlIcons + " me-3"}
+          className={styles.playerControlIcons + " me-4"}
           size={18}
         ></HeartHalf>
       );
@@ -217,7 +216,7 @@ const SpotifyPlayer: FC = (props) => {
       return (
         <HeartFill
           onClick={trackRemoveSaved}
-          className={styles.playerControlIcons + " me-3"}
+          className={styles.playerControlIcons + " me-4"}
           size={18}
         ></HeartFill>
       );
@@ -225,7 +224,7 @@ const SpotifyPlayer: FC = (props) => {
       return (
         <Heart
           onClick={trackSave}
-          className={styles.playerControlIcons + " me-3"}
+          className={styles.playerControlIcons + " me-4"}
           size={18}
         ></Heart>
       );
@@ -355,107 +354,111 @@ const SpotifyPlayer: FC = (props) => {
   };
 
   const getDominantColor = (color: string) => {
+    // const playerContainer = document.getElementById("player-container") as HTMLElement;
+    // if (playerContainer) {
+    //   console.log("Setting background color =", color)
+    //   playerContainer.style.background = `radial-gradient(${color}, #212529)`
+    // }
     setDominantColor(color);
-  }
+  };
 
   // TODO: Put filler image here (to wait for loading images)
   return (
-    <Fragment>
-      <div className={styles.playerContainer}>
-        <AlbumArt albumUrl={albumUrl} getDominantColorHandler={getDominantColor}></AlbumArt>
-        <div className="text-center mb-2">
-          <div className="text-white">{track}</div>
-          <div className="text-white fst-italic fw-light">{artist}</div>
-        </div>
-        <div
-          className={styles.playerControls}
-          onMouseEnter={onMouseEnterThumbTrack}
-          onMouseLeave={onMouseLeaveThumbTrack}
-        >
-          <Box width={100}></Box>
-          {showHeart()}
-          <SkipStartFill
-            onClick={trackPrevious}
+    <div className={styles.playerContainer} id="player-container">
+      <AlbumArt
+        albumUrl={albumUrl}
+        getDominantColorHandler={getDominantColor}
+      ></AlbumArt>
+      <div className={styles.trackTextContainer}>
+        <div className={styles.trackTitle}>{track}</div>
+        <div className={styles.trackArtist}>{artist}</div>
+      </div>
+      <div
+        className={styles.playerControls}
+        onMouseEnter={onMouseEnterThumbTrack}
+        onMouseLeave={onMouseLeaveThumbTrack}
+      >
+        <Box width={100}></Box>
+        {showHeart()}
+        <SkipStartFill
+          onClick={trackPrevious}
+          className={styles.playerControlIcons + " ms-2 me-2"}
+          size={20}
+        ></SkipStartFill>
+        {!isPlaying ? (
+          <PlayFill
+            onClick={trackPlay}
             className={styles.playerControlIcons + " me-2"}
-            size={20}
-          ></SkipStartFill>
-          {!isPlaying ? (
-            <PlayFill
-              onClick={trackPlay}
-              className={styles.playerControlIcons + " me-2"}
-              size={30}
-            ></PlayFill>
-          ) : (
-            <PauseFill
-              onClick={trackPause}
-              className={styles.playerControlIcons + " me-2"}
-              size={30}
-            ></PauseFill>
-          )}
-          <SkipEndFill
-            className={styles.playerControlIcons}
-            onClick={trackNext}
-            color="white"
-            size={20}
-          ></SkipEndFill>
-          <Box width={130}>
-            <Grid container spacing={0} alignItems="center">
-              <Grid item md>
-                <IconButton
-                  onMouseEnter={onMouseEnterHandler}
-                  onMouseLeave={onMouseLeaveHandler}
-                  onClick={muteVolumeHandler}
-                >
-                  {getVolumeIcon()}
-                </IconButton>
-              </Grid>
-              <Grid item xs>
-                {showVolumeTrack && (
+            size={30}
+          ></PlayFill>
+        ) : (
+          <PauseFill
+            onClick={trackPause}
+            className={styles.playerControlIcons + " me-2"}
+            size={30}
+          ></PauseFill>
+        )}
+        <SkipEndFill
+          className={styles.playerControlIcons + " me-3"}
+          onClick={trackNext}
+          size={20}
+        ></SkipEndFill>
+        <Box width={130}>
+          <Stack>
+            <Grid item className={styles.trackSlider}>
+              {showVolumeTrack && (
+                <ThemeProvider theme={muiTheme}>
+                  <Slider
+                    value={volume}
+                    orientation="vertical"
+                    onChange={(_, val) => debounceVolumeHandler(val)}
+                    onChangeCommitted={(_, val) =>
+                      trackVolumeChangeCommitted(val)
+                    }
+                    onMouseEnter={onMouseEnterHandler}
+                    onMouseLeave={onMouseLeaveHandler}
+                  ></Slider>
+                </ThemeProvider>
+              )}
+            </Grid>
+            <Grid item>
+              <IconButton
+                onMouseEnter={onMouseEnterHandler}
+                onMouseLeave={onMouseLeaveHandler}
+                onClick={muteVolumeHandler}
+              >
+                {getVolumeIcon()}
+              </IconButton>
+            </Grid>
+          </Stack>
+        </Box>
+        <div className={styles.playerSeekTrack}>
+          <Box width={225}>
+            {showThumbTrack && (
+              <Grid container spacing={1} alignItems="center">
+                <Grid item className={styles.playerSeekTime + " me-2"}>
+                  {createTrackTime(progressMs)}
+                </Grid>
+                <Grid item xs>
                   <ThemeProvider theme={muiTheme}>
                     <Slider
-                      className="pb-2"
-                      value={volume}
-                      onChange={(_, val) => debounceVolumeHandler(val)}
+                      value={thumbPosition}
+                      onChange={(_, val) => debounceThumbSeekHandler(val)}
                       onChangeCommitted={(_, val) =>
-                        trackVolumeChangeCommitted(val)
+                        thumbSeekChangeCommitted(val)
                       }
-                      onMouseEnter={onMouseEnterHandler}
-                      onMouseLeave={onMouseLeaveHandler}
                     ></Slider>
                   </ThemeProvider>
-                )}
-              </Grid>
-            </Grid>
-          </Box>
-          <div className={styles.playerSeekTrack}>
-            <Box width={350}>
-              {showThumbTrack && (
-                <Grid container spacing={1} alignItems="center">
-                  <Grid item className={styles.playerSeekTime + " me-2"}>
-                    {createTrackTime(progressMs)}
-                  </Grid>
-                  <Grid item xs>
-                    <ThemeProvider theme={muiTheme}>
-                      <Slider
-                        className="pb-1"
-                        value={thumbPosition}
-                        onChange={(_, val) => debounceThumbSeekHandler(val)}
-                        onChangeCommitted={(_, val) =>
-                          thumbSeekChangeCommitted(val)
-                        }
-                      ></Slider>
-                    </ThemeProvider>
-                  </Grid>
-                  <Grid item className={styles.playerSeekTime + " ms-2"}>
-                    {createTrackTime(durationMs)}
-                  </Grid>
                 </Grid>
-              )}
-            </Box>
-          </div>
+                <Grid item className={styles.playerSeekTime + " ms-2"}>
+                  {createTrackTime(durationMs)}
+                </Grid>
+              </Grid>
+            )}
+          </Box>
         </div>
       </div>
-    </Fragment>
+    </div>
   );
 };
 
