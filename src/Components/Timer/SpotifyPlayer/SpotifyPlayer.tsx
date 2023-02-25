@@ -41,7 +41,6 @@ const SpotifyPlayer: FC = (props) => {
   const [progressMs, setProgressMs] = useState(0);
   const [thumbPosition, setThumbPosition] = useState(0);
   const [showThumbTrack, setShowThumbTrack] = useState(false);
-  const [dominantColor, setDominantColor] = useState("#212529");
 
   // Get accesstoken and initial track data (on initial load
   // - issue: multiple calls to spotify api
@@ -216,7 +215,6 @@ const SpotifyPlayer: FC = (props) => {
     } else if (trackSaved) {
       return (
         <HeartFill
-        
           onClick={trackRemoveSaved}
           className={styles.playerControlIcons + " me-4"}
           size={18}
@@ -355,23 +353,10 @@ const SpotifyPlayer: FC = (props) => {
     );
   };
 
-  // FIX: Keep this?
-  const getDominantColor = (color: string) => {
-    // const playerContainer = document.getElementById("player-container") as HTMLElement;
-    // if (playerContainer) {
-    //   console.log("Setting background color =", color)
-    //   playerContainer.style.background = `radial-gradient(${color}, #212529)`
-    // }
-    setDominantColor(color);
-  };
-
   // TODO: Put filler image here (to wait for loading images)
   return (
     <div className={styles.playerContainer} id="player-container">
-      <AlbumArt
-        albumUrl={albumUrl}
-        getDominantColorHandler={getDominantColor}
-      ></AlbumArt>
+      <AlbumArt albumUrl={albumUrl}></AlbumArt>
       <div className={styles.trackTextContainer}>
         <div className={styles.trackTitleContainer}>
           <div className={styles.trackTitle}>{track}</div>

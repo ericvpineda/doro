@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
 .image {
     width: 9rem;
     height: 9rem;
@@ -6,4 +8,24 @@
     margin-bottom: 0.5rem;
     overflow: hidden;
     box-shadow: 0px -5px 10px 0px rgba(0, 0, 0, 0.5)
+}
+
+.blankImage {
+    width: 9rem;
+    height: 9rem;
+
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    font-family: 'VT323', monospace;
+    font-size: 1.25rem;
+}
+
+.highlight {
+    background-color: #E85F5C;
 }

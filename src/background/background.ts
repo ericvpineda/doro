@@ -249,10 +249,10 @@ chrome.alarms.onAlarm.addListener((alarm) => {
         // Optional: Show timer done notification on user desktop
         const message =
           res.setTime.hours === 0
-            ? `${res.setTime.minutes} minute timer completed.`
-            : `${res.setTime.hours} hour and ${res.setTime.minutes} minute completed.`;
+            ? `${res.setTime.minutes} minute timer complete.`
+            : `${res.setTime.hours} hour and ${res.setTime.minutes} minute timer complete.`;
         chrome.notifications.create({
-          title: "Doro - Promodoro with Spotify Player",
+          title: "Doro - Pomodoro with Spotify Player",
           message,
           type: "basic",
           iconUrl: "./img/sample_spotify_icon.png",
