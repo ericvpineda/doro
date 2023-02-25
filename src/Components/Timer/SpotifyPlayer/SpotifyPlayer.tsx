@@ -79,7 +79,8 @@ const SpotifyPlayer: FC = (props) => {
         if (res !== undefined) {
           if (res.status === Status.SUCCESS) {
             setTrack(res.data.track);
-            setArtist(res.data.artist);
+            const bufferTrail = res.data.artist.length > 30 ? "..." : "";
+            setArtist(res.data.artist.substring(0, 30) + bufferTrail);
             setAlbumUrl(res.data.albumUrl);
             setIsPlaying(res.data.isPlaying);
             setTrackId(res.data.id);
@@ -354,6 +355,7 @@ const SpotifyPlayer: FC = (props) => {
     );
   };
 
+  // FIX: Keep this?
   const getDominantColor = (color: string) => {
     // const playerContainer = document.getElementById("player-container") as HTMLElement;
     // if (playerContainer) {
@@ -371,7 +373,9 @@ const SpotifyPlayer: FC = (props) => {
         getDominantColorHandler={getDominantColor}
       ></AlbumArt>
       <div className={styles.trackTextContainer}>
-        <div className={styles.trackTitle}>{track}</div>
+        <div className={styles.trackTitleContainer}>
+          <div className={styles.trackTitle}>{track}</div>
+        </div>
         <div className={styles.trackArtist}>{artist}</div>
       </div>
       <div
