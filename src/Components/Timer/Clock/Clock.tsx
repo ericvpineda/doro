@@ -83,7 +83,8 @@ const Clock: FC = () => {
       minutes: 0,
       seconds: 0,
       isCleared: true,
-      description: undefined
+      description: "",
+      setTime: {}
     });
     setIsPlay(true);
     setIsCleared(true);

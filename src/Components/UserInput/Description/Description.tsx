@@ -13,7 +13,6 @@ const Description: FC<DescriptFunction> = (props): JSX.Element => {
 
   const setDescriptHandler = (event: ChangeEvent<HTMLTextAreaElement>) => {
     const description = event.target.value;
-    console.log("Changing description...", description);
     if (description.length > 30) {
       setShowError(true);
     } else {
@@ -25,8 +24,9 @@ const Description: FC<DescriptFunction> = (props): JSX.Element => {
   useEffect(() => {
     const descriptElem = document.getElementById('description')
     chrome.storage.local.get(["description"], (res) => {
+      console.log(res.description)
       const descriptCache = res.description;
-      if (descriptElem && descriptCache.length > 0 && descriptCache !== props.defaultMsg) {
+      if (descriptElem && descriptCache !== undefined && descriptCache.length > 0 && descriptCache !== props.defaultMsg) {
         descriptElem.innerHTML = descriptCache
         props.setDescript(descriptCache)
       }

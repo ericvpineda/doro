@@ -43,11 +43,13 @@ const Time: FC<TimeFunctions> = (props): JSX.Element => {
     const minutesElem = document.getElementById('minutes') as HTMLInputElement;
     const hoursElem = document.getElementById('hours') as HTMLInputElement;
     chrome.storage.local.get(["setTime"], (res) => {
-      if (res.setTime.minutes > 0 && minutesElem) {
+      const minutesCache = res.setTime.minutes;
+      if (minutesCache !== undefined && minutesCache > 0 && minutesElem) {
         minutesElem.setAttribute('value', res.setTime.minutes)
         props.setMinutes(res.setTime.minutes)
       }
-      if (res.setTime.hours > 0 && hoursElem) {
+      const hoursCache = res.setTime.hours;
+      if (hoursCache !== undefined && hoursCache > 0 && hoursElem) {
         hoursElem.setAttribute('value', res.setTime.hours)
         props.setHours(res.setTime.hours)
       }
