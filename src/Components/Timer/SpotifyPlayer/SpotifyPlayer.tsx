@@ -14,6 +14,7 @@ import {
   Status,
   createTrackTime,
   getThumbPosition,
+  PlayerStatus
 } from "../../../Utils/SpotifyUtils";
 import {
   PlayFill,
@@ -41,6 +42,8 @@ const SpotifyPlayer: FC = (props) => {
   const [progressMs, setProgressMs] = useState(0);
   const [thumbPosition, setThumbPosition] = useState(0);
   const [showThumbTrack, setShowThumbTrack] = useState(false);
+  const [playerStatus, setPlayerStatus] = useState(PlayerStatus.LOADING);
+  console.log(playerStatus)
 
   // Get accesstoken and initial track data (on initial load
   // - issue: multiple calls to spotify api
@@ -93,14 +96,20 @@ const SpotifyPlayer: FC = (props) => {
             setProgressMs(progress + 500);
             setDurationMs(duration);
             setThumbPosition(getThumbPosition(progress, duration));
+            setPlayerStatus(PlayerStatus.SUCCESS);
           } else if (res.status === Status.FAILURE) {
+            console.log(res)
             setThumbPosition(-1);
+            setPlayerStatus(PlayerStatus.REQUIRE_WEBPAGE);
             console.log(res);
           } else if (res.status === Status.ERROR) {
             setThumbPosition(-1);
+            // TODO: What to show when status is error? 
+            // setPlayerStatus(PlayerStatus.ERROR);
             console.log(res);
           }
         } else {
+          // setPlayerStatus(PlayerStatus.ERROR);
           console.log("Unknown error when getting track data.");
         }
       }
@@ -286,21 +295,19 @@ const SpotifyPlayer: FC = (props) => {
   };
 
   const onMouseEnterHandler = () => {
-    setShowVolumeTrack(true);
+    if (isPlaying) setShowVolumeTrack(true);
   };
 
   const onMouseLeaveHandler = () => {
-    setShowVolumeTrack(false);
+    if (isPlaying) setShowVolumeTrack(false);
   };
 
   const onMouseEnterThumbTrack = () => {
-    console.log("Showing thumb track");
-    setShowThumbTrack(true);
+    if (isPlaying) setShowThumbTrack(true);
   };
 
   const onMouseLeaveThumbTrack = () => {
-    console.log("Closing thumb track");
-    setShowThumbTrack(false);
+    if (isPlaying) setShowThumbTrack(false);
   };
 
   // Theme for volume slider
@@ -356,7 +363,7 @@ const SpotifyPlayer: FC = (props) => {
   // TODO: Put filler image here (to wait for loading images)
   return (
     <div className={styles.playerContainer} id="player-container">
-      <AlbumArt albumUrl={albumUrl}></AlbumArt>
+      <AlbumArt playerStatus={playerStatus} albumUrl={albumUrl}></AlbumArt>
       <div className={styles.trackTextContainer}>
         <div className={styles.trackTitleContainer}>
           <div className={styles.trackTitle}>{track}</div>
@@ -396,7 +403,7 @@ const SpotifyPlayer: FC = (props) => {
         <Box width={130}>
           <Stack>
             <Grid item className={styles.trackSlider}>
-              {isPlaying && showVolumeTrack && (
+              {showVolumeTrack && (
                 <ThemeProvider theme={muiTheme}>
                   <Slider
                     value={volume}
@@ -424,7 +431,7 @@ const SpotifyPlayer: FC = (props) => {
         </Box>
         <div className={styles.playerSeekTrack}>
           <Box width={225}>
-            {isPlaying && showThumbTrack && (
+            {showThumbTrack && (
               <Grid container spacing={1} alignItems="center">
                 <Grid item className={styles.playerSeekTime + " me-2"}>
                   {createTrackTime(progressMs)}

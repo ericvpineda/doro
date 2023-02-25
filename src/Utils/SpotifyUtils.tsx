@@ -21,6 +21,13 @@ enum Status {
   ERROR,
 }
 
+enum PlayerStatus {
+  LOADING = 0,
+  REQUIRE_WEBPAGE,
+  SUCCESS,
+  ERROR
+}
+
 // Note:
 // - need to account for up to 800 hours of music
 const createTrackTime = (timeMs: number): string => {
@@ -44,4 +51,4 @@ const createTrackTime = (timeMs: number): string => {
     return Math.floor((progress / duration) * 100)
   }
 
-export { PlayerActions, Status, createTrackTime, getThumbPosition };
+export { PlayerStatus, PlayerActions, Status, createTrackTime, getThumbPosition };

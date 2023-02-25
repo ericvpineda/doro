@@ -76,7 +76,7 @@
 .trackArtist {
   color: #212529;
   font-size: 0.8rem;
-  /* font-style: italic; */
+  font-style: italic;
 }
 
 .trackTextContainer {
