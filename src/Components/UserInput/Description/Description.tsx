@@ -13,6 +13,7 @@ const Description: FC<DescriptFunction> = (props): JSX.Element => {
 
   const setDescriptHandler = (event: ChangeEvent<HTMLTextAreaElement>) => {
     const description = event.target.value;
+    console.log("Changing description...", description);
     if (description.length > 30) {
       setShowError(true);
     } else {
@@ -27,9 +28,10 @@ const Description: FC<DescriptFunction> = (props): JSX.Element => {
       const descriptCache = res.description;
       if (descriptElem && descriptCache.length > 0 && descriptCache !== props.defaultMsg) {
         descriptElem.innerHTML = descriptCache
+        props.setDescript(descriptCache)
       }
     })
-  })
+  }, [])
 
   return (
     <div className="row text-nowrap">

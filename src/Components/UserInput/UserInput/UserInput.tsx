@@ -22,6 +22,7 @@ const UserInput: FC<pageUpdate> = (props): JSX.Element => {
 
     const onSubmitHandler = () => {
         // TODO: Check for errors, if so, show error messgae 
+        console.log(hours, minutes, descript)
         if (hours == 0 && minutes == 0) {
             setShowError(true)
         } else {

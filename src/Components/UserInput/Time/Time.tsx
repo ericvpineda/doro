@@ -45,12 +45,14 @@ const Time: FC<TimeFunctions> = (props): JSX.Element => {
     chrome.storage.local.get(["setTime"], (res) => {
       if (res.setTime.minutes > 0 && minutesElem) {
         minutesElem.setAttribute('value', res.setTime.minutes)
+        props.setMinutes(res.setTime.minutes)
       }
       if (res.setTime.hours > 0 && hoursElem) {
         hoursElem.setAttribute('value', res.setTime.hours)
+        props.setHours(res.setTime.hours)
       }
     })
-  })
+  }, [])
 
   return (
     <Fragment>
