@@ -3,7 +3,7 @@
     width: 50%;
     
     margin-top: -1rem;
-    padding-bottom: 1rem;
+    padding-bottom: 1.5rem;
     border-radius: 10px;
 
     display: flex;
@@ -12,6 +12,8 @@
     align-items: center;
 
     background-color: #f1f1f1;
+
+    box-shadow: 0 5px 20px 0 #5a5a5a;
 }
 
 .playerControls {
@@ -24,9 +26,7 @@
 }
 
 .playerControlIcons {
-    color: #212529;
     cursor: pointer;
-    
 }
 
 .playerSeekTrack {
@@ -45,7 +45,7 @@
 .trackArtist {
     color: #212529;
     font-size: 0.7rem;
-    font-style: italic;
+    /* font-style: italic; */
 }
 
 .trackTextContainer {

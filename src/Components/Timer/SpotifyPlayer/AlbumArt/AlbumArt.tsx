@@ -1,7 +1,7 @@
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useEffect, Fragment } from "react";
 import styles from "./AlbumArt.module.css";
 import { FastAverageColor } from "fast-average-color";
-
+      
 interface Props {
   albumUrl: string;
   getDominantColorHandler: (param: string) => void;
@@ -22,20 +22,26 @@ const AlbumArt: FC<Props> = (props: any) => {
           props.getDominantColorHandler(color["hex"]);
         })
         .catch((err) => {
-          console.log("Unable to get average color from album art.")
+          console.log("Unable to get average color from album art.");
           console.log(err);
         });
     }
   }, [props.albumUrl]);
 
   return (
-    <img
-      id="album-art"
-      src={props.albumUrl}
-      className={styles.image}
-      alt=""
-      crossOrigin="anonymous"
-    />
+    <Fragment>
+      {props.albumUrl === "" ? (
+        <img src="" alt="" />
+      ) : (
+        <img
+          id="album-art"
+          src={props.albumUrl}
+          className={styles.image}
+          alt=""
+          crossOrigin="anonymous"
+        />
+      )}
+    </Fragment>
   );
 };
 

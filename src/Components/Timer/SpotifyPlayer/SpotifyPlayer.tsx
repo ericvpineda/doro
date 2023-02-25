@@ -215,6 +215,7 @@ const SpotifyPlayer: FC = (props) => {
     } else if (trackSaved) {
       return (
         <HeartFill
+        
           onClick={trackRemoveSaved}
           className={styles.playerControlIcons + " me-4"}
           size={18}
