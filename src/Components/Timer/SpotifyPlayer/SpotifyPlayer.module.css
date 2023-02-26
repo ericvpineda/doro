@@ -26,6 +26,7 @@
 
 .playerControlIcons {
   cursor: pointer;
+  color: black;
 }
 
 .playerSeekTrack {
@@ -43,9 +44,9 @@
   text-align: right;
 
   /* Text scrolling  */
-  -moz-transform: translateX(70%);
-  -webkit-transform: translateX(70%);
-  transform: translateX(70%);
+  -moz-transform: translateX(100%);
+  -webkit-transform: translateX(100%);
+  transform: translateX(100%);
 
   -moz-animation: my-animation 10s linear infinite;
   -webkit-animation: my-animation 10s linear infinite;
@@ -54,9 +55,9 @@
 
 @keyframes my-animation {
   from {
-    -moz-transform: translateX(70%);
-    -webkit-transform: translateX(70%);
-    transform: translateX(70%);
+    -moz-transform: translateX(100%);
+    -webkit-transform: translateX(100%);
+    transform: translateX(100%);
   }
   to {
     -moz-transform: translateX(-100%);

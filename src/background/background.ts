@@ -3,6 +3,181 @@ import { PlayerActions, Status } from "../Utils/SpotifyUtils";
 // DEBUG: Used to check if background script runs in console
 console.log("Running: Background script...");
 
+// User Authentication functions and objects
+
+// Helper object for argument into authentication functions
+const client = {
+  id: encodeURIComponent("9b8675b2d72647fb9fdd3c06474cfde9"),
+  scope: encodeURIComponent(
+    "user-library-read user-library-modify streaming user-read-email user-read-currently-playing user-read-private user-modify-playback-state user-read-playback-state"
+  ),
+  uri: chrome.identity.getRedirectURL(),
+  state: "",
+  authCode: "",
+  challenge: "",
+  verifier: "",
+  refreshToken: "",
+  player: undefined,
+};
+
+// Build URL for request user authorization
+const createAuthURL = (client: any): string => {
+  const url = new URL("https://accounts.spotify.com/authorize");
+  url.searchParams.append("response_type", "code");
+  url.searchParams.append("code_challenge_method", "S256");
+  url.searchParams.append("client_id", client.id);
+  url.searchParams.append("scope", client.scope);
+  url.searchParams.append("redirect_uri", client.uri);
+  url.searchParams.append("state", client.state);
+  url.searchParams.append("code_challenge", client.challenge);
+  // url.searchParams.append("show_dialog", "true");
+  return url.href;
+};
+
+// Exchange authorization code for access token
+const requestAccessToken = async (client: any) => {
+  const url = new URL("https://accounts.spotify.com/api/token");
+  url.searchParams.append("grant_type", "authorization_code");
+  url.searchParams.append("redirect_uri", client.uri);
+  url.searchParams.append("client_id", client.id);
+  url.searchParams.append("code", client.authCode);
+  url.searchParams.append("code_verifier", client.verifier);
+  const params = new URLSearchParams(url.search);
+  const headers = {
+    "Content-Type": "application/x-www-form-urlencoded",
+  };
+  // Post request to get access tokenx
+  return await fetch(url.href, {
+    method: "POST",
+    headers,
+    body: params.toString(),
+  });
+};
+
+const requestRefreshToken = async (client: any) => {
+  const url = new URL("https://accounts.spotify.com/api/token");
+  url.searchParams.append("grant_type", "refresh_token");
+  url.searchParams.append("refresh_token", client.refreshToken);
+  url.searchParams.append("client_id", client.id);
+  const params = new URLSearchParams(url.search);
+  const headers = {
+    "Content-Type": "application/x-www-form-urlencoded",
+  };
+  return await fetch(url.href, {
+    method: "POST",
+    headers,
+    body: params.toString(),
+  });
+};
+
+// Helper function to set user credentials
+const setAccessTokenHandler = (data: any) => {
+  chrome.storage.local.set({
+    signedIn: true,
+    refreshToken: data.refresh_token,
+    expiresIn: data.expires_in,
+    accessToken: data.access_token,
+    endTime: data.expires_in * 1000 + new Date().getTime(),
+  });
+};
+
+// Sign user out of Spotify
+const signOut = () => {
+  chrome.storage.local.set({
+    signedIn: false,
+    refreshToken: "",
+    expiresIn: "",
+    accessToken: "",
+    endTime: "",
+  });
+};
+
+const setRefreshTokenTimer = (data: any) => {
+  const timeout = setInterval(() => {
+    requestRefreshToken(client)
+      .then((res) => res.json())
+      .then((data) => {
+        setAccessTokenHandler(data);
+      })
+      .catch(() => { signOut(); });
+  }, (data.expires_in - 60) * 1000);
+  return () => clearInterval(timeout);
+}
+
+// Launch user auth flow
+const userSignIn = async (params: any) => {
+
+  if (params.signedIn === undefined || !params.signedIn) {
+    const [challenge, verifier] = params.data.challenge;
+    client.challenge = challenge;
+    client.state = params.data.state;
+
+    // Prompt user authorization
+    return new Promise((resolve, reject) => {
+      chrome.identity.launchWebAuthFlow(
+        { url: createAuthURL(client), interactive: true },
+        (res) => {
+          if (chrome.runtime.lastError) {
+            resolve({
+              status: Status.ERROR,
+              error: chrome.runtime.lastError.message!,
+            });
+            return;
+          }
+          // Check if response url is valid 
+          if (res === null || res === undefined) {
+            resolve({
+              status: Status.ERROR,
+              error: "User access denied.",
+            })
+            return;
+          }
+          // Note: URL allows get param after query variable
+          const url = new URL(res!);
+          if (
+            url.searchParams.has("error") ||
+            url.searchParams.get("state") !== client.state
+          ) {
+            resolve({
+              status: Status.ERROR,
+              error: "User access denied.",
+            })
+            return;
+          }
+
+          client.authCode = url.searchParams.get("code")!
+          client.verifier = verifier
+          requestAccessToken(client)
+            .then((res) => res.json())
+            .then((data) => {
+              setAccessTokenHandler(data);
+              resolve({
+                status: Status.SUCCESS,
+                error: "",
+              })
+              setRefreshTokenTimer(data)
+            })
+            .catch((err) => {
+              signOut();
+              return resolve({
+                status: Status.ERROR,
+                error: err,
+              })
+            });
+        }
+      );
+    });
+  } else {
+    return new Promise ((resolve, reject) => {
+      return resolve({
+        status: Status.FAILURE,
+        error: "User already logged in.",
+      })
+    })
+  }
+
+};
+
 // Playback Actions
 
 // Helper function for calling playback actions
@@ -131,79 +306,78 @@ const trackCommand = async (params: any, method: string, path: string) => {
 //  - should condition check endtime instead of signedIn?
 chrome.runtime.onMessage.addListener((req, sender, res) => {
   chrome.storage.local.get(["accessToken", "signedIn"], (result: any) => {
-    if (result.signedIn && result.accessToken) {
-      let query: any;
-      switch (req.message) {
-        case PlayerActions.PLAY:
-          trackCommand(result, "PUT", "/player/play").then((response) => {
-            res(response);
-          });
-          break;
-        case PlayerActions.PAUSE:
-          trackCommand(result, "PUT", "/player/pause").then((response) =>
-            res(response)
-          );
-          break;
-        case PlayerActions.NEXT:
-          trackCommand(result, "POST", "/player/next").then((response) =>
-            res(response)
-          );
-          break;
-        case PlayerActions.PREVIOUS:
-          trackCommand(result, "POST", "/player/previous").then((response) =>
-            res(response)
-          );
-          break;
-        case PlayerActions.GET_PROFILE:
-          getUserProfile(result).then((response) => res(response));
-          break;
-        case PlayerActions.GET_CURRENTLY_PLAYING:
-          getCurrentlyPlaying(result).then((response) => res(response));
-          break;
-        case PlayerActions.SAVE_TRACK:
-          query = new URLSearchParams({ ids: req.query });
-          trackCommand(result, "PUT", "/tracks?" + query.toString()).then(
-            (response) => res(response)
-          );
-          break;
-        case PlayerActions.REMOVE_SAVED_TRACK:
-          query = new URLSearchParams({ ids: req.query });
-          trackCommand(result, "DELETE", "/tracks?" + query.toString()).then(
-            (response) => res(response)
-          );
-          break;
-        case PlayerActions.SET_VOLUME:
-          query = new URLSearchParams({
-            volume_percent: req.query["volumePercent"],
-            device_id: req.query["deviceId"],
-          });
-          trackCommand(
-            result,
-            "PUT",
-            "/player/volume?" + query.toString()
-          ).then((response) => res(response));
-          break;
-        case PlayerActions.SEEK_POSITION:
-          query = new URLSearchParams({
-            position_ms: req.query["positionMs"],
-            device_id: req.query["deviceId"],
-          });
-          trackCommand(result, "PUT", "/player/seek?" + query.toString()).then(
-            (response) => res(response)
-          );
-          break;
-        default:
-          res({
-            status: Status.ERROR,
-            error: "Unknown error occurred.",
-          });
-          break;
-      }
-    } else {
-      res({
-        status: Status.ERROR,
-        error: "User is not authenticated.",
-      });
+    let query: any;
+    switch (req.message) {
+      case PlayerActions.PLAY:
+        trackCommand(result, "PUT", "/player/play").then((response) => {
+          res(response);
+        });
+        break;
+      case PlayerActions.PAUSE:
+        trackCommand(result, "PUT", "/player/pause").then((response) =>
+          res(response)
+        );
+        break;
+      case PlayerActions.NEXT:
+        trackCommand(result, "POST", "/player/next").then((response) =>
+          res(response)
+        );
+        break;
+      case PlayerActions.PREVIOUS:
+        trackCommand(result, "POST", "/player/previous").then((response) =>
+          res(response)
+        );
+        break;
+      case PlayerActions.GET_PROFILE:
+        getUserProfile(result).then((response) => res(response));
+        break;
+      case PlayerActions.GET_CURRENTLY_PLAYING:
+        getCurrentlyPlaying(result).then((response) => res(response));
+        break;
+      case PlayerActions.SAVE_TRACK:
+        query = new URLSearchParams({ ids: req.query });
+        trackCommand(result, "PUT", "/tracks?" + query.toString()).then(
+          (response) => res(response)
+        );
+        break;
+      case PlayerActions.REMOVE_SAVED_TRACK:
+        query = new URLSearchParams({ ids: req.query });
+        trackCommand(result, "DELETE", "/tracks?" + query.toString()).then(
+          (response) => res(response)
+        );
+        break;
+      case PlayerActions.SET_VOLUME:
+        query = new URLSearchParams({
+          volume_percent: req.query["volumePercent"],
+          device_id: req.query["deviceId"],
+        });
+        trackCommand(result, "PUT", "/player/volume?" + query.toString()).then(
+          (response) => res(response)
+        );
+        break;
+      case PlayerActions.SEEK_POSITION:
+        query = new URLSearchParams({
+          position_ms: req.query["positionMs"],
+          device_id: req.query["deviceId"],
+        });
+        trackCommand(result, "PUT", "/player/seek?" + query.toString()).then(
+          (response) => res(response)
+        );
+        break;
+      case PlayerActions.SIGNOUT:
+        signOut()
+        res({status: Status.SUCCESS}) 
+        break;
+      case PlayerActions.SIGNIN:
+        result.data = req.data;
+        userSignIn(result).then((response) => res(response));
+        break;
+      default:
+        res({
+          status: Status.ERROR,
+          error: "Unknown error occurred.",
+        });
+        break;
     }
   });
   return true;
