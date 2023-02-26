@@ -43,36 +43,12 @@ const SpotifyPlayer: FC = (props) => {
   const [thumbPosition, setThumbPosition] = useState(0);
   const [showThumbTrack, setShowThumbTrack] = useState(false);
   const [playerStatus, setPlayerStatus] = useState(PlayerStatus.LOADING);
-  console.log(playerStatus)
 
   // Get accesstoken and initial track data (on initial load
   // - issue: multiple calls to spotify api
   //  - possible solutions:
   //      - save artist data into storage?
   //          - issue: what if change track on diff device
-
-  // On popup open, get track data
-  useEffect(() => getTrack(), []);
-
-  // Note: will run sequential to previous useEffect
-  useEffect(() => {
-    if (thumbPosition >= 0) {
-      const updateTime = setInterval(() => {
-        if (isPlaying) {
-          const updatedProgress = progressMs + 1000;
-          setProgressMs(updatedProgress);
-          const updatedPosition = getThumbPosition(updatedProgress, durationMs);
-          setThumbPosition(updatedPosition);
-          if (updatedProgress >= durationMs - 3000) {
-            getTrack();
-          }
-        } else {
-          getTrack();
-        }
-      }, 1000);
-      return () => clearInterval(updateTime);
-    }
-  }, [thumbPosition, progressMs, durationMs, isPlaying]);
 
   const getTrack = () => {
     chrome.runtime.sendMessage(
@@ -101,7 +77,6 @@ const SpotifyPlayer: FC = (props) => {
             console.log(res)
             setThumbPosition(-1);
             setPlayerStatus(PlayerStatus.REQUIRE_WEBPAGE);
-            console.log(res);
           } else if (res.status === Status.ERROR) {
             setThumbPosition(-1);
             // TODO: What to show when status is error? 
@@ -115,6 +90,29 @@ const SpotifyPlayer: FC = (props) => {
       }
     );
   };
+
+  // On popup open, get track data
+  useEffect(() => {getTrack()}, []);
+
+  // Note: will run sequential to previous useEffect
+  useEffect(() => {
+    if (playerStatus === PlayerStatus.SUCCESS && thumbPosition >= 0) {
+      const updateTime = setInterval(() => {
+        if (isPlaying) {
+          const updatedProgress = progressMs + 1000;
+          setProgressMs(updatedProgress);
+          const updatedPosition = getThumbPosition(updatedProgress, durationMs);
+          setThumbPosition(updatedPosition);
+          if (updatedProgress >= durationMs - 3000) {
+            getTrack();
+          }
+        } else {
+          getTrack();
+        }
+      }, 1000);
+      return () => clearInterval(updateTime);
+    }
+  }, [thumbPosition, progressMs, durationMs, isPlaying, playerStatus]);
 
   const trackPause = () => {
     chrome.runtime.sendMessage({ message: PlayerActions.PAUSE }, (res) => {
@@ -214,28 +212,28 @@ const SpotifyPlayer: FC = (props) => {
   };
 
   const showHeart = () => {
-    if (artist === "") {
+    if (playerStatus === PlayerStatus.SUCCESS && trackSaved) {
+      return (
+        <HeartFill
+          onClick={() => PlayerStatus.SUCCESS ? trackRemoveSaved() : null}
+          className={styles.playerControlIcons + " me-4"}
+          size={18}
+        ></HeartFill>
+      );
+    } else if (playerStatus === PlayerStatus.SUCCESS) {
+      return (
+        <Heart
+          onClick={() => PlayerStatus.SUCCESS ? trackSave() : null}
+          className={styles.playerControlIcons + " me-4"}
+          size={18}
+        ></Heart>
+      );
+    } else {
       return (
         <HeartHalf
           className={styles.playerControlIcons + " me-4"}
           size={18}
         ></HeartHalf>
-      );
-    } else if (trackSaved) {
-      return (
-        <HeartFill
-          onClick={trackRemoveSaved}
-          className={styles.playerControlIcons + " me-4"}
-          size={18}
-        ></HeartFill>
-      );
-    } else {
-      return (
-        <Heart
-          onClick={trackSave}
-          className={styles.playerControlIcons + " me-4"}
-          size={18}
-        ></Heart>
       );
     }
   };
@@ -295,19 +293,19 @@ const SpotifyPlayer: FC = (props) => {
   };
 
   const onMouseEnterHandler = () => {
-    if (isPlaying) setShowVolumeTrack(true);
+    if (playerStatus === PlayerStatus.SUCCESS) setShowVolumeTrack(true);
   };
 
   const onMouseLeaveHandler = () => {
-    if (isPlaying) setShowVolumeTrack(false);
+    if (playerStatus === PlayerStatus.SUCCESS) setShowVolumeTrack(false);
   };
 
   const onMouseEnterThumbTrack = () => {
-    if (isPlaying) setShowThumbTrack(true);
+    if (playerStatus === PlayerStatus.SUCCESS) setShowThumbTrack(true);
   };
 
   const onMouseLeaveThumbTrack = () => {
-    if (isPlaying) setShowThumbTrack(false);
+    if (playerStatus === PlayerStatus.SUCCESS) setShowThumbTrack(false);
   };
 
   // Theme for volume slider
@@ -378,26 +376,26 @@ const SpotifyPlayer: FC = (props) => {
         <Box width={100}></Box>
         {showHeart()}
         <SkipStartFill
-          onClick={trackPrevious}
+          onClick={() => playerStatus === PlayerStatus.SUCCESS ? trackPrevious(): null}
           className={styles.playerControlIcons + " ms-2 me-2"}
           size={20}
         ></SkipStartFill>
         {!isPlaying ? (
           <PlayFill
-            onClick={trackPlay}
+            onClick={() => playerStatus === PlayerStatus.SUCCESS ? trackPlay(): null}
             className={styles.playerControlIcons + " me-2"}
             size={30}
           ></PlayFill>
         ) : (
           <PauseFill
-            onClick={trackPause}
+            onClick={() => playerStatus === PlayerStatus.SUCCESS ? trackPause(): null}
             className={styles.playerControlIcons + " me-2"}
             size={30}
           ></PauseFill>
         )}
         <SkipEndFill
           className={styles.playerControlIcons + " me-3"}
-          onClick={trackNext}
+          onClick={() => playerStatus === PlayerStatus.SUCCESS ? trackNext(): null}
           size={20}
         ></SkipEndFill>
         <Box width={130}>
