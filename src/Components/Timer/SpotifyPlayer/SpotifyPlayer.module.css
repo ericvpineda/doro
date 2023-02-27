@@ -87,7 +87,7 @@
   margin-bottom: -0.5rem;
 }
 
-.trackSlider {
+.trackSliderContainer {
   height: 4rem;
 
   position: absolute;
@@ -98,4 +98,35 @@
 .playerSeekTime {
     font-family: 'VT323', monospace;
     font-weight: 600;
+}
+
+.volumeMount {
+  animation: inAnimation 300ms ease-in;
+  animation-fill-mode: forwards;
+
+} 
+
+@keyframes inAnimation {
+  0% {
+    opacity: 0;
+    visibility: hidden;
+  }
+  100% {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.volumeUnmount {
+  animation: outAnimation 300ms ease-out;
+}
+
+@keyframes outAnimation {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
 }

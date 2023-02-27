@@ -14,7 +14,7 @@ import {
   Status,
   createTrackTime,
   getThumbPosition,
-  PlayerStatus
+  PlayerStatus,
 } from "../../../Utils/SpotifyUtils";
 import {
   PlayFill,
@@ -41,8 +41,8 @@ const SpotifyPlayer: FC = (props) => {
   const [durationMs, setDurationMs] = useState(0);
   const [progressMs, setProgressMs] = useState(0);
   const [thumbPosition, setThumbPosition] = useState(0);
-  const [showThumbTrack, setShowThumbTrack] = useState(false);
   const [playerStatus, setPlayerStatus] = useState(PlayerStatus.LOADING);
+  const [isMounted, setIsMounted] = useState(false);
 
   // Get accesstoken and initial track data (on initial load
   // - issue: multiple calls to spotify api
@@ -74,12 +74,12 @@ const SpotifyPlayer: FC = (props) => {
             setThumbPosition(getThumbPosition(progress, duration));
             setPlayerStatus(PlayerStatus.SUCCESS);
           } else if (res.status === Status.FAILURE) {
-            console.log(res)
+            console.log(res);
             setThumbPosition(-1);
             setPlayerStatus(PlayerStatus.REQUIRE_WEBPAGE);
           } else if (res.status === Status.ERROR) {
             setThumbPosition(-1);
-            // TODO: What to show when status is error? 
+            // TODO: What to show when status is error?
             // setPlayerStatus(PlayerStatus.ERROR);
             console.log(res);
           }
@@ -92,7 +92,9 @@ const SpotifyPlayer: FC = (props) => {
   };
 
   // On popup open, get track data
-  useEffect(() => {getTrack()}, []);
+  useEffect(() => {
+    getTrack();
+  }, []);
 
   // Note: will run sequential to previous useEffect
   useEffect(() => {
@@ -215,7 +217,7 @@ const SpotifyPlayer: FC = (props) => {
     if (playerStatus === PlayerStatus.SUCCESS && trackSaved) {
       return (
         <HeartFill
-          onClick={() => PlayerStatus.SUCCESS ? trackRemoveSaved() : null}
+          onClick={() => (PlayerStatus.SUCCESS ? trackRemoveSaved() : null)}
           className={styles.playerControlIcons + " me-4"}
           size={18}
         ></HeartFill>
@@ -223,7 +225,7 @@ const SpotifyPlayer: FC = (props) => {
     } else if (playerStatus === PlayerStatus.SUCCESS) {
       return (
         <Heart
-          onClick={() => PlayerStatus.SUCCESS ? trackSave() : null}
+          onClick={() => (PlayerStatus.SUCCESS ? trackSave() : null)}
           className={styles.playerControlIcons + " me-4"}
           size={18}
         ></Heart>
@@ -293,19 +295,16 @@ const SpotifyPlayer: FC = (props) => {
   };
 
   const onMouseEnterHandler = () => {
-    if (playerStatus === PlayerStatus.SUCCESS) setShowVolumeTrack(true);
+    if (playerStatus === PlayerStatus.SUCCESS) {
+      setIsMounted(true);
+      setShowVolumeTrack(true);
+    }
   };
 
   const onMouseLeaveHandler = () => {
-    if (playerStatus === PlayerStatus.SUCCESS) setShowVolumeTrack(false);
-  };
-
-  const onMouseEnterThumbTrack = () => {
-    if (playerStatus === PlayerStatus.SUCCESS) setShowThumbTrack(true);
-  };
-
-  const onMouseLeaveThumbTrack = () => {
-    if (playerStatus === PlayerStatus.SUCCESS) setShowThumbTrack(false);
+    if (playerStatus === PlayerStatus.SUCCESS) {
+      setIsMounted(false);
+    }
   };
 
   // Theme for volume slider
@@ -321,6 +320,11 @@ const SpotifyPlayer: FC = (props) => {
         rail: {
           color: "black",
         },
+      },
+    },
+    transitions: {
+      easing: {
+        easeInOut: "cubic-bezier(0.4, 0, 0.2, 1)",
       },
     },
   });
@@ -362,48 +366,60 @@ const SpotifyPlayer: FC = (props) => {
   return (
     <div className={styles.playerContainer} id="player-container">
       <AlbumArt playerStatus={playerStatus} albumUrl={albumUrl}></AlbumArt>
-      <div className={styles.trackTextContainer}>
-        <div className={styles.trackTitleContainer}>
-          <div className={styles.trackTitle}>{track}</div>
+      {PlayerStatus.SUCCESS === playerStatus && (
+        <div className={styles.trackTextContainer}>
+          <div className={styles.trackTitleContainer}>
+            <div className={styles.trackTitle}>{track}</div>
+          </div>
+          <div className={styles.trackArtist}>{artist}</div>
         </div>
-        <div className={styles.trackArtist}>{artist}</div>
-      </div>
-      <div
-        className={styles.playerControls}
-        onMouseEnter={onMouseEnterThumbTrack}
-        onMouseLeave={onMouseLeaveThumbTrack}
-      >
+      )}
+      <div className={styles.playerControls}>
         <Box width={100}></Box>
         {showHeart()}
         <SkipStartFill
-          onClick={() => playerStatus === PlayerStatus.SUCCESS ? trackPrevious(): null}
+          onClick={() =>
+            playerStatus === PlayerStatus.SUCCESS ? trackPrevious() : null
+          }
           className={styles.playerControlIcons + " ms-2 me-2"}
           size={20}
         ></SkipStartFill>
         {!isPlaying ? (
           <PlayFill
-            onClick={() => playerStatus === PlayerStatus.SUCCESS ? trackPlay(): null}
+            onClick={() =>
+              playerStatus === PlayerStatus.SUCCESS ? trackPlay() : null
+            }
             className={styles.playerControlIcons + " me-2"}
             size={30}
           ></PlayFill>
         ) : (
           <PauseFill
-            onClick={() => playerStatus === PlayerStatus.SUCCESS ? trackPause(): null}
+            onClick={() =>
+              playerStatus === PlayerStatus.SUCCESS ? trackPause() : null
+            }
             className={styles.playerControlIcons + " me-2"}
             size={30}
           ></PauseFill>
         )}
         <SkipEndFill
           className={styles.playerControlIcons + " me-3"}
-          onClick={() => playerStatus === PlayerStatus.SUCCESS ? trackNext(): null}
+          onClick={() =>
+            playerStatus === PlayerStatus.SUCCESS ? trackNext() : null
+          }
           size={20}
         ></SkipEndFill>
         <Box width={130}>
           <Stack>
-            <Grid item className={styles.trackSlider}>
+            <Grid item className={styles.trackSliderContainer}>
               {showVolumeTrack && (
                 <ThemeProvider theme={muiTheme}>
                   <Slider
+                    className={
+                      isMounted ? styles.volumeMount : styles.volumeUnmount
+                    }
+                    onAnimationEnd={() => {
+                      if (!isMounted) setShowVolumeTrack(false);
+                    }}
                     value={volume}
                     orientation="vertical"
                     onChange={(_, val) => debounceVolumeHandler(val)}
@@ -428,8 +444,8 @@ const SpotifyPlayer: FC = (props) => {
           </Stack>
         </Box>
         <div className={styles.playerSeekTrack}>
-          <Box width={225}>
-            {showThumbTrack && (
+          {PlayerStatus.SUCCESS === playerStatus && (
+            <Box width={225}>
               <Grid container spacing={1} alignItems="center">
                 <Grid item className={styles.playerSeekTime + " me-2"}>
                   {createTrackTime(progressMs)}
@@ -449,8 +465,8 @@ const SpotifyPlayer: FC = (props) => {
                   {createTrackTime(durationMs)}
                 </Grid>
               </Grid>
-            )}
-          </Box>
+            </Box>
+          )}
         </div>
       </div>
     </div>
