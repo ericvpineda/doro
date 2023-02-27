@@ -14,7 +14,6 @@
   align-items: center;
 
   background-color: #f1f1f1;
-
   box-shadow: 0 5px 20px 0 #5a5a5a;
 }
 
@@ -118,7 +117,7 @@
 }
 
 .volumeUnmount {
-  animation: outAnimation 300ms ease-out;
+  animation: outAnimation 400ms ease-out;
 }
 
 @keyframes outAnimation {

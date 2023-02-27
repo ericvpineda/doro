@@ -216,26 +216,25 @@ const SpotifyPlayer: FC = (props) => {
   const showHeart = () => {
     if (playerStatus === PlayerStatus.SUCCESS && trackSaved) {
       return (
+        <IconButton onClick={() => (PlayerStatus.SUCCESS ? trackRemoveSaved() : null)}>
         <HeartFill
-          onClick={() => (PlayerStatus.SUCCESS ? trackRemoveSaved() : null)}
-          className={styles.playerControlIcons + " me-4"}
+          className={styles.playerControlIcons}
           size={18}
         ></HeartFill>
+        </IconButton>
       );
     } else if (playerStatus === PlayerStatus.SUCCESS) {
       return (
+        <IconButton onClick={() => (PlayerStatus.SUCCESS ? trackSave() : null)}>
         <Heart
-          onClick={() => (PlayerStatus.SUCCESS ? trackSave() : null)}
-          className={styles.playerControlIcons + " me-4"}
+          className={styles.playerControlIcons}
           size={18}
         ></Heart>
+        </IconButton>
       );
     } else {
       return (
-        <HeartHalf
-          className={styles.playerControlIcons + " me-4"}
-          size={18}
-        ></HeartHalf>
+        <HeartHalf className={styles.playerControlIcons} size={18}></HeartHalf>
       );
     }
   };
@@ -377,37 +376,52 @@ const SpotifyPlayer: FC = (props) => {
       <div className={styles.playerControls}>
         <Box width={100}></Box>
         {showHeart()}
-        <SkipStartFill
+        <IconButton
+          size={"small"}
           onClick={() =>
             playerStatus === PlayerStatus.SUCCESS ? trackPrevious() : null
           }
-          className={styles.playerControlIcons + " ms-2 me-2"}
-          size={20}
-        ></SkipStartFill>
+        >
+          <SkipStartFill
+            className={styles.playerControlIcons}
+            size={20}
+          ></SkipStartFill>
+        </IconButton>
         {!isPlaying ? (
-          <PlayFill
+          <IconButton
             onClick={() =>
               playerStatus === PlayerStatus.SUCCESS ? trackPlay() : null
             }
-            className={styles.playerControlIcons + " me-2"}
-            size={30}
-          ></PlayFill>
+          >
+            <PlayFill
+              className={styles.playerControlIcons}
+              size={30}
+            ></PlayFill>
+          </IconButton>
         ) : (
-          <PauseFill
+          <IconButton
             onClick={() =>
               playerStatus === PlayerStatus.SUCCESS ? trackPause() : null
             }
-            className={styles.playerControlIcons + " me-2"}
-            size={30}
-          ></PauseFill>
+          >
+            <PauseFill
+              className={styles.playerControlIcons}
+              size={30}
+            ></PauseFill>
+          </IconButton>
         )}
-        <SkipEndFill
-          className={styles.playerControlIcons + " me-3"}
+        <IconButton
+          size={"small"}
           onClick={() =>
             playerStatus === PlayerStatus.SUCCESS ? trackNext() : null
           }
-          size={20}
-        ></SkipEndFill>
+        >
+          <SkipEndFill
+            className={styles.playerControlIcons}
+            size={20}
+          ></SkipEndFill>
+        </IconButton>
+
         <Box width={130}>
           <Stack>
             <Grid item className={styles.trackSliderContainer}>
