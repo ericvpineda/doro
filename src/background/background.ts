@@ -1,4 +1,4 @@
-import { PlayerActions, Status } from "../Utils/SpotifyUtils";
+import { PlayerActions, PlayerStatus, Status } from "../Utils/SpotifyUtils";
 
 // DEBUG: Used to check if background script runs in console
 console.log("Running: Background script...");
@@ -250,7 +250,15 @@ const getCurrentlyPlaying = async (params: any) => {
   const accessToken = params.accessToken;
   // Get track, artist, album image, isPlaying, and track id
   await request("GET", "/player", accessToken)
-    .then((res) => res.json())
+    .then((res) => {
+      if (res.status === 200) {
+        return res.json()
+      } else if (res.status === 204) {
+        throw {status: Status.FAILURE, message: "Web player not open in browser."}
+      } else {
+        throw {status: Status.ERROR, message: "Unknown error occured."}
+      }
+    })
     .then((data) => {
       response.status = Status.SUCCESS;
       trackData = {
@@ -279,9 +287,9 @@ const getCurrentlyPlaying = async (params: any) => {
     })
     .catch((err) => {
       response = {
-        status: Status.FAILURE,
+        status: err.status || Status.ERROR,
         data: {},
-        error: { message: "Failure when getting track data.", details: err },
+        error: { message: "Failure when getting track data.", details: err.message },
       };
     });
   return response;

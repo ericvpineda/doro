@@ -77,15 +77,14 @@ const SpotifyPlayer: FC<Props> = (props) => {
           setThumbPosition(getThumbPosition(progress, duration));
           setPlayerStatus(PlayerStatus.SUCCESS);
         } else if (res.status === Status.FAILURE) {
-          console.log(res.error);
+          console.log(res);
           setThumbPosition(-1);
           setPlayerStatus(PlayerStatus.REQUIRE_WEBPAGE);
         } else if (res.status === Status.ERROR) {
           // TODO: What to show when status is error?
-          // setPlayerStatus(PlayerStatus.ERROR);
-          // props.setShowPlayerHandler(false)
           console.log(res);
           setThumbPosition(-1);
+          props.setShowPlayerHandler(false);
           setPlayerStatus(PlayerStatus.REQUIRE_WEBPAGE);
         } else {
           // setPlayerStatus(PlayerStatus.ERROR);
@@ -96,9 +95,7 @@ const SpotifyPlayer: FC<Props> = (props) => {
   };
 
   // On popup open, get track data
-  useEffect(() => {
-    getTrack();
-  }, []);
+  useEffect(() => getTrack(), []);
 
   // Note: will run sequential to previous useEffect
   useEffect(() => {
@@ -238,7 +235,10 @@ const SpotifyPlayer: FC<Props> = (props) => {
     } else {
       return (
         <IconButton>
-          <HeartHalf className={styles.playerControlIcons} size={18}></HeartHalf>
+          <HeartHalf
+            className={styles.playerControlIcons}
+            size={18}
+          ></HeartHalf>
         </IconButton>
       );
     }
