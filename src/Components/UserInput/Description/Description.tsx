@@ -24,7 +24,6 @@ const Description: FC<DescriptFunction> = (props): JSX.Element => {
   useEffect(() => {
     const descriptElem = document.getElementById('description')
     chrome.storage.local.get(["description"], (res) => {
-      console.log(res.description)
       const descriptCache = res.description;
       if (descriptElem && descriptCache !== undefined && descriptCache.length > 0 && descriptCache !== props.defaultMsg) {
         descriptElem.innerHTML = descriptCache

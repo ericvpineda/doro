@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
 .timerOuter {
     width: 15rem;
     height: 15rem;
@@ -36,9 +38,12 @@
 }
 
 .timer span {
-    font-size: 1.2rem;
+    font-family: 'VT323', monospace;
+
+    font-size: 1.8rem;
+    font-weight: 600;
     color: white;
-    text-shadow: 0rem 2rem 2rem rgba(255,255,255,0.6);
+    text-shadow: 0rem 3px 12px rgba(255,255,255,0.6);
 }
 
 .timerControl {

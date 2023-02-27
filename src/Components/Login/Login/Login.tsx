@@ -42,14 +42,15 @@ const Login: FC<Props> = (props) => {
   const signOut = () => {
     chrome.runtime.sendMessage({message: PlayerActions.SIGNOUT}, (res) => {
       if (res.status === Status.SUCCESS) {
-        setSignedIn(false);
-        props.setSignedIn(false)
+      
       } else if (res.status === Status.ERROR) {
         console.log(res);
       } else {
         console.log("Unknown error when signing user out");
       }
     })
+    setSignedIn(false);
+    props.setSignedIn(false)
   }
 
   useEffect(() => {

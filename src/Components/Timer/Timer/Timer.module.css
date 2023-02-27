@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
 .body {
     height: auto;
     width: 100%;
@@ -12,13 +14,10 @@
 
 
 .editButton {
-    height: 1.8rem;
-    width: 2rem;
-
     color: white;
 
     position: absolute;
-    bottom: 7em;
+    bottom: 3.1em;
     right: 1rem;
     cursor: pointer;
 }
@@ -33,4 +32,13 @@
     bottom: 4.5rem;
     right: 1rem;
     cursor: pointer;
+}
+
+.switchText {
+    position: fixed;
+    bottom: 3.5rem;
+    right: 1.2rem;
+    color: white;
+    font-size: small;
+    font-family: 'VT323', monospace;
 }

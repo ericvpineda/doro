@@ -3,6 +3,11 @@
     "version": "1.0.0",
     "description": "Pomodoro with spotify integration extension.",
     "manifest_version": 3,
+    "icons": {
+        "16": "./img/doro_logo.png", 
+        "48": "./img/doro_logo.png", 
+        "128": "./img/doro_logo.png"
+    },
     "author": "Eric Pineda",
     "action": {
         "default_title": "Doro",

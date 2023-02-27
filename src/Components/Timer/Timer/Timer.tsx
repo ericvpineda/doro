@@ -4,7 +4,8 @@ import FocusText from "../FocusText/FocusText";
 import styles from "./Timer.module.css";
 import SpotifyPlayer from "../SpotifyPlayer/SpotifyPlayer";
 import Login from "../../Login/Login/Login";
-import { GearFill, ToggleOff, ToggleOn } from "react-bootstrap-icons";
+import { ToggleOff, ToggleOn } from "react-bootstrap-icons";
+import ManageHistoryIcon from "@mui/icons-material/ManageHistory";
 
 interface Prop {
   setShowTimerHandler: (param: boolean) => void;
@@ -21,41 +22,69 @@ const Timer: FC<Prop> = (props) => {
 
   useEffect(() => {
     chrome.storage.local.get(["signedIn", "endTime", "showPlayer"], (res) => {
-      let cacheSignedIn = res.signedIn;
-      if (cacheSignedIn === undefined || cacheSignedIn === false || res.endTime <= new Date().getTime()) {
-        cacheSignedIn = false;
-        chrome.storage.local.set({ signedIn: cacheSignedIn });
+      let signedInCache = res.signedIn;
+      if (
+        signedInCache === undefined ||
+        signedInCache === false ||
+        res.endTime <= new Date().getTime()
+      ) {
+        signedInCache = false;
+        chrome.storage.local.set({ signedIn: signedInCache });
       } else {
-        setShowSwitch(true)
-        setShowPlayer(res.showPlayer !== undefined ? res.showPlayer : true)
+        setShowSwitch(true);
+        setShowPlayer(res.showPlayer !== undefined ? res.showPlayer : true);
       }
-      setSignedIn(cacheSignedIn);
+      setSignedIn(signedInCache);
     });
   }, []);
 
   // Sets sign in status and switch boolean
   const setSignedInHandler = (value: boolean) => {
-    setSignedIn(value)
-    setShowSwitch(value)
-  }
+    setSignedIn(value);
+    setShowSwitch(value);
+  };
 
   // Renders switch for clock/music player icon
   const renderSwitch = () => {
-    chrome.storage.local.set({showPlayer})
+    chrome.storage.local.set({ showPlayer });
     if (showPlayer) {
-      return <ToggleOn className={styles.switch} onClick={() => setShowPlayer(false)} ></ToggleOn>
+      return (
+        <Fragment>
+          <div className={styles.switchText}>Player</div>
+          <ToggleOn
+            className={styles.switch}
+            onClick={() => setShowPlayer(false)}
+          ></ToggleOn>
+        </Fragment>
+      );
     }
-    return <ToggleOff className={styles.switch} onClick={() => setShowPlayer(true)} />
-  }
+    return (
+      <Fragment>
+        <div className={styles.switchText}>Timer</div>
+        <ToggleOff
+          className={styles.switch}
+          onClick={() => setShowPlayer(true)}
+        />
+      </Fragment>
+    );
+  };
 
   return (
     <Fragment>
-      <Login setSignedIn={setSignedInHandler}></Login>
       <div id="timer" className={styles.body}>
-        {signedIn && showPlayer ? <SpotifyPlayer></SpotifyPlayer> : <Clock></Clock>}
-        <FocusText></FocusText>
+        {signedIn && showPlayer ? (
+          <SpotifyPlayer setShowPlayerHandler={setShowPlayer} />
+        ) : (
+          <Clock />
+        )}
+        <FocusText />
       </div>
-      <GearFill onClick={setShowTimer} className={styles.editButton}></GearFill>
+      <Login setSignedIn={setSignedInHandler}></Login>
+      <ManageHistoryIcon
+        fontSize={"large"}
+        onClick={setShowTimer}
+        className={styles.editButton}
+      ></ManageHistoryIcon>
       {showSwitch && renderSwitch()}
     </Fragment>
   );

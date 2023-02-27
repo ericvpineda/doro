@@ -54,6 +54,7 @@ const requestAccessToken = async (client: any) => {
   });
 };
 
+// Request to get refresh token
 const requestRefreshToken = async (client: any) => {
   const url = new URL("https://accounts.spotify.com/api/token");
   url.searchParams.append("grant_type", "refresh_token");
@@ -92,6 +93,7 @@ const signOut = () => {
   });
 };
 
+// Sets automatic refresh token call
 const setRefreshTokenTimer = (data: any) => {
   const timeout = setInterval(() => {
     requestRefreshToken(client)
@@ -99,14 +101,18 @@ const setRefreshTokenTimer = (data: any) => {
       .then((data) => {
         setAccessTokenHandler(data);
       })
-      .catch(() => { signOut(); });
+      .catch(() => {
+        signOut();
+      });
   }, (data.expires_in - 60) * 1000);
-  return () => clearInterval(timeout);
-}
+  return () => {
+    signOut();
+    clearInterval(timeout);
+  };
+};
 
 // Launch user auth flow
 const userSignIn = async (params: any) => {
-
   if (params.signedIn === undefined || !params.signedIn) {
     const [challenge, verifier] = params.data.challenge;
     client.challenge = challenge;
@@ -124,12 +130,12 @@ const userSignIn = async (params: any) => {
             });
             return;
           }
-          // Check if response url is valid 
+          // Check if response url is valid
           if (res === null || res === undefined) {
             resolve({
               status: Status.ERROR,
               error: "User access denied.",
-            })
+            });
             return;
           }
           // Note: URL allows get param after query variable
@@ -141,41 +147,40 @@ const userSignIn = async (params: any) => {
             resolve({
               status: Status.ERROR,
               error: "User access denied.",
-            })
+            });
             return;
           }
 
-          client.authCode = url.searchParams.get("code")!
-          client.verifier = verifier
+          client.authCode = url.searchParams.get("code")!;
+          client.verifier = verifier;
           requestAccessToken(client)
             .then((res) => res.json())
             .then((data) => {
               setAccessTokenHandler(data);
+              setRefreshTokenTimer(data);
               resolve({
                 status: Status.SUCCESS,
                 error: "",
-              })
-              setRefreshTokenTimer(data)
+              });
             })
             .catch((err) => {
               signOut();
               return resolve({
                 status: Status.ERROR,
                 error: err,
-              })
+              });
             });
         }
       );
     });
   } else {
-    return new Promise ((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       return resolve({
         status: Status.FAILURE,
         error: "User already logged in.",
-      })
-    })
+      });
+    });
   }
-
 };
 
 // Playback Actions
@@ -365,8 +370,8 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
         );
         break;
       case PlayerActions.SIGNOUT:
-        signOut()
-        res({status: Status.SUCCESS}) 
+        signOut();
+        res({ status: Status.SUCCESS });
         break;
       case PlayerActions.SIGNIN:
         result.data = req.data;
@@ -429,7 +434,7 @@ chrome.alarms.onAlarm.addListener((alarm) => {
           title: "Doro - Pomodoro with Spotify Player",
           message,
           type: "basic",
-          iconUrl: "./img/sample_spotify_icon.png",
+          iconUrl: "./img/doro_logo.png",
         });
       }
     }

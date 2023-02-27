@@ -40,7 +40,11 @@ module.exports = {
           to: path.resolve("dist"),
         },
         {
-          from: path.resolve("src/img/sample_spotify_icon.png"),
+          from: path.resolve("src/img/spotify_icon.png"),
+          to: path.resolve("dist/img"),
+        },
+        {
+          from: path.resolve("src/img/doro_logo.png"),
           to: path.resolve("dist/img"),
         },
       ],
