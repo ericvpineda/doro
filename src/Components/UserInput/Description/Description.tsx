@@ -51,7 +51,7 @@ const Description: FC<DescriptFunction> = (props): JSX.Element => {
       </div>
       <div className="offset-1 col">
         <textarea
-          onChange={debounceChangeHandler}
+          onInput={debounceChangeHandler}
           className={
             styles.textArea + " form-control text-nowrap overflow-hidden"
           }
