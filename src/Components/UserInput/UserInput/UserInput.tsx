@@ -16,15 +16,22 @@ const UserInput: FC<pageUpdate> = (props): JSX.Element => {
   const [minutes, setMinutes] = useState(0);
   const defaultMsg = "Working...";
   const [description, setDescription] = useState(defaultMsg);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [timeErrorMessage, setTimeErrorMessage] = useState("");
+  const [descriptionErrorMessage, setDescriptionErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("")
   // TODO: Allow user to update default message
   const ctx = useContext(DescriptContext);
 
   const onSubmitHandler = () => {
     // TODO: Check for errors, if so, show error messgae
-    if (errorMessage !== "") {
+    if (timeErrorMessage.length > 0) {
+      setErrorMessage(timeErrorMessage);
       setShowError(true);
-    } else {
+    } else if (descriptionErrorMessage.length > 0) { 
+      setErrorMessage(descriptionErrorMessage);
+      setShowError(true);
+    }
+    else {
       chrome.storage.local.set({
         hours,
         minutes,
@@ -58,6 +65,22 @@ const UserInput: FC<pageUpdate> = (props): JSX.Element => {
     setDescription(text);
   };
 
+  const setTimeErrorMessageHandler = (text: string) => {
+    setTimeErrorMessage(text)
+  }
+
+  const setDescriptionErrorMessageHandler = (text: string) => {
+    setDescriptionErrorMessage(text)
+  }
+
+  const setHoursHandler = (value: number) => {
+    setHours(value)
+  }
+
+  const setMinutesHandler = (value: number) => {
+    setMinutes(value);
+  }
+
   return (
     <div className={styles.body}>
       <div
@@ -70,14 +93,15 @@ const UserInput: FC<pageUpdate> = (props): JSX.Element => {
           <Time
             hours={hours}
             minutes={minutes}
-            setHours={setHours}
-            setMinutes={setMinutes}
-            setErrorMessageHandler={setErrorMessage}
+            setHours={setHoursHandler}
+            setMinutes={setMinutesHandler}
+            setErrorMessage={setTimeErrorMessageHandler}
           />
           <Description
             description={description}
             defaultMsg={defaultMsg}
             setDescription={setDescriptionHandler}
+            setErrorMessage={setDescriptionErrorMessageHandler}
           />
         </div>
         <button onClick={onSubmitHandler} className="btn btn-success mt-3">

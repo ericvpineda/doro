@@ -14,7 +14,7 @@ interface TimeFunctions {
   setMinutes: (param: number) => void;
   hours: number;
   minutes: number;
-  setErrorMessageHandler: (err: string) => void;
+  setErrorMessage: (err: string) => void;
 }
 
 const Time: FC<TimeFunctions> = (props): JSX.Element => {
@@ -24,26 +24,26 @@ const Time: FC<TimeFunctions> = (props): JSX.Element => {
   const setHoursHandler = (event: ChangeEvent<HTMLInputElement>) => {
     const value = +event.target.value;
     if (value > 24) {
-      props.setErrorMessageHandler("Hours must be between 0-24.");
+      props.setErrorMessage("Hours must be between 0-24.");
     } else if (value === 0 && minutes === 0) {
-      props.setErrorMessageHandler("Hours and minutes cannot both be 0.");
+      props.setErrorMessage("Hours and minutes cannot both be 0.");
     } else {
       setHours(value);
       props.setHours(value);
-      props.setErrorMessageHandler("");
+      props.setErrorMessage("");
     }
   };
 
   const setMinutesHandler = (event: ChangeEvent<HTMLInputElement>) => {
     const value = +event.target.value;
     if (value > 59) {
-      props.setErrorMessageHandler("Minutes must be between 0-59.");
+      props.setErrorMessage("Minutes must be between 0-59.");
     } else if (value === 0 && hours === 0) {
-      props.setErrorMessageHandler("Hours and minutes cannot both be 0.");
+      props.setErrorMessage("Hours and minutes cannot both be 0.");
     } else {
       setMinutes(value);
       props.setMinutes(value);
-      props.setErrorMessageHandler("");
+      props.setErrorMessage("");
     }
   };
 

@@ -5,22 +5,21 @@ import debounce from "lodash.debounce";
 
 interface DescriptFunction {
   setDescription: (param: string) => void;
+  setErrorMessage: (param: string) => void;
   description: string;
   defaultMsg: string;
 }
 
 const Description: FC<DescriptFunction> = (props): JSX.Element => {
-  const [showError, setShowError] = useState(false);
   const defaultMsg = props.defaultMsg;
 
   // Note: Invariant that description can never be empty
   const setDescriptHandler = (event: ChangeEvent<HTMLTextAreaElement>) => {
     const description = event.target.value;
     if (description.length > 30) {
-      setShowError(true);
-      props.setDescription(""); // Empty string is error
+      props.setErrorMessage("Focus plan character limit 0-30."); 
     } else {
-      setShowError(false);
+      props.setErrorMessage("")
       props.setDescription(description.length > 0 ? description : defaultMsg);
     }
   };
@@ -61,9 +60,6 @@ const Description: FC<DescriptFunction> = (props): JSX.Element => {
           rows={1}
           placeholder="Working..."
         ></textarea>
-        {showError && (
-          <div className="text-danger fs-6">Character limit 0 to 30.</div>
-        )}
       </div>
     </div>
   );
