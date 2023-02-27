@@ -200,7 +200,13 @@ const request = async (method: string, path: string, accessToken: string) => {
 const getUserProfile = async (params: any) => {
   let response = {};
   await request("GET", "", params.accessToken)
-    .then((res) => res.json())
+    .then((res) => {
+      if (res.status === 200) {
+        return res.json();
+      } else {
+        throw { status: Status.FAILURE, message: "Unknown error occured." };
+      }
+    })
     .then((data) => {
       const profileUrl = data.images[0].url;
       response = { status: Status.SUCCESS, data: { profileUrl } };
@@ -208,7 +214,7 @@ const getUserProfile = async (params: any) => {
     })
     .catch((err) => {
       response = {
-        status: Status.FAILURE,
+        status: err.status || Status.ERROR,
         error: {
           message: "Failure when getting user profile.",
           details: err,
@@ -252,11 +258,14 @@ const getCurrentlyPlaying = async (params: any) => {
   await request("GET", "/player", accessToken)
     .then((res) => {
       if (res.status === 200) {
-        return res.json()
+        return res.json();
       } else if (res.status === 204) {
-        throw {status: Status.FAILURE, message: "Web player not open in browser."}
+        throw {
+          status: Status.FAILURE,
+          message: "Web player not open in browser.",
+        };
       } else {
-        throw {status: Status.ERROR, message: "Unknown error occured."}
+        throw { status: Status.ERROR, message: "Unknown error occured." };
       }
     })
     .then((data) => {
@@ -289,7 +298,10 @@ const getCurrentlyPlaying = async (params: any) => {
       response = {
         status: err.status || Status.ERROR,
         data: {},
-        error: { message: "Failure when getting track data.", details: err.message },
+        error: {
+          message: "Failure when getting track data.",
+          details: err.message,
+        },
       };
     });
   return response;

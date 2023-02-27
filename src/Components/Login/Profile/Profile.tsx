@@ -21,6 +21,7 @@ const Profile: FC<Props> = (props) => {
           console.log(res);
         } else if (res.status === Status.ERROR) {
           console.log(res);
+          props.signOut()
         } else {
           console.log("Unknown error when getting profile url.");
         }
