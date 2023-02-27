@@ -27,7 +27,11 @@ import {
 } from "react-bootstrap-icons";
 import AlbumArt from "./AlbumArt/AlbumArt";
 
-const SpotifyPlayer: FC = (props) => {
+interface Props {
+  setShowPlayerHandler: (params: boolean) => void;
+}
+
+const SpotifyPlayer: FC<Props> = (props) => {
   const [artist, setArtist] = useState("");
   const [track, setTrack] = useState("");
   const [albumUrl, setAlbumUrl] = useState("");
@@ -54,35 +58,35 @@ const SpotifyPlayer: FC = (props) => {
     chrome.runtime.sendMessage(
       { message: PlayerActions.GET_CURRENTLY_PLAYING },
       (res) => {
-        if (res !== undefined) {
-          if (res.status === Status.SUCCESS) {
-            setTrack(res.data.track);
-            const bufferTrail = res.data.artist.length > 30 ? "..." : "";
-            setArtist(res.data.artist.substring(0, 30) + bufferTrail);
-            setAlbumUrl(res.data.albumUrl);
-            setIsPlaying(res.data.isPlaying);
-            setTrackId(res.data.id);
-            setTrackSaved(res.data.isSaved);
-            setDeviceId(res.data.deviceId);
-            setVolume(res.data.volumePercent);
-            setProgressMs(res.data.progressMs);
-            setDurationMs(res.data.durationMs);
-            const progress = res.data.progressMs;
-            const duration = res.data.durationMs;
-            setProgressMs(progress + 500);
-            setDurationMs(duration);
-            setThumbPosition(getThumbPosition(progress, duration));
-            setPlayerStatus(PlayerStatus.SUCCESS);
-          } else if (res.status === Status.FAILURE) {
-            console.log(res);
-            setThumbPosition(-1);
-            setPlayerStatus(PlayerStatus.REQUIRE_WEBPAGE);
-          } else if (res.status === Status.ERROR) {
-            setThumbPosition(-1);
-            // TODO: What to show when status is error?
-            // setPlayerStatus(PlayerStatus.ERROR);
-            console.log(res);
-          }
+        if (res !== undefined && res.status === Status.SUCCESS) {
+          setTrack(res.data.track);
+          const bufferTrail = res.data.artist.length > 30 ? "..." : "";
+          setArtist(res.data.artist.substring(0, 30) + bufferTrail);
+          setAlbumUrl(res.data.albumUrl);
+          setIsPlaying(res.data.isPlaying);
+          setTrackId(res.data.id);
+          setTrackSaved(res.data.isSaved);
+          setDeviceId(res.data.deviceId);
+          setVolume(res.data.volumePercent);
+          setProgressMs(res.data.progressMs);
+          setDurationMs(res.data.durationMs);
+          const progress = res.data.progressMs;
+          const duration = res.data.durationMs;
+          setProgressMs(progress + 500);
+          setDurationMs(duration);
+          setThumbPosition(getThumbPosition(progress, duration));
+          setPlayerStatus(PlayerStatus.SUCCESS);
+        } else if (res.status === Status.FAILURE) {
+          console.log(res.error);
+          setThumbPosition(-1);
+          setPlayerStatus(PlayerStatus.REQUIRE_WEBPAGE);
+        } else if (res.status === Status.ERROR) {
+          // TODO: What to show when status is error?
+          // setPlayerStatus(PlayerStatus.ERROR);
+          // props.setShowPlayerHandler(false)
+          console.log(res);
+          setThumbPosition(-1);
+          setPlayerStatus(PlayerStatus.REQUIRE_WEBPAGE);
         } else {
           // setPlayerStatus(PlayerStatus.ERROR);
           console.log("Unknown error when getting track data.");
@@ -216,25 +220,26 @@ const SpotifyPlayer: FC = (props) => {
   const showHeart = () => {
     if (playerStatus === PlayerStatus.SUCCESS && trackSaved) {
       return (
-        <IconButton onClick={() => (PlayerStatus.SUCCESS ? trackRemoveSaved() : null)}>
-        <HeartFill
-          className={styles.playerControlIcons}
-          size={18}
-        ></HeartFill>
+        <IconButton
+          onClick={() => (PlayerStatus.SUCCESS ? trackRemoveSaved() : null)}
+        >
+          <HeartFill
+            className={styles.playerControlIcons}
+            size={18}
+          ></HeartFill>
         </IconButton>
       );
     } else if (playerStatus === PlayerStatus.SUCCESS) {
       return (
         <IconButton onClick={() => (PlayerStatus.SUCCESS ? trackSave() : null)}>
-        <Heart
-          className={styles.playerControlIcons}
-          size={18}
-        ></Heart>
+          <Heart className={styles.playerControlIcons} size={18}></Heart>
         </IconButton>
       );
     } else {
       return (
-        <HeartHalf className={styles.playerControlIcons} size={18}></HeartHalf>
+        <IconButton>
+          <HeartHalf className={styles.playerControlIcons} size={18}></HeartHalf>
+        </IconButton>
       );
     }
   };
@@ -319,11 +324,6 @@ const SpotifyPlayer: FC = (props) => {
         rail: {
           color: "black",
         },
-      },
-    },
-    transitions: {
-      easing: {
-        easeInOut: "cubic-bezier(0.4, 0, 0.2, 1)",
       },
     },
   });
