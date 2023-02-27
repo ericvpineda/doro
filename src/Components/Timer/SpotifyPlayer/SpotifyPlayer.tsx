@@ -217,9 +217,7 @@ const SpotifyPlayer: FC<Props> = (props) => {
   const showHeart = () => {
     if (playerStatus === PlayerStatus.SUCCESS && trackSaved) {
       return (
-        <IconButton
-          onClick={() => (PlayerStatus.SUCCESS ? trackRemoveSaved() : null)}
-        >
+        <IconButton onClick={trackRemoveSaved}>
           <HeartFill
             className={styles.playerControlIcons}
             size={18}
@@ -228,13 +226,13 @@ const SpotifyPlayer: FC<Props> = (props) => {
       );
     } else if (playerStatus === PlayerStatus.SUCCESS) {
       return (
-        <IconButton onClick={() => (PlayerStatus.SUCCESS ? trackSave() : null)}>
+        <IconButton onClick={trackSave}>
           <Heart className={styles.playerControlIcons} size={18}></Heart>
         </IconButton>
       );
     } else {
       return (
-        <IconButton>
+        <IconButton disabled>
           <HeartHalf
             className={styles.playerControlIcons}
             size={18}
@@ -377,10 +375,8 @@ const SpotifyPlayer: FC<Props> = (props) => {
         <Box width={100}></Box>
         {showHeart()}
         <IconButton
-          size={"small"}
-          onClick={() =>
-            playerStatus === PlayerStatus.SUCCESS ? trackPrevious() : null
-          }
+          disabled={playerStatus !== PlayerStatus.SUCCESS}
+          onClick={trackPrevious}
         >
           <SkipStartFill
             className={styles.playerControlIcons}
@@ -389,9 +385,8 @@ const SpotifyPlayer: FC<Props> = (props) => {
         </IconButton>
         {!isPlaying ? (
           <IconButton
-            onClick={() =>
-              playerStatus === PlayerStatus.SUCCESS ? trackPlay() : null
-            }
+            disabled={playerStatus !== PlayerStatus.SUCCESS}
+            onClick={trackPlay}
           >
             <PlayFill
               className={styles.playerControlIcons}
@@ -400,9 +395,8 @@ const SpotifyPlayer: FC<Props> = (props) => {
           </IconButton>
         ) : (
           <IconButton
-            onClick={() =>
-              playerStatus === PlayerStatus.SUCCESS ? trackPause() : null
-            }
+            disabled={playerStatus !== PlayerStatus.SUCCESS}
+            onClick={trackPause}
           >
             <PauseFill
               className={styles.playerControlIcons}
@@ -411,20 +405,17 @@ const SpotifyPlayer: FC<Props> = (props) => {
           </IconButton>
         )}
         <IconButton
-          size={"small"}
-          onClick={() =>
-            playerStatus === PlayerStatus.SUCCESS ? trackNext() : null
-          }
+          disabled={playerStatus !== PlayerStatus.SUCCESS}
+          onClick={trackNext}
         >
           <SkipEndFill
             className={styles.playerControlIcons}
             size={20}
           ></SkipEndFill>
         </IconButton>
-
         <Box width={130}>
           <Stack>
-            <Grid item className={styles.trackSliderContainer}>
+            <Grid item className={styles.volumeSlider}>
               {showVolumeTrack && (
                 <ThemeProvider theme={muiTheme}>
                   <Slider
@@ -451,37 +442,38 @@ const SpotifyPlayer: FC<Props> = (props) => {
                 onMouseEnter={onMouseEnterHandler}
                 onMouseLeave={onMouseLeaveHandler}
                 onClick={muteVolumeHandler}
+                disabled={playerStatus !== PlayerStatus.SUCCESS}
               >
                 {getVolumeIcon()}
               </IconButton>
             </Grid>
           </Stack>
         </Box>
-        <div className={styles.playerSeekTrack}>
-          {PlayerStatus.SUCCESS === playerStatus && (
-            <Box width={225}>
-              <Grid container spacing={1} alignItems="center">
-                <Grid item className={styles.playerSeekTime + " me-2"}>
-                  {createTrackTime(progressMs)}
-                </Grid>
-                <Grid item xs>
-                  <ThemeProvider theme={muiTheme}>
-                    <Slider
-                      value={thumbPosition}
-                      onChange={(_, val) => debounceThumbSeekHandler(val)}
-                      onChangeCommitted={(_, val) =>
-                        thumbSeekChangeCommitted(val)
-                      }
-                    ></Slider>
-                  </ThemeProvider>
-                </Grid>
-                <Grid item className={styles.playerSeekTime + " ms-2"}>
-                  {createTrackTime(durationMs)}
-                </Grid>
+      </div>
+      <div className={styles.playerTrackSlider}>
+        {PlayerStatus.SUCCESS === playerStatus && (
+          <Box width={225}>
+            <Grid container spacing={1} alignItems="center">
+              <Grid item className={styles.playerSeekTime + " me-2"}>
+                {createTrackTime(progressMs)}
               </Grid>
-            </Box>
-          )}
-        </div>
+              <Grid item xs>
+                <ThemeProvider theme={muiTheme}>
+                  <Slider
+                    value={thumbPosition}
+                    onChange={(_, val) => debounceThumbSeekHandler(val)}
+                    onChangeCommitted={(_, val) =>
+                      thumbSeekChangeCommitted(val)
+                    }
+                  ></Slider>
+                </ThemeProvider>
+              </Grid>
+              <Grid item className={styles.playerSeekTime + " ms-2"}>
+                {createTrackTime(durationMs)}
+              </Grid>
+            </Grid>
+          </Box>
+        )}
       </div>
     </div>
   );
