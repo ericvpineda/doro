@@ -16,12 +16,13 @@ const UserInput: FC<pageUpdate> = (props): JSX.Element => {
   const [minutes, setMinutes] = useState(0);
   const defaultMsg = "Working...";
   const [description, setDescription] = useState(defaultMsg);
+  const [errorMessage, setErrorMessage] = useState("");
   // TODO: Allow user to update default message
   const ctx = useContext(DescriptContext);
 
   const onSubmitHandler = () => {
     // TODO: Check for errors, if so, show error messgae
-    if ((hours + minutes === 0) || description === "") {
+    if (errorMessage !== "") {
       setShowError(true);
     } else {
       chrome.storage.local.set({
@@ -71,6 +72,7 @@ const UserInput: FC<pageUpdate> = (props): JSX.Element => {
             minutes={minutes}
             setHours={setHours}
             setMinutes={setMinutes}
+            setErrorMessageHandler={setErrorMessage}
           />
           <Description
             description={description}
@@ -82,7 +84,7 @@ const UserInput: FC<pageUpdate> = (props): JSX.Element => {
           Start
         </button>
         {showError && (
-          <div className="text-danger fs-6">Please fix errors.</div>
+          <div className="text-danger fs-6">{errorMessage}</div>
         )}
       </div>
       <ArrowReturnRight

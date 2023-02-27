@@ -14,29 +14,36 @@ interface TimeFunctions {
   setMinutes: (param: number) => void;
   hours: number;
   minutes: number;
+  setErrorMessageHandler: (err: string) => void;
 }
 
 const Time: FC<TimeFunctions> = (props): JSX.Element => {
-  const [showHourError, setShowHourError] = useState(false);
-  const [showMinuteError, setShowMinuteError] = useState(false);
+  const [hours, setHours] = useState(0);
+  const [minutes, setMinutes] = useState(0);
 
   const setHoursHandler = (event: ChangeEvent<HTMLInputElement>) => {
-    const hours = +event.target.value;
-    if (hours > 24) {
-      setShowHourError(true);
+    const value = +event.target.value;
+    if (value > 24) {
+      props.setErrorMessageHandler("Hours must be between 0-24.");
+    } else if (value === 0 && minutes === 0) {
+      props.setErrorMessageHandler("Hours and minutes cannot both be 0.");
     } else {
-      props.setHours(hours);
-      setShowHourError(false);
+      setHours(value);
+      props.setHours(value);
+      props.setErrorMessageHandler("");
     }
   };
 
   const setMinutesHandler = (event: ChangeEvent<HTMLInputElement>) => {
-    const minutes = +event.target.value;
-    if (minutes > 59) {
-      setShowMinuteError(true);
+    const value = +event.target.value;
+    if (value > 59) {
+      props.setErrorMessageHandler("Minutes must be between 0-59.");
+    } else if (value === 0 && hours === 0) {
+      props.setErrorMessageHandler("Hours and minutes cannot both be 0.");
     } else {
-      props.setMinutes(minutes);
-      setShowMinuteError(false);
+      setMinutes(value);
+      props.setMinutes(value);
+      props.setErrorMessageHandler("");
     }
   };
 
@@ -47,23 +54,32 @@ const Time: FC<TimeFunctions> = (props): JSX.Element => {
     }
   };
 
-  const debouncedHoursHandler = useMemo(() => debounce(setHoursHandler, 300), []);
+  // Note: need to set dependecy for memoization
+  const debouncedHoursHandler = useMemo(
+    () => debounce(setHoursHandler, 300),
+    [hours, minutes]
+  );
 
-  const debouncedMinutesHandler = useMemo(() => debounce(setMinutesHandler, 300), []);
+  const debouncedMinutesHandler = useMemo(
+    () => debounce(setMinutesHandler, 300),
+    [hours, minutes]
+  );
 
   useEffect(() => {
     const minutesElem = document.getElementById("minutes") as HTMLInputElement;
     const hoursElem = document.getElementById("hours") as HTMLInputElement;
     chrome.storage.local.get(["setTime"], (res) => {
-      const minutesCache = res.setTime && res.setTime.minutes;
-      if (minutesCache !== undefined && minutesCache > 0 && minutesElem) {
-        minutesElem.setAttribute("value", res.setTime.minutes);
-        props.setMinutes(res.setTime.minutes);
-      }
       const hoursCache = res.setTime && res.setTime.hours;
+      const minutesCache = res.setTime && res.setTime.minutes;
       if (hoursCache !== undefined && hoursCache > 0 && hoursElem) {
-        hoursElem.setAttribute("value", res.setTime.hours);
-        props.setHours(res.setTime.hours);
+        props.setHours(hoursCache);
+        setHours(hoursCache)
+        hoursElem.setAttribute("value", hoursCache);
+      }
+      if (minutesCache !== undefined && minutesCache > 0 && minutesElem) {
+        props.setMinutes(minutesCache);
+        setMinutes(minutesCache)
+        minutesElem.setAttribute("value", minutesCache);
       }
     });
   }, []);
@@ -78,7 +94,7 @@ const Time: FC<TimeFunctions> = (props): JSX.Element => {
         </div>
         <div className="offset-1 col">
           <input
-            onChange={debouncedHoursHandler}
+            onInput={debouncedHoursHandler}
             id="hours"
             className="form-control"
             type="number"
@@ -87,9 +103,6 @@ const Time: FC<TimeFunctions> = (props): JSX.Element => {
             placeholder="Set hours..."
             onKeyDown={validateTime}
           />
-          {showHourError && (
-            <div className="text-danger fs-6">Must be between 0-24.</div>
-          )}
         </div>
       </div>
 
@@ -101,7 +114,7 @@ const Time: FC<TimeFunctions> = (props): JSX.Element => {
         </div>
         <div className="offset-1 col">
           <input
-            onChange={debouncedMinutesHandler}
+            onInput={debouncedMinutesHandler}
             id="minutes"
             className="form-control"
             type="number"
@@ -110,9 +123,6 @@ const Time: FC<TimeFunctions> = (props): JSX.Element => {
             placeholder="Set minutes..."
             onKeyDown={validateTime}
           />
-          {showMinuteError && (
-            <div className="text-danger fs-6">Must be between 0-59.</div>
-          )}
         </div>
       </div>
     </Fragment>
