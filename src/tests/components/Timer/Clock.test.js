@@ -1,3 +1,4 @@
+import React from 'react';
 import {fireEvent, screen, render} from "@testing-library/react"
 import '@testing-library/jest-dom'
 import Clock from '../../../Components/Timer/Clock/Clock.tsx'

@@ -19,6 +19,7 @@ const Profile: FC<Props> = (props) => {
           setProfileUrl(res.data.profileUrl);
         } else if (res.status === Status.FAILURE) {
           console.log(res);
+          props.signOut()
         } else if (res.status === Status.ERROR) {
           console.log(res);
           props.signOut()

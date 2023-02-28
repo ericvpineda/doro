@@ -1,4 +1,5 @@
 // Tests for Description Element
+import React from 'react';
 import Description from '../../../Components/UserInput/Description/Description.tsx'
 import {render, fireEvent, screen} from "@testing-library/react"
 import userEvent from "@testing-library/user-event"

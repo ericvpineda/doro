@@ -217,7 +217,7 @@ const getUserProfile = async (params: any) => {
         status: err.status || Status.ERROR,
         error: {
           message: "Failure when getting user profile.",
-          details: err,
+          details: err.message,
         },
       };
     });

@@ -68,6 +68,7 @@ const Login: FC<Props> = (props) => {
         <Profile signOut={signOut}></Profile>
       ) : (
         <Spotify
+        data-testid="spotify_button"
           onClick={trySignIn}
           className={styles.spotifyButton}
         ></Spotify>

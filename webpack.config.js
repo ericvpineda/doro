@@ -14,6 +14,11 @@ module.exports = {
     // allow webpack to handle other file times
     rules: [
       {
+        use: 'babel-loader',
+        test: /\.(js|jsx)$/,
+        exclude: /node_modules/,
+      },
+      {
         use: "ts-loader",
         test: /\.tsx?$/,
         exclude: /node_modules/,

@@ -1,4 +1,5 @@
 // Tests for Time Input Component
+import React from 'react';
 import { render, fireEvent, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event"
 import '@testing-library/jest-dom'
