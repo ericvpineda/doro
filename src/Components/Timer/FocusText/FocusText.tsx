@@ -10,8 +10,8 @@ const FocusText: FC = () => {
 
   useEffect(() => {
     // Note: Will be rerendered by App.tsx when change window
-    chrome.storage.local.get(["description", "isCleared"], (res) => {
-      if (!res.isCleared) {
+    chrome.storage.local.get(["description", "isExecutingRequest"], (res) => {
+      if (!res.isExecutingRequest) {
         setDescription(res.description);
       } else {
         ctx.onClearDescript();

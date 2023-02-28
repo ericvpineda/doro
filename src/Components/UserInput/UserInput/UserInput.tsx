@@ -42,7 +42,7 @@ const UserInput: FC<pageUpdate> = (props): JSX.Element => {
           hours,
           minutes,
         },
-        isCleared: false,
+        isExecutingRequest: false,
         showPlayer: false,
       });
 

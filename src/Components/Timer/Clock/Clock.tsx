@@ -14,15 +14,15 @@ const Clock: FC = () => {
     minutes: "00",
     seconds: "00",
   });
-  const [isPlay, setIsPlay] = useState(false);
-  const [isCleared, setIsCleared] = useState(true);
-  const ctx = useContext(DescriptContext)
+  const [isRunning, setIsRunning] = useState(false);
+  const [isExecutingRequest, setIsExecutingRequest] = useState(true);
+  const ctx = useContext(DescriptContext);
 
   // Helper function to update clock time and effects
   const progressRing = document.getElementById("timer-outer")! as HTMLElement;
   const updateTime = () => {
     chrome.storage.local.get(
-      ["hours", "minutes", "seconds", "setTime", "isCleared"],
+      ["hours", "minutes", "seconds", "setTime", "isExecutingRequest"],
       (res) => {
         if (
           res.seconds !== undefined &&
@@ -39,7 +39,7 @@ const Clock: FC = () => {
 
           // Update clock gui
           let degree = 0;
-          if (res.isCleared === false) {
+          if (!res.isExecutingRequest) {
             const curr_time: number =
               res.hours * 3600 + res.minutes * 60 + res.seconds;
             const end_time: number =
@@ -53,7 +53,7 @@ const Clock: FC = () => {
                       )`;
           }
         } else {
-            setIsPlay(true)
+          setIsRunning(true);
         }
       }
     );
@@ -70,7 +70,7 @@ const Clock: FC = () => {
           (res.hours !== 0 || res.minutes !== 0 || res.seconds !== 0)
         ) {
           chrome.storage.local.set({ isRunning: !res.isRunning });
-          setIsPlay(res.isRunning ? true : false);
+          setIsRunning(res.isRunning);
         }
       }
     );
@@ -82,14 +82,14 @@ const Clock: FC = () => {
       hours: 0,
       minutes: 0,
       seconds: 0,
-      isCleared: true,
+      isExecutingRequest: true,
       description: "",
-      setTime: {}
+      setTime: {},
     });
-    setIsPlay(true);
-    setIsCleared(true);
+    setIsRunning(true);
+    setIsExecutingRequest(true);
     // Set show description boolean to false
-    ctx.onClearDescript()
+    ctx.onClearDescript();
   };
 
   const resetTimer = () => {
@@ -99,29 +99,29 @@ const Clock: FC = () => {
         hours: origTime.hours,
         minutes: origTime.minutes,
         seconds: 0,
-        isRunning: false
+        isRunning: false,
       });
     });
-    setIsPlay(true);
+    setIsRunning(true);
   };
 
   // Initial re-render (allow initial set timer to show up)
   useEffect(() => {
-    chrome.storage.local.get(["isRunning", "seconds", "isCleared"], (res) => {
+    chrome.storage.local.get(["isRunning", "seconds", "isExecutingRequest"], (res) => {
       if (res.seconds !== undefined) {
-        setIsPlay(res.isRunning ? false : true);
-        setIsCleared(res.isCleared);
+        setIsRunning(!res.isRunning);
+        setIsExecutingRequest(res.isExecutingRequest);
       }
     });
     updateTime();
-  }, [isCleared, isPlay]);
+  }, [isExecutingRequest, isRunning]);
 
   // Update time for each time seconds variable is updated
   useEffect(() => {
     chrome.storage.onChanged.addListener(() => {
       updateTime();
     });
-  }, [isCleared]);
+  }, [isExecutingRequest]);
 
   return (
     <div id="timer-outer" className={styles.timerOuter}>
@@ -140,25 +140,31 @@ const Clock: FC = () => {
           </span>
         </div>
       </div>
-      {!isCleared && (
+      {!isExecutingRequest && (
         <Fragment>
           <XCircleFill
+            data-testid="clear-btn"
             className={styles.clearButton}
             onClick={clearTimer}
           ></XCircleFill>
+          {isRunning ? (
+            <PlayFill
+              data-testid="start-btn"
+              className={styles.timerControl}
+              onClick={() => setIsPlayerHandler()}
+            ></PlayFill>
+          ) : (
+            <PauseFill
+              data-testid="pause-btn"
+              className={styles.timerControl}
+              onClick={() => setIsPlayerHandler()}
+            ></PauseFill>
+          )}
           <ArrowCounterclockwise
+            data-testid="reset-btn"
             className={styles.resetButton}
             onClick={resetTimer}
           ></ArrowCounterclockwise>
-          {isPlay ? (
-            <PlayFill className={styles.timerControl}
-            onClick={() => setIsPlayerHandler()}
-            ></PlayFill>
-          ) : (
-            <PauseFill className={styles.timerControl}
-            onClick={() => setIsPlayerHandler()}
-            ></PauseFill>
-          )}
         </Fragment>
       )}
     </div>

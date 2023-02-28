@@ -45,12 +45,12 @@ const Timer: FC<Prop> = (props) => {
   };
 
   // Renders switch for clock/music player icon
-  const renderSwitch = () => {
+  const renderToggleSwitch = () => {
     chrome.storage.local.set({ showPlayer });
     if (showPlayer) {
       return (
         <Fragment>
-          <div className={styles.switchText}>Player</div>
+          <div className={styles.switchText} data-testid="toggle-switch">Player</div>
           <ToggleOn
             className={styles.switch}
             onClick={() => setShowPlayer(false)}
@@ -85,7 +85,7 @@ const Timer: FC<Prop> = (props) => {
         onClick={setShowTimer}
         className={styles.editButton}
       ></ManageHistoryIcon>
-      {showSwitch && renderSwitch()}
+      {showSwitch && renderToggleSwitch()}
     </Fragment>
   );
 };
