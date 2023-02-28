@@ -6,7 +6,9 @@ import { chrome } from 'jest-chrome'
 
 // Tests
 // - all time digits set to "00" 
-// - saved timer in storage shows correct values
+// - executing timer shows correct values
+// - executing timer show clock buttons
+// - pausing time shows play button 
 
 describe("Test Clock component", () => {
     

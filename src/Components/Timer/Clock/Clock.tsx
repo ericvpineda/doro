@@ -9,14 +9,14 @@ import {
 import DescriptContext from "../../../hooks/DescriptContext";
 
 const Clock: FC = () => {
+  const [isRunning, setIsRunning] = useState(false);
+  const [isExecutingRequest, setIsExecutingRequest] = useState(true);
+  const ctx = useContext(DescriptContext);
   const [timer, setTimer] = useState({
     hours: "00",
     minutes: "00",
     seconds: "00",
   });
-  const [isRunning, setIsRunning] = useState(false);
-  const [isExecutingRequest, setIsExecutingRequest] = useState(true);
-  const ctx = useContext(DescriptContext);
 
   // Helper function to update clock time and effects
   const progressRing = document.getElementById("timer-outer")! as HTMLElement;
@@ -39,7 +39,7 @@ const Clock: FC = () => {
 
           // Update clock gui
           let degree = 0;
-          if (!res.isExecutingRequest) {
+          if (res.isExecutingRequest) {
             const curr_time: number =
               res.hours * 3600 + res.minutes * 60 + res.seconds;
             const end_time: number =
@@ -60,20 +60,13 @@ const Clock: FC = () => {
   };
 
   // Update start / pause button on clock gui
-  const setIsPlayerHandler = () => {
-    chrome.storage.local.get(
-      ["isRunning", "hours", "minutes", "seconds"],
-      (res) => {
-        // FIX: Improve way to check start and stop button
-        if (
-          res.seconds !== undefined &&
-          (res.hours !== 0 || res.minutes !== 0 || res.seconds !== 0)
-        ) {
-          chrome.storage.local.set({ isRunning: !res.isRunning });
-          setIsRunning(res.isRunning);
-        }
+  const setIsRunningHandler = () => {
+    chrome.storage.local.get(["isExecutingRequest"], (res) => {
+      if (res.isExecutingRequest) {
+        chrome.storage.local.set({ isRunning: !isRunning });
+        setIsRunning(!isRunning);
       }
-    );
+    });
   };
 
   const clearTimer = () => {
@@ -82,12 +75,12 @@ const Clock: FC = () => {
       hours: 0,
       minutes: 0,
       seconds: 0,
-      isExecutingRequest: true,
+      isExecutingRequest: false,
       description: "",
       setTime: {},
     });
     setIsRunning(true);
-    setIsExecutingRequest(true);
+    setIsExecutingRequest(false);
     // Set show description boolean to false
     ctx.onClearDescript();
   };
@@ -107,10 +100,10 @@ const Clock: FC = () => {
 
   // Initial re-render (allow initial set timer to show up)
   useEffect(() => {
-    chrome.storage.local.get(["isRunning", "seconds", "isExecutingRequest"], (res) => {
-      if (res.seconds !== undefined) {
-        setIsRunning(!res.isRunning);
-        setIsExecutingRequest(res.isExecutingRequest);
+    chrome.storage.local.get(["isRunning", "isExecutingRequest"], (res) => {
+      if (res.isExecutingRequest === true) {
+        setIsRunning(res.isRunning);
+        setIsExecutingRequest(true);
       }
     });
     updateTime();
@@ -125,7 +118,7 @@ const Clock: FC = () => {
 
   return (
     <div id="timer-outer" className={styles.timerOuter}>
-      <div className={styles.timerRing} onClick={() => setIsPlayerHandler()}>
+      <div className={styles.timerRing} onClick={setIsRunningHandler}>
         <div className={styles.timer}>
           <span id="hours" data-testid="test-hours">
             {timer.hours}
@@ -140,24 +133,24 @@ const Clock: FC = () => {
           </span>
         </div>
       </div>
-      {!isExecutingRequest && (
+      {isExecutingRequest && (
         <Fragment>
           <XCircleFill
             data-testid="clear-btn"
             className={styles.clearButton}
             onClick={clearTimer}
           ></XCircleFill>
-          {isRunning ? (
+          {!isRunning ? (
             <PlayFill
               data-testid="start-btn"
               className={styles.timerControl}
-              onClick={() => setIsPlayerHandler()}
+              onClick={setIsRunningHandler}
             ></PlayFill>
           ) : (
             <PauseFill
               data-testid="pause-btn"
               className={styles.timerControl}
-              onClick={() => setIsPlayerHandler()}
+              onClick={setIsRunningHandler}
             ></PauseFill>
           )}
           <ArrowCounterclockwise
