@@ -20,13 +20,13 @@ const Profile: FC<Props> = (props) => {
         if (res.status === Status.SUCCESS) {
           setProfileUrl(res.data.profileUrl);
         } else if (res.status === Status.FAILURE) {
-          console.log(res);
+          console.log(res.message);
           props.signOut();
         } else if (res.status === Status.ERROR) {
-          console.log(res);
+          console.log(res.message);
           props.signOut();
         } else {
-          console.log("Unknown error when getting profile url.");
+          console.log("Unknown error occured when getting profile url.");
         }
       }
     );

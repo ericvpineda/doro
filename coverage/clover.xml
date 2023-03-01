@@ -1,46 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1677646112867" clover="3.2.0">
-  <project timestamp="1677646112867" name="All files">
-    <metrics statements="43" coveredstatements="30" conditionals="20" coveredconditionals="12" methods="9" coveredmethods="7" elements="72" coveredelements="49" complexity="0" loc="43" ncloc="43" packages="2" files="2" classes="2"/>
-    <package name="Components.Login.Login">
-      <metrics statements="28" coveredstatements="28" conditionals="12" coveredconditionals="12" methods="7" coveredmethods="7"/>
-      <file name="Login.tsx" path="C:\Users\evpin\Desktop\coding\projects\12_pomodoro_spotify\src\Components\Login\Login\Login.tsx">
-        <metrics statements="28" coveredstatements="28" conditionals="12" coveredconditionals="12" methods="7" coveredmethods="7"/>
-        <line num="13" count="1" type="stmt"/>
-        <line num="14" count="11" type="stmt"/>
-        <line num="16" count="11" type="stmt"/>
-        <line num="17" count="4" type="stmt"/>
-        <line num="24" count="4" type="cond" truecount="2" falsecount="0"/>
-        <line num="25" count="1" type="stmt"/>
-        <line num="26" count="1" type="stmt"/>
-        <line num="27" count="3" type="cond" truecount="2" falsecount="0"/>
+<coverage generated="1677650769169" clover="3.2.0">
+  <project timestamp="1677650769169" name="All files">
+    <metrics statements="31" coveredstatements="18" conditionals="14" coveredconditionals="6" methods="6" coveredmethods="4" elements="51" coveredelements="28" complexity="0" loc="31" ncloc="31" packages="2" files="2" classes="2"/>
+    <package name="Components.Login.Profile">
+      <metrics statements="16" coveredstatements="16" conditionals="6" coveredconditionals="6" methods="4" coveredmethods="4"/>
+      <file name="Profile.tsx" path="C:\Users\evpin\Desktop\coding\projects\12_pomodoro_spotify\src\Components\Login\Profile\Profile.tsx">
+        <metrics statements="16" coveredstatements="16" conditionals="6" coveredconditionals="6" methods="4" coveredmethods="4"/>
+        <line num="9" count="3" type="stmt"/>
+        <line num="10" count="7" type="stmt"/>
+        <line num="12" count="7" type="stmt"/>
+        <line num="13" count="2" type="stmt"/>
+        <line num="16" count="7" type="stmt"/>
+        <line num="17" count="7" type="stmt"/>
+        <line num="20" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="21" count="3" type="stmt"/>
+        <line num="22" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="24" count="1" type="stmt"/>
+        <line num="25" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="26" count="2" type="stmt"/>
+        <line num="27" count="2" type="stmt"/>
         <line num="29" count="1" type="stmt"/>
-        <line num="30" count="2" type="cond" truecount="2" falsecount="0"/>
-        <line num="31" count="1" type="stmt"/>
-        <line num="32" count="1" type="stmt"/>
-        <line num="33" count="1" type="stmt"/>
-        <line num="35" count="1" type="stmt"/>
-        <line num="36" count="1" type="stmt"/>
-        <line num="37" count="1" type="stmt"/>
-        <line num="42" count="11" type="stmt"/>
-        <line num="43" count="2" type="stmt"/>
-        <line num="44" count="2" type="cond" truecount="2" falsecount="0"/>
-        <line num="45" count="1" type="stmt"/>
-        <line num="49" count="2" type="stmt"/>
-        <line num="50" count="2" type="stmt"/>
-        <line num="53" count="11" type="stmt"/>
-        <line num="54" count="6" type="stmt"/>
-        <line num="55" count="6" type="cond" truecount="2" falsecount="0"/>
-        <line num="56" count="2" type="stmt"/>
-        <line num="57" count="2" type="stmt"/>
-        <line num="62" count="11" type="stmt"/>
+        <line num="35" count="7" type="stmt"/>
       </file>
     </package>
     <package name="Utils">
       <metrics statements="15" coveredstatements="2" conditionals="8" coveredconditionals="0" methods="2" coveredmethods="0"/>
       <file name="SpotifyUtils.tsx" path="C:\Users\evpin\Desktop\coding\projects\12_pomodoro_spotify\src\Utils\SpotifyUtils.tsx">
         <metrics statements="15" coveredstatements="2" conditionals="8" coveredconditionals="0" methods="2" coveredmethods="0"/>
-        <line num="33" count="1" type="stmt"/>
+        <line num="33" count="3" type="stmt"/>
         <line num="34" count="0" type="stmt"/>
         <line num="35" count="0" type="stmt"/>
         <line num="36" count="0" type="stmt"/>
@@ -53,7 +41,7 @@
         <line num="44" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="45" count="0" type="stmt"/>
         <line num="47" count="0" type="stmt"/>
-        <line num="50" count="1" type="stmt"/>
+        <line num="50" count="3" type="stmt"/>
         <line num="51" count="0" type="stmt"/>
       </file>
     </package>

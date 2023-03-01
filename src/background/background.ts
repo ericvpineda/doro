@@ -204,7 +204,7 @@ const getUserProfile = async (params: any) => {
       if (res.status === 200) {
         return res.json();
       } else {
-        throw { status: Status.FAILURE, message: "Unknown error occured." };
+        throw { status: Status.FAILURE, failureMsg: "Failure when getting user profile." };
       }
     })
     .then((data) => {
@@ -216,8 +216,7 @@ const getUserProfile = async (params: any) => {
       response = {
         status: err.status || Status.ERROR,
         error: {
-          message: "Failure when getting user profile.",
-          details: err.message,
+          message: err.failureMsg || err.message || "Error occured when getting user profile.",
         },
       };
     });
