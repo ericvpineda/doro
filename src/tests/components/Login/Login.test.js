@@ -135,8 +135,9 @@ describe("Test Login component", () => {
     chrome.storage.local.set({ signedIn: true });
     mockFxn = jest.fn();
     render(<Login setSignedIn={mockFxn}></Login>);
-
+    
     // Click profile icon and click signout button
+    const profileIcon = screen.getByTestId("profile-icon");
     await userEvent.click(profileIcon);
     const signOutButton = screen.getByText(/Sign out/i);
     expect(signOutButton).toBeInTheDocument();
