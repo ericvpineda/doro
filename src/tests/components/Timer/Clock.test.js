@@ -7,19 +7,15 @@ import { chrome } from "jest-chrome";
 
 // Tests
 // - Timer conditions:
-//  - is executing
-//   - has input in storage & shows correct values, shows buttons -- d
-//    - paused mode (shows play button) -- d
-//    - play mode (show pause button) -- d
-//     - clicking button switches to pause button
-//    - reset mode -- d
-//     - timer unchanged
-//     - timer currently running
-//     - time complete
-//    - clear mode -- d
-//   - no input in storage
-//  - not executing
-//   - no input in storage -- d
+//  - Currently executing
+//      - paused mode (shows play button) -- d
+//      - play mode (show pause button) -- d
+//          - clicking button switches to pause button
+//      - reset mode (timer unchanged, running, complete) -- d
+//      - clear mode -- d
+//  - Not executing
+//      - no input in storage -- d
+//      - has input in storage & shows correct values, shows buttons -- d
 // - Note: line 100 in clock.tsx not tested since uses chrome.storage.onChange.addListener
 
 describe("Test Clock component", () => {
