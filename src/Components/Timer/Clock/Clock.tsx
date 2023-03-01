@@ -1,4 +1,5 @@
 import React, { FC, useEffect, useState, Fragment, useContext } from "react";
+import DescriptContext from "../../../hooks/DescriptContext";
 import styles from "./Clock.module.css";
 import {
   PlayFill,
@@ -6,13 +7,13 @@ import {
   XCircleFill,
   ArrowCounterclockwise,
 } from "react-bootstrap-icons";
-import DescriptContext from "../../../hooks/DescriptContext";
 
 const Clock: FC = () => {
-  const [isRunning, setIsRunning] = useState(false);
-  const [isExecutingRequest, setIsExecutingRequest] = useState(true);
-  const ctx = useContext(DescriptContext);
+  const [isRunning, setIsRunning] = useState(false); // Clock pause/play state
+  const [isExecutingRequest, setIsExecutingRequest] = useState(false); // Clock current has reques
+  const ctx = useContext(DescriptContext); // Holds state of description boolean
   const [timer, setTimer] = useState({
+    // Timer state
     hours: "00",
     minutes: "00",
     seconds: "00",
@@ -20,14 +21,15 @@ const Clock: FC = () => {
 
   // Helper function to update clock time and effects
   const progressRing = document.getElementById("timer-outer")! as HTMLElement;
+
+  // Helper function to update clock values from storage
   const updateTime = () => {
     chrome.storage.local.get(
       ["hours", "minutes", "seconds", "setTime", "isExecutingRequest"],
       (res) => {
-        if (
-          res.seconds !== undefined &&
-          (res.hours !== 0 || res.minutes !== 0 || res.seconds !== -1)
-        ) {
+        let degree = 0;
+
+        if (res.isExecutingRequest) {
           // Update clock time ui
           const hours: string =
             res.hours >= 10 ? res.hours.toString() : "0" + res.hours;
@@ -36,24 +38,20 @@ const Clock: FC = () => {
           const seconds: string =
             res.seconds >= 10 ? res.seconds.toString() : "0" + res.seconds;
           setTimer({ hours, minutes, seconds });
+          const curr_time: number =
+            res.hours * 3600 + res.minutes * 60 + res.seconds;
+          const end_time: number =
+            res.setTime.hours * 3600 + res.setTime.minutes * 60;
 
-          // Update clock gui
-          let degree = 0;
-          if (res.isExecutingRequest) {
-            const curr_time: number =
-              res.hours * 3600 + res.minutes * 60 + res.seconds;
-            const end_time: number =
-              res.setTime.hours * 3600 + res.setTime.minutes * 60;
-            degree = 360 - (curr_time / end_time) * 360;
-          }
-          if (progressRing) {
-            progressRing.style.background = `conic-gradient(
-                          lightgreen ${degree}deg,
-                          #212529 ${degree}deg 
-                      )`;
-          }
-        } else {
-          setIsRunning(true);
+          // Update clock fill degree
+          degree = 360 - (curr_time / end_time) * 360;
+        }
+
+        if (progressRing) {
+          progressRing.style.background = `conic-gradient(
+                         lightgreen ${degree}deg,
+                         #212529 ${degree}deg 
+                     )`;
         }
       }
     );
@@ -69,22 +67,24 @@ const Clock: FC = () => {
     });
   };
 
+  // Clears storage cache and timer state
   const clearTimer = () => {
     chrome.storage.local.set({
-      isRunning: false,
+      description: "",
+      setTime: {},
       hours: 0,
       minutes: 0,
       seconds: 0,
+      isRunning: false,
       isExecutingRequest: false,
-      description: "",
-      setTime: {},
     });
-    setIsRunning(true);
+    setIsRunning(false);
     setIsExecutingRequest(false);
     // Set show description boolean to false
     ctx.onClearDescript();
   };
 
+  // Reverts timer back to original pre-set time
   const resetTimer = () => {
     chrome.storage.local.get(["setTime"], (res) => {
       const origTime = res.setTime;
@@ -95,7 +95,7 @@ const Clock: FC = () => {
         isRunning: false,
       });
     });
-    setIsRunning(true);
+    setIsRunning(false);
   };
 
   // Initial re-render (allow initial set timer to show up)
@@ -114,7 +114,7 @@ const Clock: FC = () => {
     chrome.storage.onChanged.addListener(() => {
       updateTime();
     });
-  }, [isExecutingRequest]);
+  }, [isExecutingRequest]); // Needed to updated radial background color each second
 
   return (
     <div id="timer-outer" className={styles.timerOuter}>
@@ -142,7 +142,7 @@ const Clock: FC = () => {
           ></XCircleFill>
           {!isRunning ? (
             <PlayFill
-              data-testid="start-btn"
+              data-testid="play-btn"
               className={styles.timerControl}
               onClick={setIsRunningHandler}
             ></PlayFill>
