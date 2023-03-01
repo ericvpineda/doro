@@ -26,11 +26,11 @@ const Login: FC<Props> = (props) => {
         props.setSignedIn(true)
       } else if (res.status === Status.FAILURE) {
         // Note: This is case when user is already signed in
-        console.log(res);
+        console.log(res.message);
       } else if (res.status === Status.ERROR) {
         setSignedIn(false)
         props.setSignedIn(false)
-        console.log(res);
+        console.log(res.message);
       } else {
         setSignedIn(false)
         props.setSignedIn(false)
@@ -41,21 +41,18 @@ const Login: FC<Props> = (props) => {
 
   const signOut = () => {
     chrome.runtime.sendMessage({message: PlayerActions.SIGNOUT}, (res) => {
-      if (res.status === Status.SUCCESS) {
-      
-      } else if (res.status === Status.ERROR) {
-        console.log(res);
-      } else {
+      if (res.status !== Status.SUCCESS) {
         console.log("Unknown error when signing user out");
       }
     })
+    // Force sign out whether error or not
     setSignedIn(false);
     props.setSignedIn(false)
   }
 
   useEffect(() => {
     chrome.storage.local.get(["signedIn"], (res) => {
-      if (res.signedIn !== undefined) { 
+      if (res.signedIn) { 
         props.setSignedIn(res.signedIn);
         setSignedIn(res.signedIn)
       }
@@ -68,7 +65,7 @@ const Login: FC<Props> = (props) => {
         <Profile signOut={signOut}></Profile>
       ) : (
         <Spotify
-        data-testid="spotify_button"
+        data-testid="spotify-button"
           onClick={trySignIn}
           className={styles.spotifyButton}
         ></Spotify>

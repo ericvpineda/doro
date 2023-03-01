@@ -30,7 +30,7 @@ const createAuthURL = (client: any): string => {
   url.searchParams.append("redirect_uri", client.uri);
   url.searchParams.append("state", client.state);
   url.searchParams.append("code_challenge", client.challenge);
-  // url.searchParams.append("show_dialog", "true");
+  url.searchParams.append("show_dialog", "true");
   return url.href;
 };
 
@@ -126,7 +126,7 @@ const userSignIn = async (params: any) => {
           if (chrome.runtime.lastError) {
             resolve({
               status: Status.ERROR,
-              error: chrome.runtime.lastError.message!,
+              message: chrome.runtime.lastError.message!,
             });
             return;
           }
@@ -134,7 +134,7 @@ const userSignIn = async (params: any) => {
           if (res === null || res === undefined) {
             resolve({
               status: Status.ERROR,
-              error: "User access denied.",
+              message: "User access denied.",
             });
             return;
           }
@@ -146,7 +146,7 @@ const userSignIn = async (params: any) => {
           ) {
             resolve({
               status: Status.ERROR,
-              error: "User access denied.",
+              message: "User access denied.",
             });
             return;
           }
@@ -167,7 +167,7 @@ const userSignIn = async (params: any) => {
               signOut();
               return resolve({
                 status: Status.ERROR,
-                error: err,
+                message: err.message,
               });
             });
         }
@@ -177,7 +177,7 @@ const userSignIn = async (params: any) => {
     return new Promise((resolve, reject) => {
       return resolve({
         status: Status.FAILURE,
-        error: "User already logged in.",
+        message: "User already logged in.",
       });
     });
   }
