@@ -3,7 +3,7 @@ import { screen, render } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import Login from "../../../Components/Login/Login/Login";
 import { chrome } from "jest-chrome";
-import { PlayerActions, Status } from "../../../Utils/SpotifyUtils";
+import { Status } from "../../../Utils/SpotifyUtils";
 import userEvent from "@testing-library/user-event";
 
 // Test points
@@ -11,7 +11,6 @@ import userEvent from "@testing-library/user-event";
 // - user sign out
 
 describe("Test Login component", () => {
-
   let mockFxn;
   beforeEach(() => {
     // Stub chrome api
@@ -33,8 +32,8 @@ describe("Test Login component", () => {
   it("user status signed out and successful sign in shows no errors", async () => {
     // Note: Login component will also render Profile and Spotify components
     global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
-        callback({status: Status.SUCCESS, data: {profileUrl: ""} })
-    })
+      callback({ status: Status.SUCCESS, data: { profileUrl: "" } });
+    });
     mockFxn = jest.fn();
     render(<Login setSignedIn={mockFxn}></Login>);
     const spotifyButton = screen.getByTestId("spotify-button");
@@ -46,44 +45,52 @@ describe("Test Login component", () => {
 
   it("user status signed out and unsuccessful sign in shows error in console", async () => {
     global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
-        callback({status: Status.ERROR, data: {profileUrl: ""}, message:"User access denied."})
-    })
+      callback({
+        status: Status.ERROR,
+        data: { profileUrl: "" },
+        message: "User access denied.",
+      });
+    });
     mockFxn = jest.fn();
-    
+
     render(<Login setSignedIn={mockFxn}></Login>);
-    
+
     const spotifyButton = screen.getByTestId("spotify-button");
     expect(spotifyButton).toBeInTheDocument();
-    
-    const logSpy = jest.spyOn(console, 'log');
+
+    const logSpy = jest.spyOn(console, "log");
     await userEvent.click(spotifyButton);
     expect(mockFxn).toHaveBeenCalledWith(false);
 
     expect(logSpy).toHaveBeenCalledWith("User access denied.");
-  })
+  });
 
   it("user status logged in and user attempt to log in again", async () => {
     global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
-        callback({status: Status.FAILURE, data: {profileUrl: ""}, message:"User already logged in."})
-    })
+      callback({
+        status: Status.FAILURE,
+        data: { profileUrl: "" },
+        message: "User already logged in.",
+      });
+    });
     mockFxn = jest.fn();
     render(<Login setSignedIn={mockFxn}></Login>);
     const spotifyButton = screen.getByTestId("spotify-button");
     expect(spotifyButton).toBeInTheDocument();
-    
-    const logSpy = jest.spyOn(console, 'log');
+
+    const logSpy = jest.spyOn(console, "log");
     await userEvent.click(spotifyButton);
 
     // Note: cannot check parameters due to randomly created varaibles [WILL ERROR]
     // expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({message: PlayerActions.SIGNIN, data: {}})
     expect(logSpy).toHaveBeenCalledWith("User already logged in.");
-  })
+  });
 
   it("user status signed in and user successfuly signs out", async () => {
     global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
-        callback({status: Status.SUCCESS, data: {profileUrl: ""}})
-    })
-    chrome.storage.local.set({signedIn: true})
+      callback({ status: Status.SUCCESS, data: { profileUrl: "" } });
+    });
+    chrome.storage.local.set({ signedIn: true });
     mockFxn = jest.fn();
     render(<Login setSignedIn={mockFxn}></Login>);
 
@@ -101,5 +108,43 @@ describe("Test Login component", () => {
 
     // Login props function is called with boolean
     expect(mockFxn).toHaveBeenCalledWith(false);
-  })
+  });
+
+  it("user status signed out and unknown error occurs", async () => {
+    global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
+      callback({ data: { profileUrl: "" } });
+    });
+    mockFxn = jest.fn();
+
+    render(<Login setSignedIn={mockFxn}></Login>);
+
+    const spotifyButton = screen.getByTestId("spotify-button");
+    expect(spotifyButton).toBeInTheDocument();
+
+    const logSpy = jest.spyOn(console, "log");
+    await userEvent.click(spotifyButton);
+    expect(mockFxn).toHaveBeenCalledWith(false);
+
+    expect(logSpy).toHaveBeenCalledWith("Unknown error when pausing track.");
+  });
+
+  it("user status signed in and attempting to sign out causes error but still signs user out", async () => {
+    global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
+      callback({data: { profileUrl: "" } });
+    });
+    chrome.storage.local.set({ signedIn: true });
+    mockFxn = jest.fn();
+    render(<Login setSignedIn={mockFxn}></Login>);
+
+    // Click profile icon and click signout button
+    await userEvent.click(profileIcon);
+    const signOutButton = screen.getByText(/Sign out/i);
+    expect(signOutButton).toBeInTheDocument();
+    const logSpy = jest.spyOn(console, "log");
+    await userEvent.click(signOutButton);
+
+    // Login props function is called with boolean
+    expect(mockFxn).toHaveBeenCalledWith(false);
+    expect(logSpy).toHaveBeenCalledWith("Unknown error when signing user out");
+  });
 });
