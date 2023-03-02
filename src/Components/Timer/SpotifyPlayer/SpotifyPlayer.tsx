@@ -28,21 +28,21 @@ import {
 import AlbumArt from "./AlbumArt/AlbumArt";
 
 const SpotifyPlayer: FC = (props) => {
-  const [artist, setArtist] = useState("");
-  const [track, setTrack] = useState("");
-  const [albumUrl, setAlbumUrl] = useState("");
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [trackId, setTrackId] = useState("");
-  const [trackSaved, setTrackSaved] = useState(false);
-  const [volume, setVolume] = useState(0);
-  const [deviceId, setDeviceId] = useState("");
-  const [volumeCached, setVolumeCached] = useState(volume);
-  const [showVolumeTrack, setShowVolumeTrack] = useState(false);
-  const [durationMs, setDurationMs] = useState(0);
-  const [progressMs, setProgressMs] = useState(0);
-  const [thumbPosition, setThumbPosition] = useState(0);
-  const [playerStatus, setPlayerStatus] = useState(PlayerStatus.LOADING);
-  const [isMounted, setIsMounted] = useState(false);
+  const [artist, setArtist] = useState(""); // Artist name
+  const [track, setTrack] = useState(""); // Track name
+  const [albumUrl, setAlbumUrl] = useState(""); // Spotify album url
+  const [isPlaying, setIsPlaying] = useState(false); // Track currently playing
+  const [trackId, setTrackId] = useState(""); // Current track id
+  const [trackSaved, setTrackSaved] = useState(false); // Track currently saved
+  const [volume, setVolume] = useState(0); // Volume value
+  const [deviceId, setDeviceId] = useState(""); // Web player device id
+  const [volumeCached, setVolumeCached] = useState(volume); // Helps with common volume icon press behavior
+  const [showVolumeTrack, setShowVolumeTrack] = useState(false); // Shows volume track
+  const [durationMs, setDurationMs] = useState(0); // Tracks total duration
+  const [progressMs, setProgressMs] = useState(0); // Tracks current progress
+  const [thumbPosition, setThumbPosition] = useState(0); // Tracks current thumb position
+  const [playerStatus, setPlayerStatus] = useState(PlayerStatus.LOADING); // Players current state
+  const [isMounted, setIsMounted] = useState(false); // Used for volume animation
 
   // Get initial track data upon loading page
   const getTrack = () => {
@@ -133,6 +133,7 @@ const SpotifyPlayer: FC = (props) => {
     });
   };
 
+  // Get players next track
   const trackNext = () => {
     chrome.runtime.sendMessage({ message: PlayerActions.NEXT }, (res) => {
       if (res.status === Status.SUCCESS) {
@@ -145,6 +146,7 @@ const SpotifyPlayer: FC = (props) => {
     });
   };
 
+  // Get players previous track
   const trackPrevious = () => {
     if (thumbPosition > 0) {
       thumbSeekChangeCommitted(0);
@@ -194,11 +196,12 @@ const SpotifyPlayer: FC = (props) => {
     );
   };
 
+  // Show saved/unsaved track information
   const showHeart = () => {
     if (playerStatus === PlayerStatus.SUCCESS && trackSaved) {
       return (
         <IconButton onClick={trackRemoveSaved} data-testid="remove-track-btn">
-          <HeartFill 
+          <HeartFill
             className={styles.playerControlIcons}
             size={18}
           ></HeartFill>
@@ -228,8 +231,7 @@ const SpotifyPlayer: FC = (props) => {
   };
 
   // Show volume control when mouse hover over volume icon
-  // FIX: Implement debounce on slider?
-  // - Note: only this function re-rendered, does not make getTrack() request
+  // - note: only this function re-rendered, does not make getTrack() request
   const debounceVolumeHandler = useMemo(() => debounce(volumeChangeUI, 25), []);
 
   // Get volume value after mouse-up from mouse click
@@ -245,9 +247,7 @@ const SpotifyPlayer: FC = (props) => {
             setVolumeCached(volume);
           }
         } else if (res.status === Status.FAILURE) {
-          console.log(res);
-        } else if (res.status === Status.ERROR) {
-          console.log(res);
+          console.log(res.message);
         } else {
           console.log("Unknown error when setting track volume.");
         }
@@ -255,6 +255,7 @@ const SpotifyPlayer: FC = (props) => {
     );
   };
 
+  // Mimic common volume press behavior
   const muteVolumeHandler = () => {
     if (volume > 0) {
       setVolume(0);
@@ -266,6 +267,7 @@ const SpotifyPlayer: FC = (props) => {
     }
   };
 
+  // Get volume icon based on volume value
   const getVolumeIcon = () => {
     if (volume === 0) {
       return <VolumeOffIcon className={styles.playerControlIcons} />;
@@ -276,14 +278,16 @@ const SpotifyPlayer: FC = (props) => {
     }
   };
 
-  const onMouseEnterHandler = () => {
+  // Shows volume icon on mouse hover
+  const onVolumeEnterHandler = () => {
     if (playerStatus === PlayerStatus.SUCCESS) {
       setIsMounted(true);
       setShowVolumeTrack(true);
     }
   };
 
-  const onMouseLeaveHandler = () => {
+  // Removes volume icon on mouse leave
+  const onVolumeLeaveHandler = () => {
     if (playerStatus === PlayerStatus.SUCCESS) {
       setIsMounted(false);
     }
@@ -306,12 +310,15 @@ const SpotifyPlayer: FC = (props) => {
     },
   });
 
+  // Sets thumb gui position reactively
   const thumbSeekUI = (value: any) => {
     setThumbPosition(value);
   };
 
+  // Prevent multiple renders for seeking thumb position
   const debounceThumbSeekHandler = useMemo(() => debounce(thumbSeekUI, 25), []);
 
+  // Sets thumb position value after mouse up event on thumb icon
   const thumbSeekChangeCommitted = (percent: any) => {
     const positionMs = Math.floor(durationMs * (percent * 0.01));
     chrome.runtime.sendMessage(
@@ -329,9 +336,7 @@ const SpotifyPlayer: FC = (props) => {
           );
           setThumbPosition(updatedThumbPos);
         } else if (res.status === Status.FAILURE) {
-          console.log(res);
-        } else if (res.status === Status.ERROR) {
-          console.log(res);
+          console.log(res.message);
         } else {
           console.log("Unknown error when seeking track volume.");
         }
@@ -402,6 +407,7 @@ const SpotifyPlayer: FC = (props) => {
               {showVolumeTrack && (
                 <ThemeProvider theme={muiTheme}>
                   <Slider
+                    data-testid="volume-slider"
                     className={
                       isMounted ? styles.volumeMount : styles.volumeUnmount
                     }
@@ -414,16 +420,17 @@ const SpotifyPlayer: FC = (props) => {
                     onChangeCommitted={(_, val) =>
                       trackVolumeChangeCommitted(val)
                     }
-                    onMouseEnter={onMouseEnterHandler}
-                    onMouseLeave={onMouseLeaveHandler}
+                    onMouseEnter={onVolumeEnterHandler}
+                    onMouseLeave={onVolumeLeaveHandler}
                   ></Slider>
                 </ThemeProvider>
               )}
             </Grid>
             <Grid item>
               <IconButton
-                onMouseEnter={onMouseEnterHandler}
-                onMouseLeave={onMouseLeaveHandler}
+                data-testid="volume-btn"
+                onMouseEnter={onVolumeEnterHandler}
+                onMouseLeave={onVolumeLeaveHandler}
                 onClick={muteVolumeHandler}
                 disabled={playerStatus !== PlayerStatus.SUCCESS}
               >
@@ -443,6 +450,7 @@ const SpotifyPlayer: FC = (props) => {
               <Grid item xs>
                 <ThemeProvider theme={muiTheme}>
                   <Slider
+                    data-testid="seek-position-slider"
                     value={thumbPosition}
                     onChange={(_, val) => debounceThumbSeekHandler(val)}
                     onChangeCommitted={(_, val) =>
