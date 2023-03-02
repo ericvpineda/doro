@@ -39,19 +39,15 @@
   color: #212529;
   font-weight: 600;
   font-size: 0.9rem;
-  text-align: right;
+  text-align: left;
 
   /* Text scrolling  */
-  /* -moz-transform: translateX(0%);
-  -webkit-transform: translateX(0%);
-  transform: translateX(0%); */
-
-  -moz-animation: my-animation 10s linear infinite;
-  -webkit-animation: my-animation 10s linear infinite;
-  animation: my-animation 10s linear infinite;
+  -moz-animation: end-animation 10s linear infinite;
+  -webkit-animation: end-animation 10s linear infinite;
+  animation: end-animation 10s linear infinite;
 }
 
-@keyframes my-animation {
+@keyframes end-animation {
   from {
     -moz-transform: translateX(100%);
     -webkit-transform: translateX(100%);
@@ -63,6 +59,19 @@
     transform: translateX(-100%);
   }
 }
+
+/* @keyframes start-animation {
+  from {
+    -moz-transform: translateX(0%);
+    -webkit-transform: translateX(0%);
+    transform: translateX(0%);
+  }
+  to {
+    -moz-transform: translateX(-100%);
+    -webkit-transform: translateX(-100%);
+    transform: translateX(-100%);
+  }
+} */
 
 .trackTitleContainer {
     border: black 1.5px solid;
