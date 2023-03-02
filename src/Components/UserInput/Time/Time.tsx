@@ -75,7 +75,7 @@ const Time: FC<TimeFunctions> = (props): JSX.Element => {
     chrome.storage.local.get(["setTime"], (res) => {
       const hoursCache = res.setTime && res.setTime.hours;
       const minutesCache = res.setTime && res.setTime.minutes;
-      if (hoursCache !== undefined && hoursCache > 0 && hoursElem) {
+      if (hoursElem && hoursCache !== undefined && hoursCache > 0) {
         props.setHours(hoursCache);
         setHours(hoursCache)
         hoursElem.setAttribute("value", hoursCache);
@@ -84,6 +84,9 @@ const Time: FC<TimeFunctions> = (props): JSX.Element => {
         props.setMinutes(minutesCache);
         setMinutes(minutesCache)
         minutesElem.setAttribute("value", minutesCache);
+      }
+      if (hoursCache === undefined && minutesCache === undefined) {
+        props.setErrorMessage("Hours and minutes cannot both be 0.");
       }
     });
   }, []);

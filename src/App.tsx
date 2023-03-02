@@ -5,11 +5,10 @@ import { DescriptContextProvider } from "./hooks/DescriptContext";
 
 const App: FC = () => {
   const [showTimer, setShowTimer] = useState(true);
-  const [showDescript, setShowDescript] = useState(false);
 
   return (
     <Fragment>
-      <DescriptContextProvider>
+      <DescriptContextProvider isShowing={false}>
         {!showTimer ?
           (<UserInput setShowTimerHandler={setShowTimer}></UserInput>) :
           (<Timer setShowTimerHandler={setShowTimer}/>)}

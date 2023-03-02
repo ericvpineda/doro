@@ -45,6 +45,8 @@ const Clock: FC = () => {
 
           // Update clock fill degree
           degree = 360 - (curr_time / end_time) * 360;
+        } else {
+          setTimer({ hours: "00", minutes: "00", seconds: "00" });
         }
 
         if (progressRing) {
@@ -81,21 +83,22 @@ const Clock: FC = () => {
     setIsRunning(false);
     setIsExecutingRequest(false);
     // Set show description boolean to false
-    ctx.onClearDescript();
+    ctx.hideDescription();
   };
 
   // Reverts timer back to original pre-set time
   const resetTimer = () => {
     chrome.storage.local.get(["setTime"], (res) => {
-      const origTime = res.setTime;
+      const setTime = res.setTime;
       chrome.storage.local.set({
-        hours: origTime.hours,
-        minutes: origTime.minutes,
+        hours: setTime.hours,
+        minutes: setTime.minutes,
         seconds: 0,
         isRunning: false,
       });
     });
     setIsRunning(false);
+    updateTime(); // Needed to make test pass? 
   };
 
   // Initial re-render (allow initial set timer to show up)

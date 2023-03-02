@@ -52,8 +52,8 @@ const UserInput: FC<pageUpdate> = (props): JSX.Element => {
       // Change page to timer gui window
       props.setShowTimerHandler(true);
 
-      // Set description booleanto true
-      ctx.onSetDescript();
+      // Set description boolean to true
+      ctx.showDescription();
     }
   };
 

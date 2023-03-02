@@ -113,7 +113,7 @@ describe("Test Clock component", () => {
     expect(pauseBtn).not.toBeInTheDocument();
   });
 
-  it("executing timer with reset mode command and timer not started does not change timer state", async () => {
+  it("executing timer with reset mode command and timer not started, does not change timer state", async () => {
     global.chrome.storage.local.set({
       setTime: { hours: 0, minutes: 45, seconds: 0 },
       hours: 0,
@@ -141,7 +141,7 @@ describe("Test Clock component", () => {
     expect(seconds).toBe("00");
   });
 
-  it("executing timer with reset mode command and timer running reverts timer state", async () => {
+  it("executing timer running with reset mode command, reverts timer state", async () => {
     global.chrome.storage.local.set({
       setTime: { hours: 0, minutes: 45, seconds: 0 },
       hours: 0,
@@ -156,7 +156,7 @@ describe("Test Clock component", () => {
     let hours = screen.getByTestId("test-hours").textContent;
     let minutes = screen.getByTestId("test-minutes").textContent;
     let seconds = screen.getByTestId("test-seconds").textContent;
-    const resetBtn = screen.queryByTestId("reset-btn");
+    const resetBtn = screen.getByTestId("reset-btn");
 
     expect(hours).toBe("00");
     expect(minutes).toBe("23");
@@ -177,12 +177,12 @@ describe("Test Clock component", () => {
     expect(seconds).toBe("00");
   });
 
-  it("executing timer with reset mode command and timer done, reverts timer state", async () => {
+  it("executing timer done with reset mode command, reverts timer state", async () => {
     global.chrome.storage.local.set({
-        setTime: { hours: 0, minutes: 45, seconds: 0 },
+        setTime: { hours: 1, minutes: 45, seconds: 0 },
         hours: 0,
         minutes: 0,
-        seconds: 0,
+        seconds: 1,
         isRunning: false,
         isExecutingRequest: true,
       });
@@ -192,37 +192,39 @@ describe("Test Clock component", () => {
       let hours = screen.getByTestId("test-hours").textContent;
       let minutes = screen.getByTestId("test-minutes").textContent;
       let seconds = screen.getByTestId("test-seconds").textContent;
-      const resetBtn = screen.queryByTestId("reset-btn");
-  
+      const resetBtn = screen.getByTestId("reset-btn");
+
       expect(hours).toBe("00");
       expect(minutes).toBe("00");
-      expect(seconds).toBe("00");
+      expect(seconds).toBe("01");
   
       await user.click(resetBtn);
-  
+
       // Note: need to reassign to get updated values
       hours = screen.getByTestId("test-hours").textContent;
       minutes = screen.getByTestId("test-minutes").textContent;
       seconds = screen.getByTestId("test-seconds").textContent;
-  
-      expect(hours).toBe("00");
+
+      expect(hours).toBe("01");
       expect(minutes).toBe("45");
       expect(seconds).toBe("00");
   });
 
-  it("executing time with clear mode command defaults timer values to 0 and removes clock buttons", async () => {
+  it("executing time with clear mode command, defaults timer values to 0 and removes clock buttons", async () => {
     global.chrome.storage.local.set({
         setTime: { hours: 0, minutes: 45, seconds: 0 },
         hours: 0,
         minutes: 0,
-        seconds: 0,
+        seconds: 10,
         isRunning: false,
         isExecutingRequest: true,
       });
   
       render(<Clock></Clock>);
-      let clearBtn = screen.queryByTestId("clear-btn")
+      let clearBtn = screen.getByTestId("clear-btn")
       await user.click(clearBtn);
+
+      // screen.debug();
 
       const hours = screen.getByTestId("test-hours").textContent;
       const minutes = screen.getByTestId("test-minutes").textContent;

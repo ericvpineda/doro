@@ -198,25 +198,25 @@ const request = async (method: string, path: string, accessToken: string) => {
 // Helper method to get get user profile
 // - Note: must always get update user profile
 const getUserProfile = async (params: any) => {
-  let response = {};
+  let response = {}; // Used as return object from async fxn
   await request("GET", "", params.accessToken)
     .then((res) => {
       if (res.status === 200) {
         return res.json();
       } else {
-        throw { status: Status.FAILURE, failureMsg: "Failure when getting user profile." };
+        throw { status: Status.FAILURE, message: "Failure when getting user profile." };
       }
     })
     .then((data) => {
       const profileUrl = data.images[0].url;
       response = { status: Status.SUCCESS, data: { profileUrl } };
-      chrome.storage.local.set({ profileUrl: profileUrl });
+      // chrome.storage.local.set({ profileUrl: profileUrl });
     })
     .catch((err) => {
       response = {
         status: err.status || Status.ERROR,
         error: {
-          message: err.failureMsg || err.message || "Error occured when getting user profile.",
+          message: err.message || "Error occured when getting user profile.",
         },
       };
     });
