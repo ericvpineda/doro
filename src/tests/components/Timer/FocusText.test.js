@@ -51,19 +51,19 @@ describe("Test FocusTest component", () => {
     });
 
     // useContextMock.mockReturnValue({ isShowing: true });
-    const value = {
+    const providerOptions = {
       isShowing: true,
       showDescription: jest.fn,
       hideDescription: jest.fn,
     };
-    renderProvider(<FocusText />, value);
+    renderProvider(<FocusText />, providerOptions);
     const descriptElem = screen.getByTestId("focus-text-active");
-    expect(descriptElem).toBeVisible();
-
     const taskText = screen.getByText("Task:")
-    expect(taskText).toBeVisible();
-
     const descriptText = screen.getByText("Testing...");
+    
+    expect(descriptElem).toBeVisible();
+    expect(taskText).toBeVisible();
     expect(descriptText).toBeVisible();
   });
+
 });

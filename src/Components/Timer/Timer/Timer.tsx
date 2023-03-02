@@ -72,11 +72,7 @@ const Timer: FC<Prop> = (props) => {
   return (
     <Fragment>
       <div id="timer" className={styles.body}>
-        {signedIn && showPlayer ? (
-          <SpotifyPlayer setShowPlayerHandler={setShowPlayer} />
-        ) : (
-          <Clock />
-        )}
+        {signedIn && showPlayer ? <SpotifyPlayer/> : <Clock />}
         <FocusText />
       </div>
       <Login setSignedIn={setSignedInHandler}></Login>

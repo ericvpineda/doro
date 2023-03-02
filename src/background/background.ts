@@ -264,7 +264,7 @@ const getCurrentlyPlaying = async (params: any) => {
           message: "Web player not open in browser.",
         };
       } else {
-        throw { status: Status.ERROR, message: "Unknown error occured." };
+        throw { status: Status.ERROR };
       }
     })
     .then((data) => {
@@ -298,8 +298,7 @@ const getCurrentlyPlaying = async (params: any) => {
         status: err.status || Status.ERROR,
         data: {},
         error: {
-          message: "Failure when getting track data.",
-          details: err.message,
+          message: err.message || "Error occured when getting track data.",
         },
       };
     });
@@ -317,8 +316,7 @@ const trackCommand = async (params: any, method: string, path: string) => {
       response = {
         status: Status.FAILURE,
         error: {
-          message: "Failure when completing track command.",
-          details: err,
+          message: err.message || "Failure when completing track command.",
         },
       };
     });

@@ -27,11 +27,7 @@ import {
 } from "react-bootstrap-icons";
 import AlbumArt from "./AlbumArt/AlbumArt";
 
-interface Props {
-  setShowPlayerHandler: (params: boolean) => void;
-}
-
-const SpotifyPlayer: FC<Props> = (props) => {
+const SpotifyPlayer: FC = (props) => {
   const [artist, setArtist] = useState("");
   const [track, setTrack] = useState("");
   const [albumUrl, setAlbumUrl] = useState("");
@@ -48,12 +44,7 @@ const SpotifyPlayer: FC<Props> = (props) => {
   const [playerStatus, setPlayerStatus] = useState(PlayerStatus.LOADING);
   const [isMounted, setIsMounted] = useState(false);
 
-  // Get accesstoken and initial track data (on initial load
-  // - issue: multiple calls to spotify api
-  //  - possible solutions:
-  //      - save artist data into storage?
-  //          - issue: what if change track on diff device
-
+  // Get initial track data upon loading page
   const getTrack = () => {
     chrome.runtime.sendMessage(
       { message: PlayerActions.GET_CURRENTLY_PLAYING },
@@ -77,17 +68,16 @@ const SpotifyPlayer: FC<Props> = (props) => {
           setThumbPosition(getThumbPosition(progress, duration));
           setPlayerStatus(PlayerStatus.SUCCESS);
         } else if (res.status === Status.FAILURE) {
-          console.log(res);
+          console.log(res.message);
           setThumbPosition(-1);
           setPlayerStatus(PlayerStatus.REQUIRE_WEBPAGE);
         } else if (res.status === Status.ERROR) {
-          // TODO: What to show when status is error?
-          console.log(res);
+          console.log(res.message);
           setThumbPosition(-1);
-          props.setShowPlayerHandler(false);
           setPlayerStatus(PlayerStatus.REQUIRE_WEBPAGE);
         } else {
-          // setPlayerStatus(PlayerStatus.ERROR);
+          // TODO: What to show when status is unknown error?
+          setPlayerStatus(PlayerStatus.REQUIRE_WEBPAGE);
           console.log("Unknown error when getting track data.");
         }
       }
@@ -117,28 +107,26 @@ const SpotifyPlayer: FC<Props> = (props) => {
     }
   }, [thumbPosition, progressMs, durationMs, isPlaying, playerStatus]);
 
+  // Pause current track
   const trackPause = () => {
     chrome.runtime.sendMessage({ message: PlayerActions.PAUSE }, (res) => {
       if (res.status === Status.SUCCESS) {
         setIsPlaying(false);
       } else if (res.status === Status.FAILURE) {
-        console.log(res);
-      } else if (res.status === Status.ERROR) {
-        console.log(res);
+        console.log(res.message);
       } else {
         console.log("Unknown error when pausing track.");
       }
     });
   };
 
+  // Play current track
   const trackPlay = () => {
     chrome.runtime.sendMessage({ message: PlayerActions.PLAY }, (res) => {
       if (res.status === Status.SUCCESS) {
         setIsPlaying(true);
       } else if (res.status === Status.FAILURE) {
-        console.log(res);
-      } else if (res.status === Status.ERROR) {
-        console.log(res);
+        console.log(res.message);
       } else {
         console.log("Unknown error when playing track.");
       }
@@ -148,11 +136,9 @@ const SpotifyPlayer: FC<Props> = (props) => {
   const trackNext = () => {
     chrome.runtime.sendMessage({ message: PlayerActions.NEXT }, (res) => {
       if (res.status === Status.SUCCESS) {
-        getTrack();
+        getTrack(); // Update track information state
       } else if (res.status === Status.FAILURE) {
-        console.log(res);
-      } else if (res.status === Status.ERROR) {
-        console.log(res);
+        console.log(res.message);
       } else {
         console.log("Unknown error when getting next track.");
       }
@@ -168,9 +154,7 @@ const SpotifyPlayer: FC<Props> = (props) => {
         if (res.status === Status.SUCCESS) {
           getTrack();
         } else if (res.status === Status.FAILURE) {
-          console.log(res);
-        } else if (res.status === Status.ERROR) {
-          console.log(res);
+          console.log(res.message);
         } else {
           console.log("Unknown error when getting previous track.");
         }
@@ -186,11 +170,9 @@ const SpotifyPlayer: FC<Props> = (props) => {
         if (res.status === Status.SUCCESS) {
           setTrackSaved(true);
         } else if (res.status === Status.FAILURE) {
-          console.log(res);
-        } else if (res.status === Status.ERROR) {
-          console.log(res);
+          console.log(res.message);
         } else {
-          console.log("Unknown error when saving user track.");
+          console.log("Unknown error when saving track.");
         }
       }
     );
@@ -204,9 +186,7 @@ const SpotifyPlayer: FC<Props> = (props) => {
         if (res.status === Status.SUCCESS) {
           setTrackSaved(false);
         } else if (res.status === Status.FAILURE) {
-          console.log(res);
-        } else if (res.status === Status.ERROR) {
-          console.log(res);
+          console.log(res.message);
         } else {
           console.log("Unknown error when removing user track.");
         }
@@ -217,8 +197,8 @@ const SpotifyPlayer: FC<Props> = (props) => {
   const showHeart = () => {
     if (playerStatus === PlayerStatus.SUCCESS && trackSaved) {
       return (
-        <IconButton onClick={trackRemoveSaved}>
-          <HeartFill
+        <IconButton onClick={trackRemoveSaved} data-testid="remove-track-btn">
+          <HeartFill 
             className={styles.playerControlIcons}
             size={18}
           ></HeartFill>
@@ -226,7 +206,7 @@ const SpotifyPlayer: FC<Props> = (props) => {
       );
     } else if (playerStatus === PlayerStatus.SUCCESS) {
       return (
-        <IconButton onClick={trackSave}>
+        <IconButton onClick={trackSave} data-testid="save-track-btn">
           <Heart className={styles.playerControlIcons} size={18}></Heart>
         </IconButton>
       );
@@ -359,7 +339,6 @@ const SpotifyPlayer: FC<Props> = (props) => {
     );
   };
 
-  // TODO: Put filler image here (to wait for loading images)
   return (
     <div className={styles.playerContainer} id="player-container">
       <AlbumArt playerStatus={playerStatus} albumUrl={albumUrl}></AlbumArt>
@@ -377,6 +356,7 @@ const SpotifyPlayer: FC<Props> = (props) => {
         <IconButton
           disabled={playerStatus !== PlayerStatus.SUCCESS}
           onClick={trackPrevious}
+          data-testid="previous-track-btn"
         >
           <SkipStartFill
             className={styles.playerControlIcons}
@@ -387,6 +367,7 @@ const SpotifyPlayer: FC<Props> = (props) => {
           <IconButton
             disabled={playerStatus !== PlayerStatus.SUCCESS}
             onClick={trackPlay}
+            data-testid="play-btn"
           >
             <PlayFill
               className={styles.playerControlIcons}
@@ -397,6 +378,7 @@ const SpotifyPlayer: FC<Props> = (props) => {
           <IconButton
             disabled={playerStatus !== PlayerStatus.SUCCESS}
             onClick={trackPause}
+            data-testid="pause-btn"
           >
             <PauseFill
               className={styles.playerControlIcons}
@@ -407,6 +389,7 @@ const SpotifyPlayer: FC<Props> = (props) => {
         <IconButton
           disabled={playerStatus !== PlayerStatus.SUCCESS}
           onClick={trackNext}
+          data-testid="next-track-btn"
         >
           <SkipEndFill
             className={styles.playerControlIcons}
