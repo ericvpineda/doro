@@ -2,6 +2,7 @@ import React from "react";
 import { FC, ChangeEvent, useState, useEffect, useMemo } from "react";
 import styles from "./Description.module.css";
 import debounce from "lodash.debounce";
+import ChromeData from "../../../Utils/ChromeUtils";
 
 interface DescriptFunction {
   setDescription: (param: string) => void;
@@ -28,7 +29,7 @@ const Description: FC<DescriptFunction> = (props): JSX.Element => {
 
   useEffect(() => {
     const descriptionElem = document.getElementById("description");
-    chrome.storage.local.get(["description"], (res) => {
+    chrome.storage.local.get([ChromeData.description], (res) => {
       const descriptionCache = res.description;
       if (
         descriptionElem &&

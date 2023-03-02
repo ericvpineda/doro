@@ -7,6 +7,7 @@ import {
   XCircleFill,
   ArrowCounterclockwise,
 } from "react-bootstrap-icons";
+import ChromeData from "../../../Utils/ChromeUtils";
 
 const Clock: FC = () => {
   const [isRunning, setIsRunning] = useState(false); // Clock pause/play state
@@ -25,7 +26,13 @@ const Clock: FC = () => {
   // Helper function to update clock values from storage
   const updateTime = () => {
     chrome.storage.local.get(
-      ["hours", "minutes", "seconds", "setTime", "isExecutingRequest"],
+      [
+        ChromeData.hours,
+        ChromeData.minutes,
+        ChromeData.seconds,
+        ChromeData.setTime,
+        ChromeData.isExecutingRequest,
+      ],
       (res) => {
         let degree = 0;
 
@@ -61,7 +68,7 @@ const Clock: FC = () => {
 
   // Update start / pause button on clock gui
   const setIsRunningHandler = () => {
-    chrome.storage.local.get(["isExecutingRequest"], (res) => {
+    chrome.storage.local.get([ChromeData.isExecutingRequest], (res) => {
       if (res.isExecutingRequest) {
         chrome.storage.local.set({ isRunning: !isRunning });
         setIsRunning(!isRunning);
@@ -88,7 +95,7 @@ const Clock: FC = () => {
 
   // Reverts timer back to original pre-set time
   const resetTimer = () => {
-    chrome.storage.local.get(["setTime"], (res) => {
+    chrome.storage.local.get([ChromeData.setTime], (res) => {
       const setTime = res.setTime;
       chrome.storage.local.set({
         hours: setTime.hours,
@@ -98,17 +105,20 @@ const Clock: FC = () => {
       });
     });
     setIsRunning(false);
-    updateTime(); // Needed to make test pass? 
+    updateTime(); // Needed to make test pass?
   };
 
   // Initial re-render (allow initial set timer to show up)
   useEffect(() => {
-    chrome.storage.local.get(["isRunning", "isExecutingRequest"], (res) => {
-      if (res.isExecutingRequest === true) {
-        setIsRunning(res.isRunning);
-        setIsExecutingRequest(true);
+    chrome.storage.local.get(
+      [ChromeData.isRunning, ChromeData.isExecutingRequest],
+      (res) => {
+        if (res.isExecutingRequest === true) {
+          setIsRunning(res.isRunning);
+          setIsExecutingRequest(true);
+        }
       }
-    });
+    );
     updateTime();
   }, [isExecutingRequest, isRunning]);
 

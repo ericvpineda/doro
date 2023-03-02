@@ -1,28 +1,36 @@
 import React, { FC, useState, Fragment, useContext, useEffect } from "react";
 import styles from "./FocusText.module.css";
 import DescriptContext from "../../../hooks/DescriptContext";
+import ChromeData from "../../../Utils/ChromeUtils";
 
 const FocusText: FC = () => {
   const [description, setDescription] = useState("");
   const ctx = useContext(DescriptContext); // Rerender when clear button submit (clock component)
-  
+  const [isExecutingRequest, setIsExecutingRequest] = useState(false);
 
   useEffect(() => {
-    chrome.storage.local.get(["description", "isExecutingRequest"], (res) => {
-      if (res.isExecutingRequest) {
-        setDescription(res.description);
-      } 
-    });
-  }, []);
+    chrome.storage.local.get(
+      [ChromeData.description, ChromeData.isExecutingRequest],
+      (res) => {
+        if (res.isExecutingRequest === true) {
+          setDescription(res.description);
+          setIsExecutingRequest(true);
+        } else {
+          setDescription("");
+          setIsExecutingRequest(false);
+        }
+      }
+    );
+  }, [ctx.isShowing]);
 
   return (
     <Fragment>
-      {!ctx.isShowing ? (
-        <footer className={styles.focusBox}>Doro</footer>
-      ) : (
+      {isExecutingRequest ? (
         <footer className={styles.focusBox} data-testid="focus-text-active">
           Task: <span className={styles.description}>{description}</span>
         </footer>
+      ) : (
+        <footer className={styles.focusBox}>Doro</footer>
       )}
     </Fragment>
   );

@@ -8,6 +8,8 @@ import React, {
   useMemo,
 } from "react";
 import debounce from "lodash.debounce";
+import ChromeData from "../../../Utils/ChromeUtils";
+
 
 interface TimeFunctions {
   setHours: (param: number) => void;
@@ -72,7 +74,7 @@ const Time: FC<TimeFunctions> = (props): JSX.Element => {
   useEffect(() => {
     const minutesElem = document.getElementById("minutes") as HTMLInputElement;
     const hoursElem = document.getElementById("hours") as HTMLInputElement;
-    chrome.storage.local.get(["setTime"], (res) => {
+    chrome.storage.local.get([ChromeData.setTime], (res) => {
       const hoursCache = res.setTime && res.setTime.hours;
       const minutesCache = res.setTime && res.setTime.minutes;
       if (hoursElem && hoursCache !== undefined && hoursCache > 0) {

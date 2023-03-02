@@ -4,7 +4,7 @@ import styles from "./Login.module.css";
 import Profile from "../Profile/Profile";
 import { Status, PlayerActions } from "../../../Utils/SpotifyUtils";
 import { generateChallenge, random} from "../../../Utils/AuthUtils"
-
+import ChromeData from "../../../Utils/ChromeUtils"
 
 interface Props {
   setSignedIn: (signedIn: boolean) => void;
@@ -51,7 +51,7 @@ const Login: FC<Props> = (props) => {
   }
 
   useEffect(() => {
-    chrome.storage.local.get(["signedIn"], (res) => {
+    chrome.storage.local.get([ChromeData.signedIn], (res) => {
       if (res.signedIn) { 
         props.setSignedIn(res.signedIn);
         setSignedIn(res.signedIn)
