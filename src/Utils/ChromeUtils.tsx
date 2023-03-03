@@ -4,12 +4,13 @@ const ChromeData = {
     minutes : "minutes",
     seconds : "seconds",
     isRunning: "isRunning",
+    signedIn: "signedIn",
     setTime: "setTime",
+    endTime: "endTime",
     showPlayer: "showPlayer",
     description : "description",
     isExecutingRequest : "isExecutingRequest", 
-    signedIn: "signedIn",
-    endTime: "endTime",
+    expiresIn: "expiresIn",
 } 
 
 export default ChromeData;

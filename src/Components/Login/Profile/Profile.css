@@ -18,6 +18,14 @@
 
 }
 
+.image-default {
+    height: 2rem;
+    width: 2rem;
+
+    cursor: pointer;
+    color: white;
+}
+
 ul.dropdown-menu {
     min-width: 0;
     text-align: center;

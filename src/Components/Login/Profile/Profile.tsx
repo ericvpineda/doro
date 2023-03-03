@@ -1,13 +1,14 @@
-import React, { FC, useEffect } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { PlayerActions, Status } from "../../../Utils/SpotifyUtils";
-import "./Profile.css";
+import { PersonCircle } from "react-bootstrap-icons";
+import "./Profile.css"; // Needed for dropdown customization
 
 interface Props {
   signOut: () => void;
 }
 
 const Profile: FC<Props> = (props) => {
-  const [profileUrl, setProfileUrl] = React.useState("");
+  const [profileUrl, setProfileUrl] = useState("");
 
   const signOutHandler = () => {
     props.signOut();
@@ -20,6 +21,7 @@ const Profile: FC<Props> = (props) => {
         if (res.status === Status.SUCCESS) {
           setProfileUrl(res.data.profileUrl);
         } else if (res.status === Status.FAILURE) {
+          // Case user does not have profile picture set
           console.log(res.message);
           props.signOut();
         } else if (res.status === Status.ERROR) {
@@ -42,7 +44,11 @@ const Profile: FC<Props> = (props) => {
           data-bs-toggle="dropdown"
           aria-expanded="false"
         >
-          <img src={profileUrl} className="image" />
+          {profileUrl.length === 0 ? (
+            <PersonCircle className="image-default"></PersonCircle>
+          ) : (
+            <img src={profileUrl} className="image" />
+          )}
         </button>
         <ul className="dropdown-menu dropdown-menu-dark">
           <li onClick={signOutHandler} className="dropdown-item">

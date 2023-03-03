@@ -1,4 +1,5 @@
 import { PlayerActions, PlayerStatus, Status } from "../Utils/SpotifyUtils";
+import ChromeData from "../Utils/ChromeUtils";
 
 // DEBUG: Used to check if background script runs in console
 console.log("Running: Background script...");
@@ -30,7 +31,7 @@ const createAuthURL = (client: any): string => {
   url.searchParams.append("redirect_uri", client.uri);
   url.searchParams.append("state", client.state);
   url.searchParams.append("code_challenge", client.challenge);
-  url.searchParams.append("show_dialog", "true");
+  // url.searchParams.append("show_dialog", "true");
   return url.href;
 };
 
@@ -94,16 +95,18 @@ const signOut = () => {
 };
 
 // Sets automatic refresh token call
+// FIX: Figure out why refresh token is not working
 const setRefreshTokenTimer = (data: any) => {
   const timeout = setInterval(() => {
-    requestRefreshToken(client)
+    // chrome.storage.local.get([ChromeData.expiresIn], (res) => {});
+      console.log("Refresh token client", client, data)
+      requestRefreshToken(client)
       .then((res) => res.json())
-      .then((data) => {
-        setAccessTokenHandler(data);
-      })
-      .catch(() => {
-        signOut();
-      });
+      .then((data) => setAccessTokenHandler(data))
+      .catch((err) => {
+        console.log("Refresh token error:", err)
+        signOut()
+    })
   }, (data.expires_in - 60) * 1000);
   return () => {
     signOut();
@@ -172,7 +175,7 @@ const userSignIn = async (params: any) => {
             });
         }
       );
-    });
+    })
   } else {
     return new Promise((resolve, reject) => {
       return resolve({
@@ -203,12 +206,14 @@ const getUserProfile = async (params: any) => {
     .then((res) => {
       if (res.status === 200) {
         return res.json();
+      } else if (res.status === 403) {
+        throw { status: Status.FAILURE, message: "Bad OAuth request." };
       } else {
-        throw { status: Status.FAILURE, message: "Failure when getting user profile." };
+        throw { status: Status.FAILURE };
       }
     })
     .then((data) => {
-      const profileUrl = data.images[0].url;
+      const profileUrl = data.images.length > 0 && data.images[0].url || "";
       response = { status: Status.SUCCESS, data: { profileUrl } };
       // chrome.storage.local.set({ profileUrl: profileUrl });
     })

@@ -1,12 +1,12 @@
 import React, { FC, useState, useEffect, useMemo } from "react";
 import styles from "./SpotifyPlayer.module.css";
-import { Box, Grid, Slider, IconButton } from "@material-ui/core";
 import Stack from "@mui/material/Stack";
 import VolumeDownIcon from "@material-ui/icons/VolumeDown";
 import VolumeUpIcon from "@material-ui/icons/VolumeUp";
 import VolumeOffIcon from "@material-ui/icons/VolumeOff";
-import { ThemeProvider } from "@material-ui/styles";
 import debounce from "lodash.debounce";
+import { Box, Grid, Slider, IconButton } from "@material-ui/core";
+import { ThemeProvider } from "@material-ui/styles";
 // Note: do not export this from utils module
 import { createTheme } from "@material-ui/core/styles";
 import {
@@ -27,6 +27,7 @@ import {
 } from "react-bootstrap-icons";
 import AlbumArt from "./AlbumArt/AlbumArt";
 
+// Player component that interacts with Spotify APi
 const SpotifyPlayer: FC = (props) => {
   const [artist, setArtist] = useState(""); // Artist name
   const [track, setTrack] = useState(""); // Track name
