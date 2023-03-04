@@ -169,7 +169,6 @@ const SpotifyPlayer: FC = (props) => {
 
   // Save track to user LIKED playlist
   const trackSave = () => {
-    console.log("Track type=", trackType);
     chrome.runtime.sendMessage(
       { message: PlayerActions.SAVE_TRACK, query: trackId, type: trackType },
       (res) => {
