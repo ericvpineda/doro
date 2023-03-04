@@ -2,23 +2,22 @@ import React, { FC, Fragment, useState, useEffect } from "react";
 import styles from "./AlbumArt.module.css";
 import { PlayerStatus } from "../../../../Utils/SpotifyUtils";
 
+// Parent component: SpotifyPlayer
 interface Props {
   albumUrl: string;
   playerStatus: PlayerStatus;
 }
 
-// Note:
-// - props variables and state variables that useState of prop will be updated when parent state variable updates
-//  - does not update custom hooks
-// - Assumptions:
-//  - every album, if exits in spotify, will have album artwork 
+// - Assumptions: every album, if exits in spotify, will have album artwork 
 const AlbumArt: FC<Props> = (props: any) => {
   const [status, setStatus] = useState(PlayerStatus.LOADING);
 
+  // Update based on parent components player status
   useEffect(() => {
     setStatus(props.playerStatus);
   }, [props.playerStatus]);
-
+ 
+  // Show album artwork or webpage sign in prompt
   const showAlbum = () => {
     if (status === PlayerStatus.REQUIRE_WEBPAGE) {
       return (
@@ -31,7 +30,7 @@ const AlbumArt: FC<Props> = (props: any) => {
         </div>
       );
     } else if (status === PlayerStatus.ERROR) {
-      // TODO: Dependant on SpotifyPlayer component will render if error occurrs
+      // TODO-LATER: Dependant on SpotifyPlayer component will render if error occurrs
     } else {
       return (
         <img
@@ -45,7 +44,8 @@ const AlbumArt: FC<Props> = (props: any) => {
       );
     }
   };
-
+ 
+  // Note: Loading page until parent gets item information and updates status
   return (
     <Fragment>
       {status === PlayerStatus.LOADING ? (
