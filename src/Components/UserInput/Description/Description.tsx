@@ -2,41 +2,44 @@ import React from "react";
 import { FC, ChangeEvent, useState, useEffect, useMemo } from "react";
 import styles from "./Description.module.css";
 import debounce from "lodash.debounce";
-import ChromeData from "../../../Utils/ChromeUtils";
+import { ChromeData } from "../../../Utils/ChromeUtils";
 
-interface DescriptFunction {
+// Parent is UserInput component
+interface Props {
   setDescription: (param: string) => void;
   setErrorMessage: (param: string) => void;
-  description: string;
   defaultMsg: string;
 }
 
-const Description: FC<DescriptFunction> = (props): JSX.Element => {
+// Description component for user input
+const Description: FC<Props> = (props): JSX.Element => {
   const defaultMsg = props.defaultMsg;
 
   // Note: Invariant that description can never be empty
   const setDescriptHandler = (event: ChangeEvent<HTMLTextAreaElement>) => {
     const description = event.target.value;
     if (description.length > 30) {
-      props.setErrorMessage("Focus plan character limit 0-30."); 
+      props.setErrorMessage("Focus plan character limit is 0-30.");
     } else {
-      props.setErrorMessage("")
+      props.setErrorMessage("");
       props.setDescription(description.length > 0 ? description : defaultMsg);
     }
   };
 
-  const debounceChangeHandler = useMemo(() => debounce(setDescriptHandler, 300), []);
+  // Used to limit description input call rate
+  const debounceChangeHandler = useMemo(
+    () => debounce(setDescriptHandler, 300),
+    []
+  );
 
+
+  // Get and set cache of user description
   useEffect(() => {
     const descriptionElem = document.getElementById("description");
     chrome.storage.local.get([ChromeData.description], (res) => {
       const descriptionCache = res.description;
-      if (
-        descriptionElem &&
-        descriptionCache !== undefined &&
-        descriptionCache.length > 0 &&
-        descriptionCache !== defaultMsg
-      ) {
+      // Set cache description if element rendered and cache data valid
+      if (descriptionElem && descriptionCache) {
         descriptionElem.innerHTML = descriptionCache;
         props.setDescription(descriptionCache);
       }
@@ -53,14 +56,11 @@ const Description: FC<DescriptFunction> = (props): JSX.Element => {
       <div className="offset-1 col">
         <textarea
           onInput={debounceChangeHandler}
-          className={
-            styles.textArea + " form-control text-nowrap overflow-hidden"
-          }
+          className={styles.textArea + " form-control"}
           id="description"
           cols={20}
           rows={1}
-          placeholder="Working..."
-        ></textarea>
+          placeholder="Working..."/>
       </div>
     </div>
   );

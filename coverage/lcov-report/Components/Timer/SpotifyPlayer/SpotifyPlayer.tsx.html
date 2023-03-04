@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">85.62% </span>
+                <span class="strong">85.79% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>143/167</span>
+                <span class='fraction'>145/169</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">86.41% </span>
+                <span class="strong">86.58% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>140/162</span>
+                <span class='fraction'>142/164</span>
             </div>
         
             
@@ -537,7 +537,11 @@
 <a name='L472'></a><a href='#L472'>472</a>
 <a name='L473'></a><a href='#L473'>473</a>
 <a name='L474'></a><a href='#L474'>474</a>
-<a name='L475'></a><a href='#L475'>475</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L475'></a><a href='#L475'>475</a>
+<a name='L476'></a><a href='#L476'>476</a>
+<a name='L477'></a><a href='#L477'>477</a>
+<a name='L478'></a><a href='#L478'>478</a>
+<a name='L479'></a><a href='#L479'>479</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -583,6 +587,7 @@
 <span class="cline-any cline-yes">78x</span>
 <span class="cline-any cline-yes">78x</span>
 <span class="cline-any cline-yes">78x</span>
+<span class="cline-any cline-yes">78x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">78x</span>
@@ -590,6 +595,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">31x</span>
+<span class="cline-any cline-yes">28x</span>
 <span class="cline-any cline-yes">28x</span>
 <span class="cline-any cline-yes">28x</span>
 <span class="cline-any cline-yes">28x</span>
@@ -608,10 +614,12 @@
 <span class="cline-any cline-yes">28x</span>
 <span class="cline-any cline-yes">28x</span>
 <span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
@@ -1012,13 +1020,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React, { FC, useState, useEffect, useMemo } from "react";
-import { Box, Grid, Slider, IconButton } from "@material-ui/core";
 import styles from "./SpotifyPlayer.module.css";
 import Stack from "@mui/material/Stack";
 import VolumeDownIcon from "@material-ui/icons/VolumeDown";
 import VolumeUpIcon from "@material-ui/icons/VolumeUp";
 import VolumeOffIcon from "@material-ui/icons/VolumeOff";
 import debounce from "lodash.debounce";
+import { Box, Grid, Slider, IconButton } from "@material-ui/core";
 import { ThemeProvider } from "@material-ui/styles";
 // Note: do not export this from utils module
 import { createTheme } from "@material-ui/core/styles";
@@ -1057,6 +1065,7 @@ const SpotifyPlayer: FC = (props) =&gt; {
   const [thumbPosition, setThumbPosition] = useState(0); // Tracks current thumb position
   const [playerStatus, setPlayerStatus] = useState(PlayerStatus.LOADING); // Players current state
   const [isMounted, setIsMounted] = useState(false); // Used for volume animation
+  const [trackType, setTrackType] = useState("")
 &nbsp;
   // Get initial track data upon loading page
   const getTrack = () =&gt; {
@@ -1081,17 +1090,20 @@ const SpotifyPlayer: FC = (props) =&gt; {
           setDurationMs(duration);
           setThumbPosition(getThumbPosition(progress, duration));
           setPlayerStatus(PlayerStatus.SUCCESS);
+          setTrackType(res.data.type)
         } else if (res.status === Status.FAILURE) {
+          // Case: User did not complete requirement prompt
           console.log(res.message);
           setThumbPosition(-1);
           setPlayerStatus(PlayerStatus.REQUIRE_WEBPAGE);
         } else if (res.status === Status.ERROR) {
+          // TODO: Sign user out when error occurs?
           console.log(res.message);
           setThumbPosition(-1);
           setPlayerStatus(PlayerStatus.REQUIRE_WEBPAGE);
         } else <span class="missing-if-branch" title="else path not taken" >E</span>{
-          // TODO: What to show when status is unknown error?
-<span class="cstat-no" title="statement not covered" >          setPlayerStatus(PlayerStatus.REQUIRE_WEBPAGE);</span>
+          // Note: Automatic signout when unknown status received
+<span class="cstat-no" title="statement not covered" >          chrome.runtime.sendMessage({message: PlayerActions.SIGNOUT})</span>
 <span class="cstat-no" title="statement not covered" >          console.log("Unknown error when getting track data.");</span>
         }
       }
@@ -1181,7 +1193,7 @@ const SpotifyPlayer: FC = (props) =&gt; {
   // Save track to user LIKED playlist
   const trackSave = () =&gt; {
     chrome.runtime.sendMessage(
-      { message: PlayerActions.SAVE_TRACK, query: trackId },
+      { message: PlayerActions.SAVE_TRACK, query: trackId, type: trackType },
       (res) =&gt; {
         if (res.status === Status.SUCCESS) {
           setTrackSaved(true);
@@ -1197,7 +1209,7 @@ const SpotifyPlayer: FC = (props) =&gt; {
   // Remove track from user LIKED playlist
   const trackRemoveSaved = () =&gt; {
     chrome.runtime.sendMessage(
-      { message: PlayerActions.REMOVE_SAVED_TRACK, query: trackId },
+      { message: PlayerActions.REMOVE_SAVED_TRACK, query: trackId, type: trackType },
       (res) =&gt; {
         if (res.status === Status.SUCCESS) {
           setTrackSaved(false);
@@ -1492,7 +1504,7 @@ export default SpotifyPlayer;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2023-03-02T23:47:21.451Z
+                at 2023-03-04T06:01:19.804Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

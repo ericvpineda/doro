@@ -7,7 +7,7 @@ import {
   XCircleFill,
   ArrowCounterclockwise,
 } from "react-bootstrap-icons";
-import ChromeData from "../../../Utils/ChromeUtils";
+import {ChromeData} from "../../../Utils/ChromeUtils";
 
 const Clock: FC = () => {
   const [isRunning, setIsRunning] = useState(false); // Clock pause/play state

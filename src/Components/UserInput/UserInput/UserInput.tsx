@@ -98,7 +98,6 @@ const UserInput: FC<pageUpdate> = (props): JSX.Element => {
             setErrorMessage={setTimeErrorMessageHandler}
           />
           <Description
-            description={description}
             defaultMsg={defaultMsg}
             setDescription={setDescriptionHandler}
             setErrorMessage={setDescriptionErrorMessageHandler}

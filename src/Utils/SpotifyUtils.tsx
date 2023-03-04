@@ -11,7 +11,8 @@ enum PlayerActions {
   SET_VOLUME,
   SEEK_POSITION,
   SIGNIN,
-  SIGNOUT
+  SIGNOUT,
+  PLAYBACK_STATE
 }
 
 enum Status {
@@ -26,6 +27,19 @@ enum PlayerStatus {
   REQUIRE_WEBPAGE,
   SUCCESS,
   ERROR
+}
+
+// Scope information: https://developer.spotify.com/documentation/general/guides/authorization/scopes/
+const SpotifyScope = {
+  streaming: "streaming",
+  userLibraryRead: "user-library-read",
+  userLibraryModify: "user-library-modify",
+  userReadEmail: "user-read-email",
+  userReadCurrentlyPlaying: "user-read-currently-playing",
+  userReadPrivate: "user-read-private",
+  userModifyPlaybackState: "user-modify-playback-state",
+  userReadPlaybackState: "user-read-playback-state",
+  userReadPlaybackPosition: "user-read-playback-position"
 }
 
 // Note:
@@ -51,4 +65,4 @@ const createTrackTime = (timeMs: number): string => {
     return Math.floor((progress / duration) * 100)
   }
 
-export { PlayerStatus, PlayerActions, Status, createTrackTime, getThumbPosition };
+export { SpotifyScope, PlayerStatus, PlayerActions, Status, createTrackTime, getThumbPosition };

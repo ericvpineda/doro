@@ -6,7 +6,7 @@ import { DescriptContextProvider } from "./hooks/DescriptContext";
 const App: FC = () => {
   const [showTimer, setShowTimer] = useState(true);
 
-  // Note: isShowing props used ONLY for testing
+  // Note: context provider isShowing props used ONLY for testing
   return (
     <Fragment>
       <DescriptContextProvider isShowing={false}>

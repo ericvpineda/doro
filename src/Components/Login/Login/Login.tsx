@@ -4,7 +4,7 @@ import styles from "./Login.module.css";
 import Profile from "../Profile/Profile";
 import { Status, PlayerActions } from "../../../Utils/SpotifyUtils";
 import { generateChallenge, random} from "../../../Utils/AuthUtils"
-import ChromeData from "../../../Utils/ChromeUtils"
+import {ChromeData} from "../../../Utils/ChromeUtils"
 
 interface Props {
   setSignedIn: (signedIn: boolean) => void;

@@ -1,17 +1,27 @@
-import { PlayerActions, PlayerStatus, Status } from "../Utils/SpotifyUtils";
-import ChromeData from "../Utils/ChromeUtils";
+import { PlayerActions, Status, SpotifyScope } from "../Utils/SpotifyUtils";
+// import {ChromeData} from "../Utils/ChromeUtils";
 
 // DEBUG: Used to check if background script runs in console
 console.log("Running: Background script...");
 
 // User Authentication functions and objects
 
+// Spotify scopes
+const scopes = [
+  SpotifyScope.userLibraryRead,
+  SpotifyScope.userLibraryModify,
+  SpotifyScope.userReadEmail,
+  SpotifyScope.userReadCurrentlyPlaying,
+  SpotifyScope.userReadPrivate,
+  SpotifyScope.userModifyPlaybackState,
+  SpotifyScope.userReadPlaybackState,
+  SpotifyScope.userReadPlaybackPosition,
+];
+
 // Helper object for argument into authentication functions
 const client = {
   id: encodeURIComponent("9b8675b2d72647fb9fdd3c06474cfde9"),
-  scope: encodeURIComponent(
-    "user-library-read user-library-modify streaming user-read-email user-read-currently-playing user-read-private user-modify-playback-state user-read-playback-state"
-  ),
+  scope: encodeURIComponent(scopes.join(" ")),
   uri: chrome.identity.getRedirectURL(),
   state: "",
   authCode: "",
@@ -99,14 +109,14 @@ const signOut = () => {
 const setRefreshTokenTimer = (data: any) => {
   const timeout = setInterval(() => {
     // chrome.storage.local.get([ChromeData.expiresIn], (res) => {});
-      console.log("Refresh token client", client, data)
-      requestRefreshToken(client)
+    console.log("Refresh token client", client, data);
+    requestRefreshToken(client)
       .then((res) => res.json())
       .then((data) => setAccessTokenHandler(data))
       .catch((err) => {
-        console.log("Refresh token error:", err)
-        signOut()
-    })
+        console.log("Refresh token error:", err);
+        signOut();
+      });
   }, (data.expires_in - 60) * 1000);
   return () => {
     signOut();
@@ -175,7 +185,7 @@ const userSignIn = async (params: any) => {
             });
         }
       );
-    })
+    });
   } else {
     return new Promise((resolve, reject) => {
       return resolve({
@@ -195,6 +205,7 @@ const request = async (method: string, path: string, accessToken: string) => {
     "Content-Type": "application/json",
     Authorization: `Bearer ${accessToken}`,
   };
+  console.log(url.href)
   return await fetch(url.href, { method, headers });
 };
 
@@ -213,7 +224,7 @@ const getUserProfile = async (params: any) => {
       }
     })
     .then((data) => {
-      const profileUrl = data.images.length > 0 && data.images[0].url || "";
+      const profileUrl = (data.images.length > 0 && data.images[0].url) || "";
       response = { status: Status.SUCCESS, data: { profileUrl } };
       // chrome.storage.local.set({ profileUrl: profileUrl });
     })
@@ -228,8 +239,8 @@ const getUserProfile = async (params: any) => {
   return response;
 };
 
-// Used to currently playing track data
-interface TrackData {
+// Used to currently playing item data
+interface ItemData {
   id: string;
   track: string;
   artist: string;
@@ -240,26 +251,21 @@ interface TrackData {
   progressMs: number;
   durationMs: number;
   isSaved: boolean;
+  type: string;
 }
 
 // Helper method to get currenlty playing song
-// - Note:
-//  - Cant cache data since user could change song on different player
-//  - TODO:
-//    - add time scale bar to gui
-//    - Limit length of album name and artist name (or add revolving style)
-// - Question
-//  -
 const getCurrentlyPlaying = async (params: any) => {
   let response = {
     status: Status.NOT_SET,
     data: {},
     error: {},
   };
-  let trackData: TrackData;
+  let itemData: ItemData;
   const accessToken = params.accessToken;
   // Get track, artist, album image, isPlaying, and track id
-  await request("GET", "/player", accessToken)
+  const query = new URLSearchParams({ additional_types: "episode" });
+  await request("GET", "/player?" + query.toString(), accessToken)
     .then((res) => {
       if (res.status === 200) {
         return res.json();
@@ -274,29 +280,54 @@ const getCurrentlyPlaying = async (params: any) => {
     })
     .then((data) => {
       response.status = Status.SUCCESS;
-      trackData = {
-        track: data.item.name,
-        artist: data.item.artists[0].name,
-        albumUrl: data.item.album.images[0].url,
-        isPlaying: data.is_playing,
-        id: data.item.id,
-        deviceId: data.device.id,
-        volumePercent: data.device.volume_percent,
-        isSaved: false,
-        durationMs: data.item.duration_ms,
-        progressMs: data.progress_ms,
-      };
-      const query = new URLSearchParams({ ids: trackData.id });
-      return request(
-        "GET",
-        "/tracks/contains?" + query.toString(),
-        accessToken
-      );
+
+      // Case: Currently playing item is track
+      if (data.currently_playing_type === "track") {
+        itemData = {
+          track: data.item.name,
+          artist: data.item.artists[0].name,
+          albumUrl: data.item.album.images[0].url,
+          isPlaying: data.is_playing,
+          id: data.item.id,
+          deviceId: data.device.id,
+          volumePercent: data.device.volume_percent,
+          isSaved: false,
+          durationMs: data.item.duration_ms,
+          progressMs: data.progress_ms,
+          type: "tracks",
+        };
+        // Case: Currently playing item is episode (audio and/or video)
+      } else if (data.currently_playing_type === "episode") {
+        itemData = {
+          track: data.item.name,
+          artist: data.item.show.publisher,
+          albumUrl: data.item.images[0].url,
+          isPlaying: data.is_playing,
+          id: data.item.id,
+          deviceId: data.device.id,
+          volumePercent: data.device.volume_percent,
+          isSaved: false,
+          durationMs: data.item.duration_ms,
+          progressMs: data.progress_ms,
+          // Note: Current types are ["episode", "mixed"]
+          type: data.item.type === "episode" ? "episodes" : "audiobooks",
+        };
+      } else {
+        throw { message: "Unknown item type." };
+      }
+      console.log(data)
+      // Assign item data to responses
+      response.data = itemData;
+      
+      // Get saved item data
+      const query = new URLSearchParams({ ids: itemData.id });
+      return request( "GET", `/${itemData.type}/contains?` + query.toString(), accessToken )
     })
     .then((res) => res.json())
-    .then((data) => {
-      trackData.isSaved = data[0];
-      response.data = trackData;
+    .then((saveData) => {
+      // Assigned is saved data to item
+      itemData.isSaved = saveData[0];
+      response.data = itemData;
     })
     .catch((err) => {
       response = {
@@ -311,8 +342,15 @@ const getCurrentlyPlaying = async (params: any) => {
 };
 
 // Helper method to respond to player requests
-const trackCommand = async (params: any, method: string, path: string) => {
+const trackCommand = async (
+  params: any,
+  method: string,
+  path: string,
+  query: { [key: string]: string } = {}
+) => {
   let response = {};
+  // Allows for episode type audio
+  path = path + "?" + new URLSearchParams(query).toString();
   await request(method, path, params.accessToken)
     .then(() => {
       response = { status: Status.SUCCESS };
@@ -336,59 +374,59 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
     let query: any;
     switch (req.message) {
       case PlayerActions.PLAY:
-        trackCommand(result, "PUT", "/player/play").then((response) => {
+        query = {additional_types: "episode"}
+        trackCommand(result, "PUT", "/player/play", query).then((response) => {
           res(response);
         });
         break;
       case PlayerActions.PAUSE:
-        trackCommand(result, "PUT", "/player/pause").then((response) =>
+        query = {additional_types: "episode"}
+        trackCommand(result, "PUT", "/player/pause", query).then((response) =>
           res(response)
         );
         break;
       case PlayerActions.NEXT:
-        trackCommand(result, "POST", "/player/next").then((response) =>
+        query = {additional_types: "episode"}
+        trackCommand(result, "POST", "/player/next", query).then((response) =>
           res(response)
         );
         break;
       case PlayerActions.PREVIOUS:
-        trackCommand(result, "POST", "/player/previous").then((response) =>
+        query = {additional_types: "episode"}
+        trackCommand(result, "POST", "/player/previous", query).then((response) =>
           res(response)
         );
         break;
-      case PlayerActions.GET_PROFILE:
-        getUserProfile(result).then((response) => res(response));
-        break;
-      case PlayerActions.GET_CURRENTLY_PLAYING:
-        getCurrentlyPlaying(result).then((response) => res(response));
-        break;
       case PlayerActions.SAVE_TRACK:
-        query = new URLSearchParams({ ids: req.query });
-        trackCommand(result, "PUT", "/tracks?" + query.toString()).then(
-          (response) => res(response)
+        query = { ids: req.query, additional_types: "episode" };
+        trackCommand(result, "PUT", "/" + req.type, query).then((response) =>
+          res(response)
         );
         break;
       case PlayerActions.REMOVE_SAVED_TRACK:
-        query = new URLSearchParams({ ids: req.query });
-        trackCommand(result, "DELETE", "/tracks?" + query.toString()).then(
-          (response) => res(response)
+        query = { ids: req.query, additional_types: "episode" };
+        trackCommand(result, "DELETE", "/" + req.type, query).then((response) =>
+          res(response)
         );
         break;
       case PlayerActions.SET_VOLUME:
-        query = new URLSearchParams({
+        query = {
           volume_percent: req.query["volumePercent"],
           device_id: req.query["deviceId"],
-        });
-        trackCommand(result, "PUT", "/player/volume?" + query.toString()).then(
-          (response) => res(response)
+          additional_types: "episode"
+        };
+        trackCommand(result, "PUT", "/player/volume", query).then((response) =>
+          res(response)
         );
         break;
       case PlayerActions.SEEK_POSITION:
-        query = new URLSearchParams({
+        query = {
           position_ms: req.query["positionMs"],
           device_id: req.query["deviceId"],
-        });
-        trackCommand(result, "PUT", "/player/seek?" + query.toString()).then(
-          (response) => res(response)
+          additional_types: "episode"
+        };
+        trackCommand(result, "PUT", "/player/seek", query).then((response) =>
+          res(response)
         );
         break;
       case PlayerActions.SIGNOUT:
@@ -398,6 +436,12 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
       case PlayerActions.SIGNIN:
         result.data = req.data;
         userSignIn(result).then((response) => res(response));
+        break;
+      case PlayerActions.GET_PROFILE:
+        getUserProfile(result).then((response) => res(response));
+        break;
+      case PlayerActions.GET_CURRENTLY_PLAYING:
+        getCurrentlyPlaying(result).then((response) => res(response));
         break;
       default:
         res({

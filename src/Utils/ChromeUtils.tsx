@@ -13,4 +13,4 @@ const ChromeData = {
     expiresIn: "expiresIn",
 } 
 
-export default ChromeData;
+export {ChromeData};

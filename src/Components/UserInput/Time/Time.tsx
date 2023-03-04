@@ -8,7 +8,7 @@ import React, {
   useMemo,
 } from "react";
 import debounce from "lodash.debounce";
-import ChromeData from "../../../Utils/ChromeUtils";
+import {ChromeData} from "../../../Utils/ChromeUtils";
 
 
 interface TimeFunctions {

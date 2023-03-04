@@ -1,12 +1,12 @@
 import React, { FC, useState, Fragment, useContext, useEffect } from "react";
 import styles from "./FocusText.module.css";
 import DescriptContext from "../../../hooks/DescriptContext";
-import ChromeData from "../../../Utils/ChromeUtils";
+import {ChromeData} from "../../../Utils/ChromeUtils";
 
 const FocusText: FC = () => {
   const [description, setDescription] = useState("");
-  const ctx = useContext(DescriptContext); // Rerender when clear button submit (clock component)
   const [isExecutingRequest, setIsExecutingRequest] = useState(false);
+  const ctx = useContext(DescriptContext); // Rerender when clear button submit (clock component)
 
   useEffect(() => {
     chrome.storage.local.get(
@@ -21,7 +21,7 @@ const FocusText: FC = () => {
         }
       }
     );
-  }, [ctx.isShowing]);
+  }, [ctx.isShowing, description, isExecutingRequest]);
 
   return (
     <Fragment>
