@@ -50,6 +50,7 @@ const SpotifyPlayer: FC = (props) => {
     chrome.runtime.sendMessage(
       { message: PlayerActions.GET_CURRENTLY_PLAYING },
       (res) => {
+        // console.log("DEBUG: Spotify player:", res)
         if (res !== undefined && res.status === Status.SUCCESS) {
           setTrack(res.data.track);
           const bufferTrail = res.data.artist.length > 30 ? "..." : "";
