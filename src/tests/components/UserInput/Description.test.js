@@ -64,6 +64,7 @@ describe("Test description input element", () => {
     const message = "This message is way over the limit...";
     const textBox = screen.getByRole("textbox");
     user.type(textBox, message);
+    // Need to wait for debounce function to be called in componenet 
     await waitFor(() => {
       expect(textBox).toHaveValue(message);
       expect(mockDescriptionFxn).toHaveBeenCalledTimes(0);
@@ -85,6 +86,7 @@ describe("Test description input element", () => {
     const message = "Testing description...";
     const textBox = screen.getByRole("textbox");
     user.type(textBox, message);
+    // Need to wait for debounce function to be called in componenet 
     await waitFor(() => {
       expect(textBox).toHaveValue(message);
       expect(mockErrorFxn).toHaveBeenCalledWith("");
@@ -93,6 +95,7 @@ describe("Test description input element", () => {
   });
 
   it("storage cached description shows as input value placeholder", async () => {
+    // Set cached user description
     chrome.storage.local.set({ description });
     render(
       <Description
