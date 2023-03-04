@@ -71,16 +71,18 @@ const SpotifyPlayer: FC = (props) => {
           setPlayerStatus(PlayerStatus.SUCCESS);
           setTrackType(res.data.type)
         } else if (res.status === Status.FAILURE) {
+          // Case: User did not complete requirement prompt
           console.log(res.message);
           setThumbPosition(-1);
           setPlayerStatus(PlayerStatus.REQUIRE_WEBPAGE);
         } else if (res.status === Status.ERROR) {
+          // TODO: Sign user out when error occurs?
           console.log(res.message);
           setThumbPosition(-1);
           setPlayerStatus(PlayerStatus.REQUIRE_WEBPAGE);
         } else {
-          // TODO: What to show when status is unknown error?
-          setPlayerStatus(PlayerStatus.REQUIRE_WEBPAGE);
+          // Note: Automatic signout when unknown status received
+          chrome.runtime.sendMessage({message: PlayerActions.SIGNOUT})
           console.log("Unknown error when getting track data.");
         }
       }
