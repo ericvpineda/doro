@@ -44,13 +44,13 @@ const SpotifyPlayer: FC = (props) => {
   const [thumbPosition, setThumbPosition] = useState(0); // Tracks current thumb position
   const [playerStatus, setPlayerStatus] = useState(PlayerStatus.LOADING); // Players current state
   const [isMounted, setIsMounted] = useState(false); // Used for volume animation
+  const [trackType, setTrackType] = useState("")
 
   // Get initial track data upon loading page
   const getTrack = () => {
     chrome.runtime.sendMessage(
       { message: PlayerActions.GET_CURRENTLY_PLAYING },
       (res) => {
-        // console.log("DEBUG: Spotify player:", res)
         if (res !== undefined && res.status === Status.SUCCESS) {
           setTrack(res.data.track);
           const bufferTrail = res.data.artist.length > 30 ? "..." : "";
@@ -69,6 +69,7 @@ const SpotifyPlayer: FC = (props) => {
           setDurationMs(duration);
           setThumbPosition(getThumbPosition(progress, duration));
           setPlayerStatus(PlayerStatus.SUCCESS);
+          setTrackType(res.data.type)
         } else if (res.status === Status.FAILURE) {
           console.log(res.message);
           setThumbPosition(-1);
@@ -168,8 +169,9 @@ const SpotifyPlayer: FC = (props) => {
 
   // Save track to user LIKED playlist
   const trackSave = () => {
+    console.log("Track type=", trackType);
     chrome.runtime.sendMessage(
-      { message: PlayerActions.SAVE_TRACK, query: trackId },
+      { message: PlayerActions.SAVE_TRACK, query: trackId, type: trackType },
       (res) => {
         if (res.status === Status.SUCCESS) {
           setTrackSaved(true);
@@ -185,7 +187,7 @@ const SpotifyPlayer: FC = (props) => {
   // Remove track from user LIKED playlist
   const trackRemoveSaved = () => {
     chrome.runtime.sendMessage(
-      { message: PlayerActions.REMOVE_SAVED_TRACK, query: trackId },
+      { message: PlayerActions.REMOVE_SAVED_TRACK, query: trackId, type: trackType },
       (res) => {
         if (res.status === Status.SUCCESS) {
           setTrackSaved(false);
