@@ -730,8 +730,6 @@ describe("Test SpotifyPlayer component", () => {
     );
   });
 
-  test.todo(
-    "ad is playing and user attempts to skip, skip button should be disabled"
-  );
-  test.todo("podcast is playing and user attempts to...");
+  // TODO-LATER: Do after premium user actions complete
+  test.todo("ad is playing and user attempts to skip, skip button should be disabled");
 });
