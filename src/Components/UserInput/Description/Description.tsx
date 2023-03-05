@@ -1,5 +1,5 @@
 import React from "react";
-import { FC, ChangeEvent, useState, useEffect, useMemo } from "react";
+import { FC, ChangeEvent, useEffect, useMemo } from "react";
 import styles from "./Description.module.css";
 import debounce from "lodash.debounce";
 import { ChromeData } from "../../../Utils/ChromeUtils";

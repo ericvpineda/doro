@@ -29,7 +29,14 @@ const AlbumArt: FC<Props> = (props: any) => {
           </span>
         </div>
       );
-    } else if (status === PlayerStatus.ERROR) {
+    } else if (status === PlayerStatus.AD_PLAYING) {
+      return (
+        <div className={styles.blankImage}>
+          <span>Ad is currently playing...</span>
+        </div>
+      );
+    } 
+    else if (status === PlayerStatus.ERROR) {
       // TODO-LATER: Dependant on SpotifyPlayer component will render if error occurrs
     } else {
       return (

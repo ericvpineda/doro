@@ -44,32 +44,34 @@ const SpotifyPlayer: FC = (props) => {
   const [thumbPosition, setThumbPosition] = useState(0); // Tracks current thumb position
   const [playerStatus, setPlayerStatus] = useState(PlayerStatus.LOADING); // Players current state
   const [isMounted, setIsMounted] = useState(false); // Used for volume animation
-  const [trackType, setTrackType] = useState("")
+  const [trackType, setTrackType] = useState("");
 
   // Get initial track data upon loading page
   const getTrack = () => {
     chrome.runtime.sendMessage(
       { message: PlayerActions.GET_CURRENTLY_PLAYING },
       (res) => {
+        // Note: Will return success on tracks and advertisements
         if (res !== undefined && res.status === Status.SUCCESS) {
-          setTrack(res.data.track);
-          const bufferTrail = res.data.artist.length > 30 ? "..." : "";
-          setArtist(res.data.artist.substring(0, 30) + bufferTrail);
-          setAlbumUrl(res.data.albumUrl);
-          setIsPlaying(res.data.isPlaying);
-          setTrackId(res.data.id);
-          setTrackSaved(res.data.isSaved);
-          setDeviceId(res.data.deviceId);
-          setVolume(res.data.volumePercent);
-          setProgressMs(res.data.progressMs);
-          setDurationMs(res.data.durationMs);
-          const progress = res.data.progressMs;
-          const duration = res.data.durationMs;
-          setProgressMs(progress + 500);
-          setDurationMs(duration);
-          setThumbPosition(getThumbPosition(progress, duration));
-          setPlayerStatus(PlayerStatus.SUCCESS);
-          setTrackType(res.data.type)
+            setTrack(res.data.track);
+            const bufferTrail = res.data.artist.length > 30 ? "..." : "";
+            setArtist(res.data.artist.substring(0, 30) + bufferTrail);
+            setAlbumUrl(res.data.albumUrl);
+            setIsPlaying(res.data.isPlaying);
+            setTrackId(res.data.id);
+            setTrackSaved(res.data.isSaved);
+            setDeviceId(res.data.deviceId);
+            setVolume(res.data.volumePercent);
+            setProgressMs(res.data.progressMs);
+            setDurationMs(res.data.durationMs);
+            const progress = res.data.progressMs;
+            const duration = res.data.durationMs;
+            setProgressMs(progress + 500);
+            setDurationMs(duration);
+            setThumbPosition(getThumbPosition(progress, duration));
+            const status = res.data.type === "ad" ? PlayerStatus.AD_PLAYING : PlayerStatus.SUCCESS
+            setPlayerStatus(status);
+            setTrackType(res.data.type);
         } else if (res.status === Status.FAILURE) {
           // Case: User did not complete requirement prompt
           console.log(res.message);
@@ -82,7 +84,7 @@ const SpotifyPlayer: FC = (props) => {
           setPlayerStatus(PlayerStatus.REQUIRE_WEBPAGE);
         } else {
           // Note: Automatic signout when unknown status received
-          chrome.runtime.sendMessage({message: PlayerActions.SIGNOUT})
+          chrome.runtime.sendMessage({ message: PlayerActions.SIGNOUT });
           console.log("Unknown error when getting track data.");
         }
       }
@@ -94,7 +96,7 @@ const SpotifyPlayer: FC = (props) => {
 
   // Note: will run sequential to previous useEffect
   useEffect(() => {
-    if (playerStatus === PlayerStatus.SUCCESS && thumbPosition >= 0) {
+    if ((validPlayerStatus() || adPlayerStatus()) && thumbPosition >= 0) {
       const updateTime = setInterval(() => {
         if (isPlaying) {
           const updatedProgress = progressMs + 1000;
@@ -188,7 +190,11 @@ const SpotifyPlayer: FC = (props) => {
   // Remove track from user LIKED playlist
   const trackRemoveSaved = () => {
     chrome.runtime.sendMessage(
-      { message: PlayerActions.REMOVE_SAVED_TRACK, query: trackId, type: trackType },
+      {
+        message: PlayerActions.REMOVE_SAVED_TRACK,
+        query: trackId,
+        type: trackType,
+      },
       (res) => {
         if (res.status === Status.SUCCESS) {
           setTrackSaved(false);
@@ -349,6 +355,14 @@ const SpotifyPlayer: FC = (props) => {
     );
   };
 
+  const validPlayerStatus = () => {
+    return playerStatus === PlayerStatus.SUCCESS
+  }
+
+  const adPlayerStatus = () => {
+    return playerStatus === PlayerStatus.AD_PLAYING;
+  }
+
   return (
     <div className={styles.playerContainer} id="player-container">
       <AlbumArt playerStatus={playerStatus} albumUrl={albumUrl}></AlbumArt>
@@ -361,10 +375,10 @@ const SpotifyPlayer: FC = (props) => {
         </div>
       )}
       <div className={styles.playerControls}>
-        <Box width={100}></Box>
+        <Box width={100}/>
         {showHeart()}
         <IconButton
-          disabled={playerStatus !== PlayerStatus.SUCCESS}
+          disabled={!validPlayerStatus()}
           onClick={trackPrevious}
           data-testid="previous-track-btn"
         >
@@ -375,7 +389,7 @@ const SpotifyPlayer: FC = (props) => {
         </IconButton>
         {!isPlaying ? (
           <IconButton
-            disabled={playerStatus !== PlayerStatus.SUCCESS}
+            disabled={!validPlayerStatus()}
             onClick={trackPlay}
             data-testid="play-btn"
           >
@@ -386,7 +400,7 @@ const SpotifyPlayer: FC = (props) => {
           </IconButton>
         ) : (
           <IconButton
-            disabled={playerStatus !== PlayerStatus.SUCCESS}
+            disabled={!validPlayerStatus()}
             onClick={trackPause}
             data-testid="pause-btn"
           >
@@ -397,7 +411,7 @@ const SpotifyPlayer: FC = (props) => {
           </IconButton>
         )}
         <IconButton
-          disabled={playerStatus !== PlayerStatus.SUCCESS}
+          disabled={!validPlayerStatus()}
           onClick={trackNext}
           data-testid="next-track-btn"
         >
@@ -437,7 +451,7 @@ const SpotifyPlayer: FC = (props) => {
                 onMouseEnter={onVolumeEnterHandler}
                 onMouseLeave={onVolumeLeaveHandler}
                 onClick={muteVolumeHandler}
-                disabled={playerStatus !== PlayerStatus.SUCCESS}
+                disabled={!validPlayerStatus()}
               >
                 {getVolumeIcon()}
               </IconButton>
@@ -446,7 +460,7 @@ const SpotifyPlayer: FC = (props) => {
         </Box>
       </div>
       <div className={styles.playerTrackSlider}>
-        {PlayerStatus.SUCCESS === playerStatus && (
+        {(validPlayerStatus() || adPlayerStatus()) && (
           <Box width={225}>
             <Grid container spacing={1} alignItems="center">
               <Grid item className={styles.playerSeekTime + " me-2"}>
@@ -455,8 +469,9 @@ const SpotifyPlayer: FC = (props) => {
               <Grid item xs>
                 <ThemeProvider theme={muiTheme}>
                   <Slider
+                    disabled={adPlayerStatus()}
                     data-testid="seek-position-slider"
-                    value={thumbPosition}
+                    value={adPlayerStatus() ? 0 : thumbPosition}
                     onChange={(_, val) => debounceThumbSeekHandler(val)}
                     onChangeCommitted={(_, val) =>
                       thumbSeekChangeCommitted(val)
@@ -465,7 +480,7 @@ const SpotifyPlayer: FC = (props) => {
                 </ThemeProvider>
               </Grid>
               <Grid item className={styles.playerSeekTime + " ms-2"}>
-                {createTrackTime(durationMs)}
+                {validPlayerStatus() ? createTrackTime(durationMs) : "--:--"}
               </Grid>
             </Grid>
           </Box>

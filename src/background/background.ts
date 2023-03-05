@@ -205,7 +205,6 @@ const request = async (method: string, path: string, accessToken: string) => {
     "Content-Type": "application/json",
     Authorization: `Bearer ${accessToken}`,
   };
-  console.log(url.href)
   return await fetch(url.href, { method, headers });
 };
 
@@ -280,7 +279,7 @@ const getCurrentlyPlaying = async (params: any) => {
     })
     .then((data) => {
       response.status = Status.SUCCESS;
-
+      console.log("Response data=", data);
       // Case: Currently playing item is track
       if (data.currently_playing_type === "track") {
         itemData = {
@@ -309,19 +308,41 @@ const getCurrentlyPlaying = async (params: any) => {
           isSaved: false,
           durationMs: data.item.duration_ms,
           progressMs: data.progress_ms,
-          // Note: Current types are ["episode", "mixed"]
+          // Note: Current types are ["episode", "mixed", "Ad"]
           type: data.item.type === "episode" ? "episodes" : "audiobooks",
+        };
+      } else if (data.currently_playing_type === "ad") {
+        itemData = {
+          track: "ad",
+          artist: "",
+          albumUrl: "",
+          id: "",
+          isPlaying: data.is_playing,
+          deviceId: data.device.id,
+          volumePercent: data.device.volume_percent,
+          isSaved: false,
+          durationMs: 5 * 1000,
+          progressMs: data.progress_ms,
+          type: "ad",
+        };
+        throw {
+          status: Status.SUCCESS,
+          data: itemData,
+          message: "Ad is currently playing.",
         };
       } else {
         throw { message: "Unknown item type." };
       }
-      console.log(data)
       // Assign item data to responses
       response.data = itemData;
-      
+
       // Get saved item data
       const query = new URLSearchParams({ ids: itemData.id });
-      return request( "GET", `/${itemData.type}/contains?` + query.toString(), accessToken )
+      return request(
+        "GET",
+        `/${itemData.type}/contains?` + query.toString(),
+        accessToken
+      );
     })
     .then((res) => res.json())
     .then((saveData) => {
@@ -332,7 +353,7 @@ const getCurrentlyPlaying = async (params: any) => {
     .catch((err) => {
       response = {
         status: err.status || Status.ERROR,
-        data: {},
+        data: err.data || {},
         error: {
           message: err.message || "Error occured when getting track data.",
         },
@@ -374,27 +395,27 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
     let query: any;
     switch (req.message) {
       case PlayerActions.PLAY:
-        query = {additional_types: "episode"}
+        query = { additional_types: "episode" };
         trackCommand(result, "PUT", "/player/play", query).then((response) => {
           res(response);
         });
         break;
       case PlayerActions.PAUSE:
-        query = {additional_types: "episode"}
+        query = { additional_types: "episode" };
         trackCommand(result, "PUT", "/player/pause", query).then((response) =>
           res(response)
         );
         break;
       case PlayerActions.NEXT:
-        query = {additional_types: "episode"}
+        query = { additional_types: "episode" };
         trackCommand(result, "POST", "/player/next", query).then((response) =>
           res(response)
         );
         break;
       case PlayerActions.PREVIOUS:
-        query = {additional_types: "episode"}
-        trackCommand(result, "POST", "/player/previous", query).then((response) =>
-          res(response)
+        query = { additional_types: "episode" };
+        trackCommand(result, "POST", "/player/previous", query).then(
+          (response) => res(response)
         );
         break;
       case PlayerActions.SAVE_TRACK:
@@ -413,7 +434,7 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
         query = {
           volume_percent: req.query["volumePercent"],
           device_id: req.query["deviceId"],
-          additional_types: "episode"
+          additional_types: "episode",
         };
         trackCommand(result, "PUT", "/player/volume", query).then((response) =>
           res(response)
@@ -423,7 +444,7 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
         query = {
           position_ms: req.query["positionMs"],
           device_id: req.query["deviceId"],
-          additional_types: "episode"
+          additional_types: "episode",
         };
         trackCommand(result, "PUT", "/player/seek", query).then((response) =>
           res(response)

@@ -5,7 +5,7 @@ import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 import UserInput from "../../../Components/UserInput/UserInput/UserInput.tsx";
 
-// Areas of test
+// Test Points
 // - valid hours and minutes and start button pushed
 // - invalid hours and minutes shows error message
 // - invalid description shows error message

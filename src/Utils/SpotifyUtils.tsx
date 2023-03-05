@@ -16,7 +16,7 @@ enum PlayerActions {
 }
 
 enum Status {
-  NOT_SET = -1,
+  NOT_SET = 0,
   SUCCESS,
   FAILURE,
   ERROR,
@@ -24,9 +24,10 @@ enum Status {
 
 enum PlayerStatus {
   LOADING = 0,
-  REQUIRE_WEBPAGE,
   SUCCESS,
-  ERROR
+  ERROR,
+  REQUIRE_WEBPAGE,
+  AD_PLAYING
 }
 
 // Scope information: https://developer.spotify.com/documentation/general/guides/authorization/scopes/
