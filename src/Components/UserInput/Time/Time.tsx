@@ -10,19 +10,21 @@ import React, {
 import debounce from "lodash.debounce";
 import {ChromeData} from "../../../Utils/ChromeUtils";
 
-
-interface TimeFunctions {
+// Parent is UserInput component that
+interface Props {
+  setErrorMessage: (err: string) => void;
   setHours: (param: number) => void;
   setMinutes: (param: number) => void;
   hours: number;
   minutes: number;
-  setErrorMessage: (err: string) => void;
 }
 
-const Time: FC<TimeFunctions> = (props): JSX.Element => {
+// Time component
+const Time: FC<Props> = (props): JSX.Element => {
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(0);
 
+  // Sets user input hours
   const setHoursHandler = (event: ChangeEvent<HTMLInputElement>) => {
     const value = +event.target.value;
     props.setHours(value)
@@ -38,6 +40,7 @@ const Time: FC<TimeFunctions> = (props): JSX.Element => {
     }
   };
 
+  // Sets user input minutes
   const setMinutesHandler = (event: ChangeEvent<HTMLInputElement>) => {
     const value = +event.target.value;
     props.setMinutes(value)
@@ -53,6 +56,7 @@ const Time: FC<TimeFunctions> = (props): JSX.Element => {
     }
   };
 
+  // Removes decimals and negative values 
   const validateTime = (event: KeyboardEvent) => {
     const key = event.key;
     if (key === "." || key === "-") {
@@ -60,33 +64,37 @@ const Time: FC<TimeFunctions> = (props): JSX.Element => {
     }
   };
 
-  // Note: need to set dependecy for memoization
+  // Reduce render rate on typing for hours 
   const debouncedHoursHandler = useMemo(
     () => debounce(setHoursHandler, 300),
     [hours, minutes]
   );
 
+  // Reduce render rate on typing for minutes 
   const debouncedMinutesHandler = useMemo(
     () => debounce(setMinutesHandler, 300),
     [hours, minutes]
   );
 
+  // Pre-fill hours and minutes input with storage data
   useEffect(() => {
     const minutesElem = document.getElementById("minutes") as HTMLInputElement;
     const hoursElem = document.getElementById("hours") as HTMLInputElement;
+    // Index chrome storage for default hours and minutes
     chrome.storage.local.get([ChromeData.setTime], (res) => {
       const hoursCache = res.setTime && res.setTime.hours;
       const minutesCache = res.setTime && res.setTime.minutes;
-      if (hoursElem && hoursCache !== undefined && hoursCache > 0) {
+      if (hoursElem && hoursCache && hoursCache > 0) {
         props.setHours(hoursCache);
         setHours(hoursCache)
         hoursElem.setAttribute("value", hoursCache);
       }
-      if (minutesCache !== undefined && minutesCache > 0 && minutesElem) {
+      if (minutesCache && minutesCache > 0 && minutesElem) {
         props.setMinutes(minutesCache);
         setMinutes(minutesCache)
         minutesElem.setAttribute("value", minutesCache);
       }
+      // Edge case: User submits when storage data is empty 
       if (hoursCache === undefined && minutesCache === undefined) {
         props.setErrorMessage("Hours and minutes cannot both be 0.");
       }

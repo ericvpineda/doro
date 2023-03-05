@@ -6,12 +6,12 @@ import styles from "./UserInput.module.css";
 import { ArrowReturnRight } from "react-bootstrap-icons";
 
 // Parenet is App component
-interface pageUpdate {
+interface Props {
   setShowTimerHandler: (param: boolean) => void;
 }
 
 // User Input Component
-const UserInput: FC<pageUpdate> = (props): JSX.Element => {
+const UserInput: FC<Props> = (props): JSX.Element => {
   const [showError, setShowError] = useState(false);
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(0);
@@ -34,17 +34,14 @@ const UserInput: FC<pageUpdate> = (props): JSX.Element => {
     } else {
       // Set time and description if success
       chrome.storage.local.set({
+        description,
         hours,
         minutes,
         seconds: 0,
-        description: description,
-        isRunning: true,
-        setTime: {
-          hours,
-          minutes,
-        },
-        isExecutingRequest: true,
+        setTime: { hours, minutes },
         showPlayer: false,
+        isRunning: true,
+        isExecutingRequest: true,
       });
 
       // Prevent error message from showing
