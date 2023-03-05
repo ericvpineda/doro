@@ -109,12 +109,12 @@ const signOut = () => {
 const setRefreshTokenTimer = (data: any) => {
   const timeout = setInterval(() => {
     // chrome.storage.local.get([ChromeData.expiresIn], (res) => {});
-    console.log("Refresh token client", client, data);
+    // console.log("Refresh token client", client, data);
     requestRefreshToken(client)
       .then((res) => res.json())
       .then((data) => setAccessTokenHandler(data))
       .catch((err) => {
-        console.log("Refresh token error:", err);
+        // console.log("Refresh token error:", err);
         signOut();
       });
   }, (data.expires_in - 60) * 1000);
@@ -279,7 +279,6 @@ const getCurrentlyPlaying = async (params: any) => {
     })
     .then((data) => {
       response.status = Status.SUCCESS;
-      console.log("Response data=", data);
       // Case: Currently playing item is track
       if (data.currently_playing_type === "track") {
         itemData = {
@@ -321,14 +320,15 @@ const getCurrentlyPlaying = async (params: any) => {
           deviceId: data.device.id,
           volumePercent: data.device.volume_percent,
           isSaved: false,
-          durationMs: 5 * 1000,
+          durationMs: 5 * 1000, // Will get re-queried in intervals of 5 seconds
           progressMs: data.progress_ms,
           type: "ad",
         };
+        // Note: need "loophole" so ad path does not get queried futher
         throw {
           status: Status.SUCCESS,
           data: itemData,
-          message: "Ad is currently playing.",
+          message: "Ad is playing.",
         };
       } else {
         throw { message: "Unknown item type." };
@@ -373,14 +373,19 @@ const trackCommand = async (
   // Allows for episode type audio
   path = path + "?" + new URLSearchParams(query).toString();
   await request(method, path, params.accessToken)
-    .then(() => {
-      response = { status: Status.SUCCESS };
+    .then((res) => {
+      if (res.status === 200) {
+        response = { status: Status.SUCCESS };
+      } else if (res.status === 403) {
+        // User is does not have premium account error
+        response = { status: Status.FAILURE };
+      }
     })
     .catch((err) => {
       response = {
-        status: Status.FAILURE,
+        status: Status.ERROR,
         error: {
-          message: err.message || "Failure when completing track command.",
+          message: err.message || "Error when completing track command.",
         },
       };
     });

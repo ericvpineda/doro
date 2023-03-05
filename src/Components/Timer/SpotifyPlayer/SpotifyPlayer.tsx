@@ -46,6 +46,28 @@ const SpotifyPlayer: FC = (props) => {
   const [isMounted, setIsMounted] = useState(false); // Used for volume animation
   const [trackType, setTrackType] = useState("");
 
+  // Plan: Use chrome script inject to submit spotify commands
+  // - get tab id of chrome tab with spotify open
+  // - for each command, create separate injection script
+  //  - have helper function that will be injected into tab
+
+  // Note: Use later when spotify tab is removed
+  // chrome.tabs.query({lastFocusedWindow: true}, tabs => {
+  //   console.log(tabs)
+  //   tabs.forEach(tab => {
+  //     console.log(tab.url)
+  //     const re = new RegExp("^https:\/\/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.spotify.com");
+  //     if (tab.url != null ) {
+  //       console.log(re.test(tab.url))
+  //     }
+  //   })
+  // })
+
+  // request("PUT", "/player/pause", accessToken).catch((e) => console.log(e));
+  // Note: used for html manipulation (script injection)
+  // chrome.storage.local.get(["tabId"], (res) => {
+  // })
+
   // Get initial track data upon loading page
   const getTrack = () => {
     chrome.runtime.sendMessage(
@@ -53,25 +75,28 @@ const SpotifyPlayer: FC = (props) => {
       (res) => {
         // Note: Will return success on tracks and advertisements
         if (res !== undefined && res.status === Status.SUCCESS) {
-            setTrack(res.data.track);
-            const bufferTrail = res.data.artist.length > 30 ? "..." : "";
-            setArtist(res.data.artist.substring(0, 30) + bufferTrail);
-            setAlbumUrl(res.data.albumUrl);
-            setIsPlaying(res.data.isPlaying);
-            setTrackId(res.data.id);
-            setTrackSaved(res.data.isSaved);
-            setDeviceId(res.data.deviceId);
-            setVolume(res.data.volumePercent);
-            setProgressMs(res.data.progressMs);
-            setDurationMs(res.data.durationMs);
-            const progress = res.data.progressMs;
-            const duration = res.data.durationMs;
-            setProgressMs(progress + 500);
-            setDurationMs(duration);
-            setThumbPosition(getThumbPosition(progress, duration));
-            const status = res.data.type === "ad" ? PlayerStatus.AD_PLAYING : PlayerStatus.SUCCESS
-            setPlayerStatus(status);
-            setTrackType(res.data.type);
+          setTrack(res.data.track);
+          const bufferTrail = res.data.artist.length > 30 ? "..." : "";
+          setArtist(res.data.artist.substring(0, 30) + bufferTrail);
+          setAlbumUrl(res.data.albumUrl);
+          setIsPlaying(res.data.isPlaying);
+          setTrackId(res.data.id);
+          setTrackSaved(res.data.isSaved);
+          setDeviceId(res.data.deviceId);
+          setVolume(res.data.volumePercent);
+          setProgressMs(res.data.progressMs);
+          setDurationMs(res.data.durationMs);
+          const progress = res.data.progressMs;
+          const duration = res.data.durationMs;
+          setProgressMs(progress + 500);
+          setDurationMs(duration);
+          setThumbPosition(getThumbPosition(progress, duration));
+          const status =
+            res.data.type === "ad"
+              ? PlayerStatus.AD_PLAYING
+              : PlayerStatus.SUCCESS;
+          setPlayerStatus(status);
+          setTrackType(res.data.type);
         } else if (res.status === Status.FAILURE) {
           // Case: User did not complete requirement prompt
           console.log(res.message);
@@ -114,17 +139,55 @@ const SpotifyPlayer: FC = (props) => {
     }
   }, [thumbPosition, progressMs, durationMs, isPlaying, playerStatus]);
 
+  const re = new RegExp("^https://[-a-zA-Z0-9@:%._+~#=]{1,256}.spotify.com");
+
+  const playPauseBtn = () => {
+    const pauseBtn = document.querySelector(
+      "[data-testid=control-button-playpause]"
+    ) as HTMLButtonElement;
+    let isClicked = false;
+    pauseBtn.addEventListener("click", () => (isClicked = true));
+    pauseBtn.click();
+    return isClicked;
+  };
+
+  const trackCommandInjection = (commandFxn: () => boolean) => {
+    return new Promise((resolve, _) => {
+      chrome.tabs.query({}, (tabs) => {
+        tabs.forEach((tab) => {
+          if (tab.url && re.test(tab.url) && tab.id) {
+            chrome.scripting
+              .executeScript({
+                target: { tabId: tab.id },
+                func: commandFxn,
+              })
+              .then((injectedResults) => {
+                if (injectedResults.length > 0 && injectedResults[0].result) {
+                  resolve({ data: true });
+                } else {
+                  resolve({ data: false });
+                }
+              })
+              .catch(() => resolve({ data: false }));
+          }
+        });
+      });
+    });
+  };
+
   // Pause current track
   const trackPause = () => {
-    chrome.runtime.sendMessage({ message: PlayerActions.PAUSE }, (res) => {
-      if (res.status === Status.SUCCESS) {
-        setIsPlaying(false);
-      } else if (res.status === Status.FAILURE) {
-        console.log(res.message);
-      } else {
-        console.log("Unknown error when pausing track.");
-      }
-    });
+    if (isPlaying) {
+      chrome.runtime.sendMessage({ message: PlayerActions.PAUSE }, (res) => {
+        if (res.status === Status.SUCCESS) {
+          setIsPlaying(false);
+        } else if (res.status === Status.FAILURE) {
+          trackCommandInjection(playPauseBtn).then((res: any) => setIsPlaying(!res.data));
+        } else {
+          console.log("Unknown error when pausing track.");
+        }
+      });
+    }
   };
 
   // Play current track
@@ -133,7 +196,7 @@ const SpotifyPlayer: FC = (props) => {
       if (res.status === Status.SUCCESS) {
         setIsPlaying(true);
       } else if (res.status === Status.FAILURE) {
-        console.log(res.message);
+        trackCommandInjection(playPauseBtn).then((res: any) => setIsPlaying(res.data));
       } else {
         console.log("Unknown error when playing track.");
       }
@@ -356,12 +419,12 @@ const SpotifyPlayer: FC = (props) => {
   };
 
   const validPlayerStatus = () => {
-    return playerStatus === PlayerStatus.SUCCESS
-  }
+    return playerStatus === PlayerStatus.SUCCESS;
+  };
 
   const adPlayerStatus = () => {
     return playerStatus === PlayerStatus.AD_PLAYING;
-  }
+  };
 
   return (
     <div className={styles.playerContainer} id="player-container">
@@ -375,7 +438,7 @@ const SpotifyPlayer: FC = (props) => {
         </div>
       )}
       <div className={styles.playerControls}>
-        <Box width={100}/>
+        <Box width={100} />
         {showHeart()}
         <IconButton
           disabled={!validPlayerStatus()}
