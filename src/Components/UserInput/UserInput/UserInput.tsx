@@ -109,6 +109,7 @@ const UserInput: FC<Props> = (props): JSX.Element => {
         {showError && <div className="text-danger fs-6">{errorMessage}</div>}
       </div>
       <ArrowReturnRight
+        data-testid="return-button"
         onClick={showTimerHandler}
         className={styles.clockButton}
       />

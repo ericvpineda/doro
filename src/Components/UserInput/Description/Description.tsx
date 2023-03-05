@@ -49,9 +49,7 @@ const Description: FC<Props> = (props): JSX.Element => {
   return (
     <div className="row text-nowrap">
       <div className="col-3">
-        <label className="form-label" htmlFor="description">
-          Focus plan?
-        </label>
+        <label className="form-label" htmlFor="description">Focus plan?</label>
       </div>
       <div className="offset-1 col">
         <textarea
