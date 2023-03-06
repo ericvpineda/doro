@@ -46,28 +46,6 @@ const SpotifyPlayer: FC = (props) => {
   const [isMounted, setIsMounted] = useState(false); // Used for volume animation
   const [trackType, setTrackType] = useState("");
 
-  // Plan: Use chrome script inject to submit spotify commands
-  // - get tab id of chrome tab with spotify open
-  // - for each command, create separate injection script
-  //  - have helper function that will be injected into tab
-
-  // Note: Use later when spotify tab is removed
-  // chrome.tabs.query({lastFocusedWindow: true}, tabs => {
-  //   console.log(tabs)
-  //   tabs.forEach(tab => {
-  //     console.log(tab.url)
-  //     const re = new RegExp("^https:\/\/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.spotify.com");
-  //     if (tab.url != null ) {
-  //       console.log(re.test(tab.url))
-  //     }
-  //   })
-  // })
-
-  // request("PUT", "/player/pause", accessToken).catch((e) => console.log(e));
-  // Note: used for html manipulation (script injection)
-  // chrome.storage.local.get(["tabId"], (res) => {
-  // })
-
   // Get initial track data upon loading page
   const getTrack = () => {
     chrome.runtime.sendMessage(
@@ -122,7 +100,7 @@ const SpotifyPlayer: FC = (props) => {
 
   // Note: will run sequential to previous useEffect
   useEffect(() => {
-    if ((validPlayerStatus() || adPlayerStatus()) && thumbPosition >= 0) {
+    if ((successPlayerStatus() || adPlayerStatus()) && thumbPosition >= 0) {
       const updateTime = setInterval(() => {
         if (isPlaying) {
           const updatedProgress = progressMs + 1000;
@@ -141,6 +119,7 @@ const SpotifyPlayer: FC = (props) => {
 
   const re = new RegExp("^https://[-a-zA-Z0-9@:%._+~#=]{1,256}.spotify.com");
 
+  // Inject script for play and pause (Non-premium users)
   const injectTrackPlayPause = () => {
     const pauseBtn = document.querySelector(
       "[data-testid=control-button-playpause]"
@@ -151,6 +130,7 @@ const SpotifyPlayer: FC = (props) => {
     return isClicked;
   };
 
+  // Inject script for next track (Non-premium users)
   const injectTrackNext = () => {
     const nextTrackBtn = document.querySelector(
       "[data-testid=control-button-skip-forward]"
@@ -161,6 +141,7 @@ const SpotifyPlayer: FC = (props) => {
     return isClicked;
   };
 
+  // Inject script for previous track (Non-premium users)
   const injectTrackPrevious = () => {
     const prevTrackBtn = document.querySelector(
       "[data-testid=control-button-skip-back]"
@@ -171,6 +152,7 @@ const SpotifyPlayer: FC = (props) => {
     return isClicked;
   };
 
+  // Inject script for change volume (Non-premium users)
   const injectChangeVolume = () => {
     let result = false;
     chrome.storage.local.get(["volume"], (res) => {
@@ -214,6 +196,7 @@ const SpotifyPlayer: FC = (props) => {
     return result;
   };
 
+  // Inject script for seeking track (Non-premium users)
   const injectSeekTrack = () => {
     let result = false;
     chrome.storage.local.get(["percent"], (res) => {
@@ -260,6 +243,7 @@ const SpotifyPlayer: FC = (props) => {
     return result;
   };
 
+  // Helper function to execute chrome injection scripts
   const trackInjection = (commandFxn: () => boolean) => {
     return new Promise((resolve, _) => {
       chrome.tabs.query({}, (tabs) => {
@@ -290,6 +274,7 @@ const SpotifyPlayer: FC = (props) => {
       if (res.status === Status.SUCCESS) {
         setIsPlaying(false);
       } else if (res.status === Status.FAILURE) {
+          // Case: User is non-premium user 
         trackInjection(injectTrackPlayPause).then((res: any) =>
           setIsPlaying(!res.data)
         );
@@ -305,6 +290,7 @@ const SpotifyPlayer: FC = (props) => {
       if (res.status === Status.SUCCESS) {
         setIsPlaying(true);
       } else if (res.status === Status.FAILURE) {
+          // Case: User is non-premium user 
         trackInjection(injectTrackPlayPause).then((res: any) =>
           setIsPlaying(res.data)
         );
@@ -320,6 +306,7 @@ const SpotifyPlayer: FC = (props) => {
       if (res.status === Status.SUCCESS) {
         getTrack(); // Update track information state
       } else if (res.status === Status.FAILURE) {
+          // Case: User is non-premium user 
         let success = false;
         // Note: cannot run state updating function in then() function
         await trackInjection(injectTrackNext).then(
@@ -348,6 +335,7 @@ const SpotifyPlayer: FC = (props) => {
           if (res.status === Status.SUCCESS) {
             getTrack();
           } else if (res.status === Status.FAILURE) {
+          // Case: User is non-premium user 
             let success = false;
             await trackInjection(injectTrackPrevious).then(
               (res: any) => (success = res.data)
@@ -373,6 +361,7 @@ const SpotifyPlayer: FC = (props) => {
         if (res.status === Status.SUCCESS) {
           setTrackSaved(true);
         } else if (res.status === Status.FAILURE) {
+          // Note: Saving track api is for premium and non-premium users
           console.log(res.message);
         } else {
           console.log("Unknown error when saving track.");
@@ -393,6 +382,7 @@ const SpotifyPlayer: FC = (props) => {
         if (res.status === Status.SUCCESS) {
           setTrackSaved(false);
         } else if (res.status === Status.FAILURE) {
+          // Note: Removing track api is for premium and non-premium users
           console.log(res.message);
         } else {
           console.log("Unknown error when removing user track.");
@@ -452,6 +442,7 @@ const SpotifyPlayer: FC = (props) => {
             setVolumeCached(volume);
           }
         } else if (res.status === Status.FAILURE) {
+          // Case: User is non-premium user 
           chrome.storage.local.set({ volume: volumePercent });
           await trackInjection(injectChangeVolume)
         } else {
@@ -539,6 +530,7 @@ const SpotifyPlayer: FC = (props) => {
           const updatedThumbPos = getThumbPosition(positionMs, durationMs);
           setThumbPosition(updatedThumbPos);
         } else if (res.status === Status.FAILURE) {
+          // Case: User is not non-premium user
           chrome.storage.local.set({ percent });
           await trackInjection(injectSeekTrack)
           // TODO: Add condition on if injection results in error 
@@ -552,10 +544,12 @@ const SpotifyPlayer: FC = (props) => {
     );
   };
 
-  const validPlayerStatus = () => {
+  // Check if player has success status
+  const successPlayerStatus = () => {
     return playerStatus === PlayerStatus.SUCCESS;
   };
 
+  // Check if player has ad status
   const adPlayerStatus = () => {
     return playerStatus === PlayerStatus.AD_PLAYING;
   };
@@ -575,7 +569,7 @@ const SpotifyPlayer: FC = (props) => {
         <Box width={100} />
         {showHeart()}
         <IconButton
-          disabled={!validPlayerStatus()}
+          disabled={!successPlayerStatus()}
           onClick={trackPrevious}
           data-testid="previous-track-btn"
         >
@@ -586,7 +580,7 @@ const SpotifyPlayer: FC = (props) => {
         </IconButton>
         {!isPlaying ? (
           <IconButton
-            disabled={!validPlayerStatus()}
+            disabled={!successPlayerStatus()}
             onClick={trackPlay}
             data-testid="play-btn"
           >
@@ -597,7 +591,7 @@ const SpotifyPlayer: FC = (props) => {
           </IconButton>
         ) : (
           <IconButton
-            disabled={!validPlayerStatus()}
+            disabled={!successPlayerStatus()}
             onClick={trackPause}
             data-testid="pause-btn"
           >
@@ -608,7 +602,7 @@ const SpotifyPlayer: FC = (props) => {
           </IconButton>
         )}
         <IconButton
-          disabled={!validPlayerStatus()}
+          disabled={!successPlayerStatus()}
           onClick={trackNext}
           data-testid="next-track-btn"
         >
@@ -648,7 +642,7 @@ const SpotifyPlayer: FC = (props) => {
                 onMouseEnter={onVolumeEnterHandler}
                 onMouseLeave={onVolumeLeaveHandler}
                 onClick={muteVolumeHandler}
-                disabled={!validPlayerStatus()}
+                disabled={!successPlayerStatus()}
               >
                 {getVolumeIcon()}
               </IconButton>
@@ -657,7 +651,7 @@ const SpotifyPlayer: FC = (props) => {
         </Box>
       </div>
       <div className={styles.playerTrackSlider}>
-        {(validPlayerStatus() || adPlayerStatus()) && (
+        {(successPlayerStatus() || adPlayerStatus()) && (
           <Box width={225}>
             <Grid container spacing={1} alignItems="center">
               <Grid item className={styles.playerSeekTime + " me-2"}>
@@ -677,7 +671,7 @@ const SpotifyPlayer: FC = (props) => {
                 </ThemeProvider>
               </Grid>
               <Grid item className={styles.playerSeekTime + " ms-2"}>
-                {validPlayerStatus() ? createTrackTime(durationMs) : "--:--"}
+                {successPlayerStatus() ? createTrackTime(durationMs) : "--:--"}
               </Grid>
             </Grid>
           </Box>
