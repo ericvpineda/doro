@@ -486,9 +486,7 @@ const SpotifyPlayer: FC = (props) => {
 
   // Removes volume icon on mouse leave
   const onVolumeLeaveHandler = () => {
-    if (successOrAdPlayerStatus()) {
       setIsMounted(false);
-    }
   };
 
   // Theme for volume slider

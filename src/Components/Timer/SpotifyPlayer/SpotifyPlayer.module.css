@@ -120,12 +120,17 @@
   }
   100% {
     opacity: 1;
-    visibility: visible;
+    /* visibility: visible; */
   }
 }
 
 .volumeUnmount {
-  animation: outAnimation 400ms ease-out;
+  animation-name: outAnimation;
+  animation-delay: 0s;
+  animation-duration: 300ms;
+  animation-timing-function: ease-out;
+  /* Note: prevents flicking on easing out  */
+  animation-fill-mode: forwards; 
 }
 
 @keyframes outAnimation {
