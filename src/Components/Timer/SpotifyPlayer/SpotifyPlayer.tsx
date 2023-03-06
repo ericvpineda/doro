@@ -178,39 +178,32 @@ const SpotifyPlayer: FC = (props) => {
       const volumeBarContainer = document.querySelector(
         "[data-testid=volume-bar]"
       ) as HTMLDivElement;
-      // Get volume bar element
-      const volumeInput = volumeBarContainer.querySelector(
-        "input"
-      ) as HTMLInputElement;
+
       // Note: data-testid progress-bar is also id of seek track bar
       const progressBar = volumeBarContainer.querySelector(
         "[data-testid=progress-bar]"
       ) as HTMLDivElement;
 
-      if (
-        volumeBarContainer === undefined ||
-        volumeInput === undefined ||
-        progressBar === undefined
-      ) {
+      if (volumeBarContainer === undefined || progressBar === undefined) {
         return;
       }
 
-      const volumeInt = res.volume; 
+      const volumeInt = res.volume;
 
       const mousedown = new MouseEvent("mousedown", {
         clientX: progressBar.getBoundingClientRect().left,
         bubbles: true,
-        cancelable: true
+        cancelable: true,
       });
       const mousemove = new MouseEvent("mousemove", {
         clientX: progressBar.getBoundingClientRect().left + volumeInt,
         bubbles: true,
-        cancelable: true
+        cancelable: true,
       });
-      const mouseup = new MouseEvent('mouseup', {
+      const mouseup = new MouseEvent("mouseup", {
         clientX: progressBar.getBoundingClientRect().left + volumeInt,
         bubbles: true,
-        cancelable: true
+        cancelable: true,
       });
 
       progressBar.dispatchEvent(mousedown);
@@ -223,7 +216,7 @@ const SpotifyPlayer: FC = (props) => {
 
   const injectSeekTrack = () => {
     let result = false;
-    chrome.storage.local.get(["progressMs", "durationMs"], (res) => {
+    chrome.storage.local.get(["percent"], (res) => {
       // Container parent
       const playbackContainer = document.querySelector(
         "[data-testid=playback-progressbar]"
@@ -233,26 +226,35 @@ const SpotifyPlayer: FC = (props) => {
         "[data-testid=progress-bar]"
       ) as HTMLDivElement;
 
-      if (
-        playbackContainer === undefined ||
-        progressBar === undefined
-      ) {
+      if (playbackContainer === undefined || progressBar === undefined) {
         return;
       }
 
-      let event = new MouseEvent("mousedown");
-      progressBar.dispatchEvent(event);
+      const percent = res.percent / 100;
+      const totalLength =
+        progressBar.getBoundingClientRect().right -
+        progressBar.getBoundingClientRect().left;
+      const buffer = totalLength * percent;
 
-      // Note: Uses CSSDeclaration styles
-      progressBar.style.setProperty(
-        "--progress-bar-transform",
-        `${(res.progressMs / res.durationMs) * 100}%`
-      );
-      setTimeout(() => {
-        event = new MouseEvent("mouseup")
-        progressBar.dispatchEvent(event)
-      }, 1000)
+      const mousedown = new MouseEvent("mousedown", {
+        clientX: progressBar.getBoundingClientRect().left,
+        bubbles: true,
+        cancelable: true,
+      });
+      const mousemove = new MouseEvent("mousemove", {
+        clientX: progressBar.getBoundingClientRect().left + buffer,
+        bubbles: true,
+        cancelable: true,
+      });
+      const mouseup = new MouseEvent("mouseup", {
+        clientX: progressBar.getBoundingClientRect().left + buffer,
+        bubbles: true,
+        cancelable: true,
+      });
 
+      progressBar.dispatchEvent(mousedown);
+      progressBar.dispatchEvent(mousemove);
+      progressBar.dispatchEvent(mouseup);
       result = true;
     });
     return result;
@@ -451,11 +453,7 @@ const SpotifyPlayer: FC = (props) => {
           }
         } else if (res.status === Status.FAILURE) {
           chrome.storage.local.set({ volume: volumePercent });
-          let success = false;
-          await trackInjection(injectChangeVolume).then((res: any) => (success = res.data));
-          if (success && volume !== 0) {
-            setVolumeCached(volume);
-          }
+          await trackInjection(injectChangeVolume)
         } else {
           console.log("Unknown error when setting track volume.");
         }
@@ -538,23 +536,15 @@ const SpotifyPlayer: FC = (props) => {
       async (res) => {
         if (res.status === Status.SUCCESS) {
           setProgressMs(positionMs);
-          const updatedThumbPos = getThumbPosition(
-            positionMs,
-            durationMs
-          );
+          const updatedThumbPos = getThumbPosition(positionMs, durationMs);
           setThumbPosition(updatedThumbPos);
         } else if (res.status === Status.FAILURE) {
-          let success = false;
-          chrome.storage.local.set({progressMs: positionMs, durationMs})
-          await trackInjection(injectSeekTrack).then((res: any) => (success = res.data));
-          if (success) {
-            setProgressMs(positionMs);
-            const updatedThumbPos = getThumbPosition(
-              positionMs,
-              durationMs
-            );
-            setThumbPosition(updatedThumbPos);
-          }
+          chrome.storage.local.set({ percent });
+          await trackInjection(injectSeekTrack)
+          // TODO: Add condition on if injection results in error 
+          setProgressMs(positionMs);
+          const updatedThumbPos = getThumbPosition(positionMs, durationMs);
+          setThumbPosition(updatedThumbPos);
         } else {
           console.log("Unknown error when seeking track volume.");
         }
