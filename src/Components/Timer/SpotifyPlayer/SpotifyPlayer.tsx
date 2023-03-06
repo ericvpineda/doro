@@ -74,6 +74,7 @@ const SpotifyPlayer: FC = (props) => {
       { message: PlayerActions.GET_CURRENTLY_PLAYING },
       (res) => {
         // Note: Will return success on tracks and advertisements
+        console.log("Getting new track data", res)
         if (res !== undefined && res.status === Status.SUCCESS) {
           setTrack(res.data.track);
           const bufferTrail = res.data.artist.length > 30 ? "..." : "";
@@ -131,9 +132,7 @@ const SpotifyPlayer: FC = (props) => {
           if (updatedProgress >= durationMs - 3000) {
             getTrack();
           }
-        } else {
-          getTrack();
-        }
+        } 
       }, 1000);
       return () => clearInterval(updateTime);
     }
@@ -141,7 +140,7 @@ const SpotifyPlayer: FC = (props) => {
 
   const re = new RegExp("^https://[-a-zA-Z0-9@:%._+~#=]{1,256}.spotify.com");
 
-  const playPauseBtn = () => {
+  const injectTrackPlayPause = () => {
     const pauseBtn = document.querySelector(
       "[data-testid=control-button-playpause]"
     ) as HTMLButtonElement;
@@ -150,8 +149,28 @@ const SpotifyPlayer: FC = (props) => {
     pauseBtn.click();
     return isClicked;
   };
+  
+  const injectTrackNext = () => {
+    const nextTrackBtn = document.querySelector(
+      "[data-testid=control-button-skip-forward]"
+    ) as HTMLButtonElement;
+    let isClicked = false;
+    nextTrackBtn.addEventListener("click", () => (isClicked = true));
+    nextTrackBtn.click();
+    return isClicked;
+  };
 
-  const trackCommandInjection = (commandFxn: () => boolean) => {
+  const injectTrackPrevious = () => {
+    const prevTrackBtn = document.querySelector(
+      "[data-testid=control-button-skip-back]"
+    ) as HTMLButtonElement;
+    let isClicked = false;
+    prevTrackBtn.addEventListener("click", () => (isClicked = true));
+    prevTrackBtn.click();
+    return isClicked;
+  };
+
+  const trackInjection = (commandFxn: () => boolean) => {
     return new Promise((resolve, _) => {
       chrome.tabs.query({}, (tabs) => {
         tabs.forEach((tab) => {
@@ -182,7 +201,7 @@ const SpotifyPlayer: FC = (props) => {
         if (res.status === Status.SUCCESS) {
           setIsPlaying(false);
         } else if (res.status === Status.FAILURE) {
-          trackCommandInjection(playPauseBtn).then((res: any) => setIsPlaying(!res.data));
+          trackInjection(injectTrackPlayPause).then((res: any) => setIsPlaying(!res.data));
         } else {
           console.log("Unknown error when pausing track.");
         }
@@ -196,7 +215,7 @@ const SpotifyPlayer: FC = (props) => {
       if (res.status === Status.SUCCESS) {
         setIsPlaying(true);
       } else if (res.status === Status.FAILURE) {
-        trackCommandInjection(playPauseBtn).then((res: any) => setIsPlaying(res.data));
+        trackInjection(injectTrackPlayPause).then((res: any) => setIsPlaying(res.data));
       } else {
         console.log("Unknown error when playing track.");
       }
@@ -205,11 +224,14 @@ const SpotifyPlayer: FC = (props) => {
 
   // Get players next track
   const trackNext = () => {
-    chrome.runtime.sendMessage({ message: PlayerActions.NEXT }, (res) => {
+    chrome.runtime.sendMessage({ message: PlayerActions.NEXT }, async (res) => {
       if (res.status === Status.SUCCESS) {
         getTrack(); // Update track information state
       } else if (res.status === Status.FAILURE) {
-        console.log(res.message);
+        let success = false;
+        // Note: cannot run state updating function in then() function
+        await trackInjection(injectTrackNext).then((res: any) => success = res.data)
+        if (success) {setTimeout(() => {getTrack()}, 200);}
       } else {
         console.log("Unknown error when getting next track.");
       }
@@ -222,11 +244,13 @@ const SpotifyPlayer: FC = (props) => {
       thumbSeekChangeCommitted(0);
       thumbSeekUI(0);
     } else {
-      chrome.runtime.sendMessage({ message: PlayerActions.PREVIOUS }, (res) => {
+      chrome.runtime.sendMessage({ message: PlayerActions.PREVIOUS }, async (res) => {
         if (res.status === Status.SUCCESS) {
           getTrack();
         } else if (res.status === Status.FAILURE) {
-          console.log(res.message);
+          let success = false;
+          await trackInjection(injectTrackPrevious).then((res: any) => success = res.data)
+          if (success) {setTimeout(() => {getTrack()}, 200);}
         } else {
           console.log("Unknown error when getting previous track.");
         }
