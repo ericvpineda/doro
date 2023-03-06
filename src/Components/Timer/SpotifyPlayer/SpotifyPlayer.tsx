@@ -100,7 +100,7 @@ const SpotifyPlayer: FC = (props) => {
 
   // Note: will run sequential to previous useEffect
   useEffect(() => {
-    if ((successPlayerStatus() || adPlayerStatus()) && thumbPosition >= 0) {
+    if (successOrAdPlayerStatus() && thumbPosition >= 0) {
       const updateTime = setInterval(() => {
         if (isPlaying) {
           const updatedProgress = progressMs + 1000;
@@ -478,7 +478,7 @@ const SpotifyPlayer: FC = (props) => {
 
   // Shows volume icon on mouse hover
   const onVolumeEnterHandler = () => {
-    if (playerStatus === PlayerStatus.SUCCESS) {
+    if (successOrAdPlayerStatus()) {
       setIsMounted(true);
       setShowVolumeTrack(true);
     }
@@ -486,7 +486,7 @@ const SpotifyPlayer: FC = (props) => {
 
   // Removes volume icon on mouse leave
   const onVolumeLeaveHandler = () => {
-    if (playerStatus === PlayerStatus.SUCCESS) {
+    if (successOrAdPlayerStatus()) {
       setIsMounted(false);
     }
   };
@@ -554,10 +554,15 @@ const SpotifyPlayer: FC = (props) => {
     return playerStatus === PlayerStatus.AD_PLAYING;
   };
 
+  const successOrAdPlayerStatus = () => {
+    return playerStatus === PlayerStatus.AD_PLAYING || 
+    playerStatus === PlayerStatus.SUCCESS
+  }
+
   return (
     <div className={styles.playerContainer} id="player-container">
       <AlbumArt playerStatus={playerStatus} albumUrl={albumUrl}></AlbumArt>
-      {PlayerStatus.SUCCESS === playerStatus && (
+      {successPlayerStatus() && (
         <div className={styles.trackTextContainer}>
           <div className={styles.trackTitleContainer}>
             <div className={styles.trackTitle}>{track}</div>
@@ -642,7 +647,7 @@ const SpotifyPlayer: FC = (props) => {
                 onMouseEnter={onVolumeEnterHandler}
                 onMouseLeave={onVolumeLeaveHandler}
                 onClick={muteVolumeHandler}
-                disabled={!successPlayerStatus()}
+                disabled={!successOrAdPlayerStatus()}
               >
                 {getVolumeIcon()}
               </IconButton>
@@ -651,7 +656,7 @@ const SpotifyPlayer: FC = (props) => {
         </Box>
       </div>
       <div className={styles.playerTrackSlider}>
-        {(successPlayerStatus() || adPlayerStatus()) && (
+        {(successOrAdPlayerStatus()) && (
           <Box width={225}>
             <Grid container spacing={1} alignItems="center">
               <Grid item className={styles.playerSeekTime + " me-2"}>
