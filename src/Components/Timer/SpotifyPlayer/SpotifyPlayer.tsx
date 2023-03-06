@@ -216,7 +216,6 @@ const SpotifyPlayer: FC = (props) => {
                 func: commandFxn,
               })
               .then((injectedResults) => {
-                console.log(injectedResults);
                 if (injectedResults.length > 0 && injectedResults[0].result) {
                   resolve({ data: true });
                 } else {
@@ -403,7 +402,7 @@ const SpotifyPlayer: FC = (props) => {
           await trackInjection(injectChangeVolume).then(
             (res: any) => (success = res.data)
           );
-          if (success) {
+          if (success && volume !== 0) {
             setVolumeCached(volume);
           }
         } else {
@@ -417,6 +416,7 @@ const SpotifyPlayer: FC = (props) => {
   const muteVolumeHandler = () => {
     if (volume > 0) {
       setVolume(0);
+      setVolumeCached(volume);
       trackVolumeChangeCommitted(0);
     } else {
       setVolume(volumeCached);
