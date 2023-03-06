@@ -275,9 +275,9 @@ const SpotifyPlayer: FC = (props) => {
         setIsPlaying(false);
       } else if (res.status === Status.FAILURE) {
         // Case: User is non-premium user
-        trackInjection(injectTrackPlayPause).then((res: any) =>
-          setIsPlaying(!res.data)
-        );
+        trackInjection(injectTrackPlayPause)
+        // TODO: Set conditional for failure case
+        setIsPlaying(false)
       } else {
         console.log("Unknown error when pausing track.");
       }
@@ -291,9 +291,9 @@ const SpotifyPlayer: FC = (props) => {
         setIsPlaying(true);
       } else if (res.status === Status.FAILURE) {
         // Case: User is non-premium user
-        trackInjection(injectTrackPlayPause).then((res: any) =>
-          setIsPlaying(res.data)
-        );
+        trackInjection(injectTrackPlayPause)
+        // TODO: Set conditional for failure case
+        setIsPlaying(true)
       } else {
         console.log("Unknown error when playing track.");
       }
