@@ -374,6 +374,7 @@ const trackCommand = async (
   path = path + "?" + new URLSearchParams(query).toString();
   await request(method, path, params.accessToken)
     .then((res) => {
+      console.log("Background=", res)
       if (res.status === 200) {
         response = { status: Status.SUCCESS };
       } else if (res.status === 403) {

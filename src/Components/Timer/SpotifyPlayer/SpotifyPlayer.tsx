@@ -129,7 +129,8 @@ const SpotifyPlayer: FC = (props) => {
           setProgressMs(updatedProgress);
           const updatedPosition = getThumbPosition(updatedProgress, durationMs);
           setThumbPosition(updatedPosition);
-          if (validPlayerStatus() && updatedProgress >= durationMs - 3000) {
+          // FIX: will re-render every second
+          if (updatedProgress >= durationMs - 3000) {
             getTrack();
           }
         }
@@ -178,28 +179,80 @@ const SpotifyPlayer: FC = (props) => {
         "[data-testid=volume-bar]"
       ) as HTMLDivElement;
       // Get volume bar element
-      const volumeBar = volumeBarContainer.querySelector(
+      const volumeInput = volumeBarContainer.querySelector(
         "input"
       ) as HTMLInputElement;
       // Note: data-testid progress-bar is also id of seek track bar
-      const progressBarContainer = volumeBarContainer.querySelector(
+      const progressBar = volumeBarContainer.querySelector(
         "[data-testid=progress-bar]"
       ) as HTMLDivElement;
 
       if (
         volumeBarContainer === undefined ||
-        volumeBar === undefined ||
-        progressBarContainer === undefined
+        volumeInput === undefined ||
+        progressBar === undefined
       ) {
         return;
       }
 
-      volumeBar.setAttribute("value", res.volume);
+      const volumeInt = res.volume; 
+
+      const mousedown = new MouseEvent("mousedown", {
+        clientX: progressBar.getBoundingClientRect().left,
+        bubbles: true,
+        cancelable: true
+      });
+      const mousemove = new MouseEvent("mousemove", {
+        clientX: progressBar.getBoundingClientRect().left + volumeInt,
+        bubbles: true,
+        cancelable: true
+      });
+      const mouseup = new MouseEvent('mouseup', {
+        clientX: progressBar.getBoundingClientRect().left + volumeInt,
+        bubbles: true,
+        cancelable: true
+      });
+
+      progressBar.dispatchEvent(mousedown);
+      progressBar.dispatchEvent(mousemove);
+      progressBar.dispatchEvent(mouseup);
+      result = true;
+    });
+    return result;
+  };
+
+  const injectSeekTrack = () => {
+    let result = false;
+    chrome.storage.local.get(["progressMs", "durationMs"], (res) => {
+      // Container parent
+      const playbackContainer = document.querySelector(
+        "[data-testid=playback-progressbar]"
+      ) as HTMLDivElement;
+      // Note: data-testid progress-bar is also id of seek track bar
+      const progressBar = playbackContainer.querySelector(
+        "[data-testid=progress-bar]"
+      ) as HTMLDivElement;
+
+      if (
+        playbackContainer === undefined ||
+        progressBar === undefined
+      ) {
+        return;
+      }
+
+      let event = new MouseEvent("mousedown");
+      progressBar.dispatchEvent(event);
+
       // Note: Uses CSSDeclaration styles
-      progressBarContainer.style.setProperty(
+      progressBar.style.setProperty(
         "--progress-bar-transform",
-        `${res.volume}%`
+        `${(res.progressMs / res.durationMs) * 100}%`
       );
+      setTimeout(() => {
+        event = new MouseEvent("mouseup")
+        progressBar.dispatchEvent(event)
+      }, 1000)
+
       result = true;
     });
     return result;
@@ -399,9 +452,7 @@ const SpotifyPlayer: FC = (props) => {
         } else if (res.status === Status.FAILURE) {
           chrome.storage.local.set({ volume: volumePercent });
           let success = false;
-          await trackInjection(injectChangeVolume).then(
-            (res: any) => (success = res.data)
-          );
+          await trackInjection(injectChangeVolume).then((res: any) => (success = res.data));
           if (success && volume !== 0) {
             setVolumeCached(volume);
           }
@@ -484,17 +535,26 @@ const SpotifyPlayer: FC = (props) => {
         message: PlayerActions.SEEK_POSITION,
         query: { positionMs, deviceId },
       },
-      (res) => {
+      async (res) => {
         if (res.status === Status.SUCCESS) {
-          const updatedProgressMs = positionMs;
-          setProgressMs(updatedProgressMs);
+          setProgressMs(positionMs);
           const updatedThumbPos = getThumbPosition(
-            updatedProgressMs,
+            positionMs,
             durationMs
           );
           setThumbPosition(updatedThumbPos);
         } else if (res.status === Status.FAILURE) {
-          console.log(res.message);
+          let success = false;
+          chrome.storage.local.set({progressMs: positionMs, durationMs})
+          await trackInjection(injectSeekTrack).then((res: any) => (success = res.data));
+          if (success) {
+            setProgressMs(positionMs);
+            const updatedThumbPos = getThumbPosition(
+              positionMs,
+              durationMs
+            );
+            setThumbPosition(updatedThumbPos);
+          }
         } else {
           console.log("Unknown error when seeking track volume.");
         }
