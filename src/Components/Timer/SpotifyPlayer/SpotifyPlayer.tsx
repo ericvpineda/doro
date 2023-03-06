@@ -74,7 +74,7 @@ const SpotifyPlayer: FC = (props) => {
       { message: PlayerActions.GET_CURRENTLY_PLAYING },
       (res) => {
         // Note: Will return success on tracks and advertisements
-        console.log("Getting new track data", res)
+        console.log("Getting new track data", res);
         if (res !== undefined && res.status === Status.SUCCESS) {
           setTrack(res.data.track);
           const bufferTrail = res.data.artist.length > 30 ? "..." : "";
@@ -129,10 +129,10 @@ const SpotifyPlayer: FC = (props) => {
           setProgressMs(updatedProgress);
           const updatedPosition = getThumbPosition(updatedProgress, durationMs);
           setThumbPosition(updatedPosition);
-          if (updatedProgress >= durationMs - 3000) {
+          if (validPlayerStatus() && updatedProgress >= durationMs - 3000) {
             getTrack();
           }
-        } 
+        }
       }, 1000);
       return () => clearInterval(updateTime);
     }
@@ -149,7 +149,7 @@ const SpotifyPlayer: FC = (props) => {
     pauseBtn.click();
     return isClicked;
   };
-  
+
   const injectTrackNext = () => {
     const nextTrackBtn = document.querySelector(
       "[data-testid=control-button-skip-forward]"
@@ -170,6 +170,41 @@ const SpotifyPlayer: FC = (props) => {
     return isClicked;
   };
 
+  const injectChangeVolume = () => {
+    let result = false;
+    chrome.storage.local.get(["volume"], (res) => {
+      // Container parent
+      const volumeBarContainer = document.querySelector(
+        "[data-testid=volume-bar]"
+      ) as HTMLDivElement;
+      // Get volume bar element
+      const volumeBar = volumeBarContainer.querySelector(
+        "input"
+      ) as HTMLInputElement;
+      // Note: data-testid progress-bar is also id of seek track bar
+      const progressBarContainer = volumeBarContainer.querySelector(
+        "[data-testid=progress-bar]"
+      ) as HTMLDivElement;
+
+      if (
+        volumeBarContainer === undefined ||
+        volumeBar === undefined ||
+        progressBarContainer === undefined
+      ) {
+        return;
+      }
+
+      volumeBar.setAttribute("value", res.volume);
+      // Note: Uses CSSDeclaration styles
+      progressBarContainer.style.setProperty(
+        "--progress-bar-transform",
+        `${res.volume}%`
+      );
+      result = true;
+    });
+    return result;
+  };
+
   const trackInjection = (commandFxn: () => boolean) => {
     return new Promise((resolve, _) => {
       chrome.tabs.query({}, (tabs) => {
@@ -181,6 +216,7 @@ const SpotifyPlayer: FC = (props) => {
                 func: commandFxn,
               })
               .then((injectedResults) => {
+                console.log(injectedResults);
                 if (injectedResults.length > 0 && injectedResults[0].result) {
                   resolve({ data: true });
                 } else {
@@ -196,17 +232,17 @@ const SpotifyPlayer: FC = (props) => {
 
   // Pause current track
   const trackPause = () => {
-    if (isPlaying) {
-      chrome.runtime.sendMessage({ message: PlayerActions.PAUSE }, (res) => {
-        if (res.status === Status.SUCCESS) {
-          setIsPlaying(false);
-        } else if (res.status === Status.FAILURE) {
-          trackInjection(injectTrackPlayPause).then((res: any) => setIsPlaying(!res.data));
-        } else {
-          console.log("Unknown error when pausing track.");
-        }
-      });
-    }
+    chrome.runtime.sendMessage({ message: PlayerActions.PAUSE }, (res) => {
+      if (res.status === Status.SUCCESS) {
+        setIsPlaying(false);
+      } else if (res.status === Status.FAILURE) {
+        trackInjection(injectTrackPlayPause).then((res: any) =>
+          setIsPlaying(!res.data)
+        );
+      } else {
+        console.log("Unknown error when pausing track.");
+      }
+    });
   };
 
   // Play current track
@@ -215,7 +251,9 @@ const SpotifyPlayer: FC = (props) => {
       if (res.status === Status.SUCCESS) {
         setIsPlaying(true);
       } else if (res.status === Status.FAILURE) {
-        trackInjection(injectTrackPlayPause).then((res: any) => setIsPlaying(res.data));
+        trackInjection(injectTrackPlayPause).then((res: any) =>
+          setIsPlaying(res.data)
+        );
       } else {
         console.log("Unknown error when playing track.");
       }
@@ -230,8 +268,14 @@ const SpotifyPlayer: FC = (props) => {
       } else if (res.status === Status.FAILURE) {
         let success = false;
         // Note: cannot run state updating function in then() function
-        await trackInjection(injectTrackNext).then((res: any) => success = res.data)
-        if (success) {setTimeout(() => {getTrack()}, 200);}
+        await trackInjection(injectTrackNext).then(
+          (res: any) => (success = res.data)
+        );
+        if (success) {
+          setTimeout(() => {
+            getTrack();
+          }, 200);
+        }
       } else {
         console.log("Unknown error when getting next track.");
       }
@@ -244,17 +288,26 @@ const SpotifyPlayer: FC = (props) => {
       thumbSeekChangeCommitted(0);
       thumbSeekUI(0);
     } else {
-      chrome.runtime.sendMessage({ message: PlayerActions.PREVIOUS }, async (res) => {
-        if (res.status === Status.SUCCESS) {
-          getTrack();
-        } else if (res.status === Status.FAILURE) {
-          let success = false;
-          await trackInjection(injectTrackPrevious).then((res: any) => success = res.data)
-          if (success) {setTimeout(() => {getTrack()}, 200);}
-        } else {
-          console.log("Unknown error when getting previous track.");
+      chrome.runtime.sendMessage(
+        { message: PlayerActions.PREVIOUS },
+        async (res) => {
+          if (res.status === Status.SUCCESS) {
+            getTrack();
+          } else if (res.status === Status.FAILURE) {
+            let success = false;
+            await trackInjection(injectTrackPrevious).then(
+              (res: any) => (success = res.data)
+            );
+            if (success) {
+              setTimeout(() => {
+                getTrack();
+              }, 200);
+            }
+          } else {
+            console.log("Unknown error when getting previous track.");
+          }
         }
-      });
+      );
     }
   };
 
@@ -339,13 +392,20 @@ const SpotifyPlayer: FC = (props) => {
         message: PlayerActions.SET_VOLUME,
         query: { volumePercent, deviceId },
       },
-      (res) => {
+      async (res) => {
         if (res.status === Status.SUCCESS) {
           if (volume !== 0) {
             setVolumeCached(volume);
           }
         } else if (res.status === Status.FAILURE) {
-          console.log(res.message);
+          chrome.storage.local.set({ volume: volumePercent });
+          let success = false;
+          await trackInjection(injectChangeVolume).then(
+            (res: any) => (success = res.data)
+          );
+          if (success) {
+            setVolumeCached(volume);
+          }
         } else {
           console.log("Unknown error when setting track volume.");
         }
