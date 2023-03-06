@@ -374,12 +374,13 @@ const trackCommand = async (
   path = path + "?" + new URLSearchParams(query).toString();
   await request(method, path, params.accessToken)
     .then((res) => {
-      if (res.status === 200) {
+      if (res.status === 200 || res.status === 204) {
         response = { status: Status.SUCCESS };
       } else if (res.status === 403) {
         // User is does not have premium account error
         response = { status: Status.FAILURE };
-      }
+      } 
+      console.log("Track command=", res);
     })
     .catch((err) => {
       response = {

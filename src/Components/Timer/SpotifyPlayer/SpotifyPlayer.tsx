@@ -274,7 +274,7 @@ const SpotifyPlayer: FC = (props) => {
       if (res.status === Status.SUCCESS) {
         setIsPlaying(false);
       } else if (res.status === Status.FAILURE) {
-          // Case: User is non-premium user 
+        // Case: User is non-premium user
         trackInjection(injectTrackPlayPause).then((res: any) =>
           setIsPlaying(!res.data)
         );
@@ -290,7 +290,7 @@ const SpotifyPlayer: FC = (props) => {
       if (res.status === Status.SUCCESS) {
         setIsPlaying(true);
       } else if (res.status === Status.FAILURE) {
-          // Case: User is non-premium user 
+        // Case: User is non-premium user
         trackInjection(injectTrackPlayPause).then((res: any) =>
           setIsPlaying(res.data)
         );
@@ -306,7 +306,7 @@ const SpotifyPlayer: FC = (props) => {
       if (res.status === Status.SUCCESS) {
         getTrack(); // Update track information state
       } else if (res.status === Status.FAILURE) {
-          // Case: User is non-premium user 
+        // Case: User is non-premium user
         let success = false;
         // Note: cannot run state updating function in then() function
         await trackInjection(injectTrackNext).then(
@@ -335,7 +335,7 @@ const SpotifyPlayer: FC = (props) => {
           if (res.status === Status.SUCCESS) {
             getTrack();
           } else if (res.status === Status.FAILURE) {
-          // Case: User is non-premium user 
+            // Case: User is non-premium user
             let success = false;
             await trackInjection(injectTrackPrevious).then(
               (res: any) => (success = res.data)
@@ -442,9 +442,9 @@ const SpotifyPlayer: FC = (props) => {
             setVolumeCached(volume);
           }
         } else if (res.status === Status.FAILURE) {
-          // Case: User is non-premium user 
+          // Case: User is non-premium user
           chrome.storage.local.set({ volume: volumePercent });
-          await trackInjection(injectChangeVolume)
+          await trackInjection(injectChangeVolume);
         } else {
           console.log("Unknown error when setting track volume.");
         }
@@ -532,8 +532,8 @@ const SpotifyPlayer: FC = (props) => {
         } else if (res.status === Status.FAILURE) {
           // Case: User is not non-premium user
           chrome.storage.local.set({ percent });
-          await trackInjection(injectSeekTrack)
-          // TODO: Add condition on if injection results in error 
+          await trackInjection(injectSeekTrack);
+          // TODO: Add condition on if injection results in error
           setProgressMs(positionMs);
           const updatedThumbPos = getThumbPosition(positionMs, durationMs);
           setThumbPosition(updatedThumbPos);
