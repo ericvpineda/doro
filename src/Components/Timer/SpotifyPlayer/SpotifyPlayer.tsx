@@ -26,6 +26,7 @@ import {
   HeartHalf,
 } from "react-bootstrap-icons";
 import AlbumArt from "./AlbumArt/AlbumArt";
+import { ChromeData } from "../../../Utils/ChromeUtils";
 
 // Player component that interacts with Spotify APi
 const SpotifyPlayer: FC = (props) => {
@@ -52,7 +53,6 @@ const SpotifyPlayer: FC = (props) => {
       { message: PlayerActions.GET_CURRENTLY_PLAYING },
       (res) => {
         // Note: Will return success on tracks and advertisements
-        console.log("Getting new track data", res);
         if (res !== undefined && res.status === Status.SUCCESS) {
           setTrack(res.data.track);
           const bufferTrail = res.data.artist.length > 30 ? "..." : "";
@@ -77,7 +77,7 @@ const SpotifyPlayer: FC = (props) => {
           setPlayerStatus(status);
           setTrackType(res.data.type);
         } else if (res.status === Status.FAILURE) {
-          // Case: User did not complete requirement prompt
+          // Case: User did not complete webpage requirement prompt
           console.log(res.message);
           setThumbPosition(-1);
           setPlayerStatus(PlayerStatus.REQUIRE_WEBPAGE);
@@ -155,7 +155,7 @@ const SpotifyPlayer: FC = (props) => {
   // Inject script for change volume (Non-premium users)
   const injectChangeVolume = () => {
     let result = false;
-    chrome.storage.local.get(["volume"], (res) => {
+    chrome.storage.local.get([ChromeData.volume], (res) => {
       // Container parent
       const volumeBarContainer = document.querySelector(
         "[data-testid=volume-bar]"
@@ -166,32 +166,31 @@ const SpotifyPlayer: FC = (props) => {
         "[data-testid=progress-bar]"
       ) as HTMLDivElement;
 
-      if (volumeBarContainer === undefined || progressBar === undefined) {
-        return;
+      if (volumeBarContainer && progressBar) {
+        const volumeInt = res.volume;
+
+        const mousedown = new MouseEvent("mousedown", {
+          clientX: progressBar.getBoundingClientRect().left,
+          bubbles: true,
+          cancelable: true,
+        });
+        // Simulate drag mouse from left to right
+        const mousemove = new MouseEvent("mousemove", {
+          clientX: progressBar.getBoundingClientRect().left + volumeInt,
+          bubbles: true,
+          cancelable: true,
+        });
+        const mouseup = new MouseEvent("mouseup", {
+          clientX: progressBar.getBoundingClientRect().left + volumeInt,
+          bubbles: true,
+          cancelable: true,
+        });
+
+        progressBar.dispatchEvent(mousedown);
+        progressBar.dispatchEvent(mousemove);
+        progressBar.dispatchEvent(mouseup);
+        result = true;
       }
-
-      const volumeInt = res.volume;
-
-      const mousedown = new MouseEvent("mousedown", {
-        clientX: progressBar.getBoundingClientRect().left,
-        bubbles: true,
-        cancelable: true,
-      });
-      const mousemove = new MouseEvent("mousemove", {
-        clientX: progressBar.getBoundingClientRect().left + volumeInt,
-        bubbles: true,
-        cancelable: true,
-      });
-      const mouseup = new MouseEvent("mouseup", {
-        clientX: progressBar.getBoundingClientRect().left + volumeInt,
-        bubbles: true,
-        cancelable: true,
-      });
-
-      progressBar.dispatchEvent(mousedown);
-      progressBar.dispatchEvent(mousemove);
-      progressBar.dispatchEvent(mouseup);
-      result = true;
     });
     return result;
   };
@@ -199,7 +198,7 @@ const SpotifyPlayer: FC = (props) => {
   // Inject script for seeking track (Non-premium users)
   const injectSeekTrack = () => {
     let result = false;
-    chrome.storage.local.get(["percent"], (res) => {
+    chrome.storage.local.get([ChromeData.percent], (res) => {
       // Container parent
       const playbackContainer = document.querySelector(
         "[data-testid=playback-progressbar]"
@@ -209,36 +208,35 @@ const SpotifyPlayer: FC = (props) => {
         "[data-testid=progress-bar]"
       ) as HTMLDivElement;
 
-      if (playbackContainer === undefined || progressBar === undefined) {
-        return;
+      if (playbackContainer && progressBar) {
+        const percent = res.percent / 100;
+        const totalLength =
+          progressBar.getBoundingClientRect().right -
+          progressBar.getBoundingClientRect().left;
+        const length = totalLength * percent;
+
+        const mousedown = new MouseEvent("mousedown", {
+          clientX: progressBar.getBoundingClientRect().left,
+          bubbles: true,
+          cancelable: true,
+        });
+        // Simulate drag mouse from left to right
+        const mousemove = new MouseEvent("mousemove", {
+          clientX: progressBar.getBoundingClientRect().left + length,
+          bubbles: true,
+          cancelable: true,
+        });
+        const mouseup = new MouseEvent("mouseup", {
+          clientX: progressBar.getBoundingClientRect().left + length,
+          bubbles: true,
+          cancelable: true,
+        });
+
+        progressBar.dispatchEvent(mousedown);
+        progressBar.dispatchEvent(mousemove);
+        progressBar.dispatchEvent(mouseup);
+        result = true;
       }
-
-      const percent = res.percent / 100;
-      const totalLength =
-        progressBar.getBoundingClientRect().right -
-        progressBar.getBoundingClientRect().left;
-      const buffer = totalLength * percent;
-
-      const mousedown = new MouseEvent("mousedown", {
-        clientX: progressBar.getBoundingClientRect().left,
-        bubbles: true,
-        cancelable: true,
-      });
-      const mousemove = new MouseEvent("mousemove", {
-        clientX: progressBar.getBoundingClientRect().left + buffer,
-        bubbles: true,
-        cancelable: true,
-      });
-      const mouseup = new MouseEvent("mouseup", {
-        clientX: progressBar.getBoundingClientRect().left + buffer,
-        bubbles: true,
-        cancelable: true,
-      });
-
-      progressBar.dispatchEvent(mousedown);
-      progressBar.dispatchEvent(mousemove);
-      progressBar.dispatchEvent(mouseup);
-      result = true;
     });
     return result;
   };
@@ -255,6 +253,7 @@ const SpotifyPlayer: FC = (props) => {
                 func: commandFxn,
               })
               .then((injectedResults) => {
+                console.log("Spotify player injection results: " + injectedResults[0].result)
                 if (injectedResults.length > 0 && injectedResults[0].result) {
                   resolve({ data: true });
                 } else {
@@ -275,9 +274,9 @@ const SpotifyPlayer: FC = (props) => {
         setIsPlaying(false);
       } else if (res.status === Status.FAILURE) {
         // Case: User is non-premium user
-        trackInjection(injectTrackPlayPause)
+        trackInjection(injectTrackPlayPause);
         // TODO: Set conditional for failure case
-        setIsPlaying(false)
+        setIsPlaying(false);
       } else {
         console.log("Unknown error when pausing track.");
       }
@@ -291,9 +290,9 @@ const SpotifyPlayer: FC = (props) => {
         setIsPlaying(true);
       } else if (res.status === Status.FAILURE) {
         // Case: User is non-premium user
-        trackInjection(injectTrackPlayPause)
+        trackInjection(injectTrackPlayPause);
         // TODO: Set conditional for failure case
-        setIsPlaying(true)
+        setIsPlaying(true);
       } else {
         console.log("Unknown error when playing track.");
       }
@@ -486,7 +485,7 @@ const SpotifyPlayer: FC = (props) => {
 
   // Removes volume icon on mouse leave
   const onVolumeLeaveHandler = () => {
-      setIsMounted(false);
+    setIsMounted(false);
   };
 
   // Theme for volume slider
@@ -553,9 +552,11 @@ const SpotifyPlayer: FC = (props) => {
   };
 
   const successOrAdPlayerStatus = () => {
-    return playerStatus === PlayerStatus.AD_PLAYING || 
-    playerStatus === PlayerStatus.SUCCESS
-  }
+    return (
+      playerStatus === PlayerStatus.AD_PLAYING ||
+      playerStatus === PlayerStatus.SUCCESS
+    );
+  };
 
   return (
     <div className={styles.playerContainer} id="player-container">
@@ -654,7 +655,7 @@ const SpotifyPlayer: FC = (props) => {
         </Box>
       </div>
       <div className={styles.playerTrackSlider}>
-        {(successOrAdPlayerStatus()) && (
+        {successOrAdPlayerStatus() && (
           <Box width={225}>
             <Grid container spacing={1} alignItems="center">
               <Grid item className={styles.playerSeekTime + " me-2"}>
