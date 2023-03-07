@@ -53,6 +53,7 @@ const SpotifyPlayer: FC = (props) => {
       { message: PlayerActions.GET_CURRENTLY_PLAYING },
       (res) => {
         // Note: Will return success on tracks and advertisements
+        console.log("Getting new track data", res);
         if (res !== undefined && res.status === Status.SUCCESS) {
           setTrack(res.data.track);
           const bufferTrail = res.data.artist.length > 30 ? "..." : "";
@@ -124,10 +125,10 @@ const SpotifyPlayer: FC = (props) => {
     const pauseBtn = document.querySelector(
       "[data-testid=control-button-playpause]"
     ) as HTMLButtonElement;
-    let isClicked = false;
-    pauseBtn.addEventListener("click", () => (isClicked = true));
+    pauseBtn.addEventListener("click", () =>
+      chrome.storage.local.set({ scriptSuccess: true })
+    );
     pauseBtn.click();
-    return isClicked;
   };
 
   // Inject script for next track (Non-premium users)
@@ -135,10 +136,10 @@ const SpotifyPlayer: FC = (props) => {
     const nextTrackBtn = document.querySelector(
       "[data-testid=control-button-skip-forward]"
     ) as HTMLButtonElement;
-    let isClicked = false;
-    nextTrackBtn.addEventListener("click", () => (isClicked = true));
+    nextTrackBtn.addEventListener("click", () =>
+      chrome.storage.local.set({ scriptSuccess: true })
+    );
     nextTrackBtn.click();
-    return isClicked;
   };
 
   // Inject script for previous track (Non-premium users)
@@ -146,16 +147,18 @@ const SpotifyPlayer: FC = (props) => {
     const prevTrackBtn = document.querySelector(
       "[data-testid=control-button-skip-back]"
     ) as HTMLButtonElement;
-    let isClicked = false;
-    prevTrackBtn.addEventListener("click", () => (isClicked = true));
+    prevTrackBtn.addEventListener("click", () =>
+      chrome.storage.local.set({ scriptSuccess: true })
+    );
     prevTrackBtn.click();
-    return isClicked;
   };
 
   // Inject script for change volume (Non-premium users)
+  // - Note: 
+  //  - cannot return promise since chrome.executescript only support jsonifiable objects
+  //  - cannot access ChromeData since not injected
   const injectChangeVolume = () => {
-    let result = false;
-    chrome.storage.local.get([ChromeData.volume], (res) => {
+    chrome.storage.local.get(["volume"], (res) => {
       // Container parent
       const volumeBarContainer = document.querySelector(
         "[data-testid=volume-bar]"
@@ -189,16 +192,14 @@ const SpotifyPlayer: FC = (props) => {
         progressBar.dispatchEvent(mousedown);
         progressBar.dispatchEvent(mousemove);
         progressBar.dispatchEvent(mouseup);
-        result = true;
+        chrome.storage.local.set({ scriptSuccess: true });
       }
     });
-    return result;
   };
 
   // Inject script for seeking track (Non-premium users)
   const injectSeekTrack = () => {
-    let result = false;
-    chrome.storage.local.get([ChromeData.percent], (res) => {
+    chrome.storage.local.get(["percent"], (res) => {
       // Container parent
       const playbackContainer = document.querySelector(
         "[data-testid=playback-progressbar]"
@@ -235,30 +236,27 @@ const SpotifyPlayer: FC = (props) => {
         progressBar.dispatchEvent(mousedown);
         progressBar.dispatchEvent(mousemove);
         progressBar.dispatchEvent(mouseup);
-        result = true;
+        chrome.storage.local.set({ scriptSuccess: true });
       }
     });
-    return result;
   };
 
   // Helper function to execute chrome injection scripts
-  const trackInjection = (commandFxn: () => boolean) => {
+  const trackInjection = (commandFxn: () => void) => {
     return new Promise((resolve, _) => {
       chrome.tabs.query({}, (tabs) => {
         tabs.forEach((tab) => {
           if (tab.url && re.test(tab.url) && tab.id) {
+            chrome.storage.local.set({ scriptSuccess: false });
             chrome.scripting
               .executeScript({
                 target: { tabId: tab.id },
                 func: commandFxn,
               })
-              .then((injectedResults) => {
-                console.log("Spotify player injection results: " + injectedResults[0].result)
-                if (injectedResults.length > 0 && injectedResults[0].result) {
-                  resolve({ data: true });
-                } else {
-                  resolve({ data: false });
-                }
+              .then(() => {
+                chrome.storage.local.get([ChromeData.scriptSuccess], (res) =>
+                  resolve({ data: res.scriptSuccess })
+                );
               })
               .catch(() => resolve({ data: false }));
           }
