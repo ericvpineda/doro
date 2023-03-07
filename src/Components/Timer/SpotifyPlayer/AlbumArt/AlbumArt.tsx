@@ -25,8 +25,8 @@ const AlbumArt: FC<Props> = (props: any) => {
       return <div/>
     } else if (status === PlayerStatus.REQUIRE_WEBPAGE) {
       return (
-        <div className={styles.blankImage}>
-          <span className={styles.blankImageText}>
+        <div className={styles.signInContainer}>
+          <span className={styles.signInText}>
             <a href="https://open.spotify.com/" target="_blank">
               Sign in
             </a>{" "}

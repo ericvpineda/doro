@@ -79,7 +79,7 @@
   color: black;
 }
 
-.blankImage {
+.signInContainer {
 
   margin-top: 1rem;
   margin-bottom: 0.5rem;
@@ -94,12 +94,12 @@
 
   color: black;
   
-  animation: blankImageAnimation 1s;
+  animation: signInAnimation 1s;
   animation-fill-mode: forwards;
   /* animation-delay: 1s; */
 }
 
-@keyframes blankImageAnimation {
+@keyframes signInAnimation {
     0% {
       height: 0;
       width: 0;
@@ -111,14 +111,14 @@
   }
 
 
-.blankImageText {
+.signInText {
   opacity: 0;
-  animation: blankImageTextAnimation 1s;
+  animation: signInTextAnimation 1s;
   animation-fill-mode: forwards;
-  animation-delay: 0.4s;
+  animation-delay: 0.5s;
 }
 
-@keyframes blankImageTextAnimation {
+@keyframes signInTextAnimation {
   0% {
     opacity: 0;
   }
