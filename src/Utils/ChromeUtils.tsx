@@ -11,6 +11,7 @@ const ChromeData = {
     description : "description",
     isExecutingRequest : "isExecutingRequest", 
     expiresIn: "expiresIn",
+    scriptSuccess: "scriptSuccess",
 } 
 
 export {ChromeData};

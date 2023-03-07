@@ -320,7 +320,7 @@ const getCurrentlyPlaying = async (params: any) => {
           deviceId: data.device.id,
           volumePercent: data.device.volume_percent,
           isSaved: false,
-          durationMs: 5 * 1000, // Will get re-queried in intervals of 5 seconds
+          durationMs: 15 * 1000, // Will get re-queried in intervals of 5 seconds
           progressMs: data.progress_ms,
           type: "ad",
         };
@@ -374,17 +374,19 @@ const trackCommand = async (
   path = path + "?" + new URLSearchParams(query).toString();
   await request(method, path, params.accessToken)
     .then((res) => {
+      // Note: Will return 204 for track command success 
       if (res.status === 200 || res.status === 204) {
         response = { status: Status.SUCCESS };
       } else if (res.status === 403) {
         // User is does not have premium account error
         response = { status: Status.FAILURE };
-      } 
-      console.log("Track command=", res);
+      } else {
+        throw {status: Status.ERROR}
+      }
     })
     .catch((err) => {
       response = {
-        status: Status.ERROR,
+        status: err.status || Status.ERROR,
         error: {
           message: err.message || "Error when completing track command.",
         },

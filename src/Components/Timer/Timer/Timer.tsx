@@ -33,7 +33,7 @@ const Timer: FC<Prop> = (props) => {
         // Check if user currently signed in or access_token still valid
         if (signedInCache || new Date().getTime() < res.endTime) {
           setShowSwitch(true);
-          setShowPlayer(res.showPlayer !== undefined ? res.showPlayer : true);
+          setShowPlayer(res.showPlayer ? res.showPlayer : true);
         } else {
           signedInCache = false;
           chrome.storage.local.set({ signedIn: signedInCache });
@@ -76,6 +76,10 @@ const Timer: FC<Prop> = (props) => {
     );
   };
 
+  const setShowPlayerHandler = (value: boolean) => {
+    setShowPlayer(value)
+  }
+
   // Note: manageHistoryIcon is the edit clock input button
   return (
     <Fragment>
@@ -83,7 +87,7 @@ const Timer: FC<Prop> = (props) => {
         {signedIn && showPlayer ? <SpotifyPlayer /> : <Clock />}
         <FocusText />
       </div>
-      <Login setSignedIn={setSignedInHandler} />
+      <Login setSignedIn={setSignedInHandler} setShowPlayer={setShowPlayerHandler} />
       <ManageHistoryIcon
         fontSize={"large"}
         onClick={setShowTimer}

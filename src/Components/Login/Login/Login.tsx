@@ -7,7 +7,8 @@ import { generateChallenge, random} from "../../../Utils/AuthUtils"
 import {ChromeData} from "../../../Utils/ChromeUtils"
 
 interface Props {
-  setSignedIn: (signedIn: boolean) => void;
+  setSignedIn: (param: boolean) => void;
+  setShowPlayer: (param: boolean) => void;
 }
 
 const Login: FC<Props> = (props) => {
@@ -24,6 +25,7 @@ const Login: FC<Props> = (props) => {
       if (res.status === Status.SUCCESS) {
         setSignedIn(true)
         props.setSignedIn(true)
+        props.setShowPlayer(true)
       } else if (res.status === Status.FAILURE) {
         // Note: This is case when user is already signed in
         console.log(res.message);
