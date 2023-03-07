@@ -136,10 +136,10 @@
   right: 8.3rem;
 }
 
-.playerSeekTime {
+/* .playerSeekTime {
   font-family: "VT323", monospace;
   font-weight: 600;
-}
+} */
 
 .volumeMount {
   animation: inAnimation 300ms ease-in;

@@ -12,7 +12,6 @@ import { createTheme } from "@material-ui/core/styles";
 import {
   PlayerActions,
   Status,
-  createTrackTime,
   getThumbPosition,
   PlayerStatus,
 } from "../../../Utils/SpotifyUtils";
@@ -27,9 +26,10 @@ import {
 } from "react-bootstrap-icons";
 import AlbumArt from "./AlbumArt/AlbumArt";
 import { ChromeData } from "../../../Utils/ChromeUtils";
+import SpotifySlider from "./SpotifySlider/SpotifySlider";
 
 // Player component that interacts with Spotify APi
-const SpotifyPlayer: FC = (props) => {
+const SpotifyPlayer: FC = () => {
   const [artist, setArtist] = useState(""); // Artist name
   const [track, setTrack] = useState(""); // Track name
   const [albumUrl, setAlbumUrl] = useState(""); // Spotify album url
@@ -99,25 +99,6 @@ const SpotifyPlayer: FC = (props) => {
   // On popup open, get track data
   useEffect(() => getTrack(), []);
 
-  // Note: will run sequential to previous useEffect
-  useEffect(() => {
-    if (successOrAdPlayerStatus() && thumbPosition >= 0) {
-      const updateTime = setInterval(() => {
-        if (isPlaying) {
-          const updatedProgress = progressMs + 1000;
-          setProgressMs(updatedProgress);
-          const updatedPosition = getThumbPosition(updatedProgress, durationMs);
-          setThumbPosition(updatedPosition);
-          // FIX: will re-render every second
-          if (updatedProgress >= durationMs - 3000) {
-            getTrack();
-          }
-        }
-      }, 1000);
-      return () => clearInterval(updateTime);
-    }
-  }, [thumbPosition, progressMs, durationMs, isPlaying, playerStatus]);
-
   const re = new RegExp("^https://[-a-zA-Z0-9@:%._+~#=]{1,256}.spotify.com");
 
   // Inject script for play and pause (Non-premium users)
@@ -154,7 +135,7 @@ const SpotifyPlayer: FC = (props) => {
   };
 
   // Inject script for change volume (Non-premium users)
-  // - Note: 
+  // - Note:
   //  - cannot return promise since chrome.executescript only support jsonifiable objects
   //  - cannot access ChromeData since not injected
   const injectChangeVolume = () => {
@@ -248,7 +229,7 @@ const SpotifyPlayer: FC = (props) => {
         // Search for tab with spotify using regex pattern
         tabs.forEach((tab) => {
           if (tab.url && re.test(tab.url) && tab.id) {
-            // Set/reset script result boolean in chrome storage 
+            // Set/reset script result boolean in chrome storage
             chrome.storage.local.set({ scriptSuccess: false });
             chrome.scripting
               .executeScript({
@@ -326,7 +307,7 @@ const SpotifyPlayer: FC = (props) => {
   const trackPrevious = () => {
     if (thumbPosition > 0) {
       thumbSeekChangeCommitted(0);
-      thumbSeekUI(0);
+      setThumbPosition(0);
     } else {
       chrome.runtime.sendMessage(
         { message: PlayerActions.PREVIOUS },
@@ -505,14 +486,6 @@ const SpotifyPlayer: FC = (props) => {
     },
   });
 
-  // Sets thumb gui position reactively
-  const thumbSeekUI = (value: any) => {
-    setThumbPosition(value);
-  };
-
-  // Prevent multiple renders for seeking thumb position
-  const debounceThumbSeekHandler = useMemo(() => debounce(thumbSeekUI, 25), []);
-
   // Sets thumb position value after mouse up event on thumb icon
   const thumbSeekChangeCommitted = (percent: any) => {
     const positionMs = Math.floor(durationMs * (percent * 0.01));
@@ -546,18 +519,13 @@ const SpotifyPlayer: FC = (props) => {
     return playerStatus === PlayerStatus.SUCCESS;
   };
 
-  // Check if player has ad status
-  const adPlayerStatus = () => {
-    return playerStatus === PlayerStatus.AD_PLAYING;
-  };
-
   const successOrAdPlayerStatus = () => {
     return (
       playerStatus === PlayerStatus.AD_PLAYING ||
       playerStatus === PlayerStatus.SUCCESS
     );
   };
-
+ 
   return (
     <div className={styles.playerContainer} id="player-container">
       <AlbumArt playerStatus={playerStatus} albumUrl={albumUrl}></AlbumArt>
@@ -654,31 +622,21 @@ const SpotifyPlayer: FC = (props) => {
           </Stack>
         </Box>
       </div>
-      <div className={successOrAdPlayerStatus() ? styles.playerTrackSlider: ""}>
+      <div
+        className={successOrAdPlayerStatus() ? styles.playerTrackSlider : ""}
+      >
         {successOrAdPlayerStatus() && (
-          <Box width={225}>
-            <Grid container spacing={1} alignItems="center">
-              <Grid item className={styles.playerSeekTime + " me-2"}>
-                {createTrackTime(progressMs)}
-              </Grid>
-              <Grid item xs>
-                <ThemeProvider theme={muiTheme}>
-                  <Slider
-                    disabled={adPlayerStatus()}
-                    data-testid="seek-position-slider"
-                    value={adPlayerStatus() ? 0 : thumbPosition}
-                    onChange={(_, val) => debounceThumbSeekHandler(val)}
-                    onChangeCommitted={(_, val) =>
-                      thumbSeekChangeCommitted(val)
-                    }
-                  ></Slider>
-                </ThemeProvider>
-              </Grid>
-              <Grid item className={styles.playerSeekTime + " ms-2"}>
-                {successPlayerStatus() ? createTrackTime(durationMs) : "--:--"}
-              </Grid>
-            </Grid>
-          </Box>
+          <SpotifySlider
+            playerStatus={playerStatus}
+            progressMs={progressMs}
+            thumbPosition={thumbPosition}
+            thumbSeekChangeCommitted={thumbSeekChangeCommitted}
+            durationMs={durationMs}
+            successPlayerStatus={successPlayerStatus}
+            successOrAdPlayerStatus={successOrAdPlayerStatus}
+            isPlaying={isPlaying}
+            getTrack={getTrack}
+          />
         )}
       </div>
     </div>
