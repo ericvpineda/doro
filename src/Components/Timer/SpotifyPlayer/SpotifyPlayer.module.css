@@ -140,38 +140,3 @@
   font-family: "VT323", monospace;
   font-weight: 600;
 } */
-
-.volumeMount {
-  animation: inAnimation 300ms ease-in;
-  animation-fill-mode: forwards;
-}
-
-@keyframes inAnimation {
-  0% {
-    opacity: 0;
-    visibility: hidden;
-  }
-  100% {
-    opacity: 1;
-    /* visibility: visible; */
-  }
-}
-
-.volumeUnmount {
-  animation-name: outAnimation;
-  animation-delay: 0s;
-  animation-duration: 500ms;
-  animation-timing-function: ease-out;
-  /* Note: prevents flicking on easing out  */
-  animation-fill-mode: forwards;
-}
-
-@keyframes outAnimation {
-  0% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    visibility: hidden;
-  }
-}

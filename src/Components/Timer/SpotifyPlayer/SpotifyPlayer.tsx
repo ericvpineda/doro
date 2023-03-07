@@ -1,14 +1,10 @@
-import React, { FC, useState, useEffect, useMemo } from "react";
+import React, { FC, useState, useEffect, } from "react";
 import styles from "./SpotifyPlayer.module.css";
 import Stack from "@mui/material/Stack";
 import VolumeDownIcon from "@material-ui/icons/VolumeDown";
 import VolumeUpIcon from "@material-ui/icons/VolumeUp";
 import VolumeOffIcon from "@material-ui/icons/VolumeOff";
-import debounce from "lodash.debounce";
-import { Box, Grid, Slider, IconButton } from "@material-ui/core";
-import { ThemeProvider } from "@material-ui/styles";
-// Note: do not export this from utils module
-import { createTheme } from "@material-ui/core/styles";
+import { Box, Grid, IconButton } from "@material-ui/core";
 import {
   PlayerActions,
   Status,
@@ -27,6 +23,7 @@ import {
 import AlbumArt from "./AlbumArt/AlbumArt";
 import { ChromeData } from "../../../Utils/ChromeUtils";
 import SpotifySlider from "./SpotifySlider/SpotifySlider";
+import VolumeSlider from "./VolumeSlider/VolumeSlider";
 
 // Player component that interacts with Spotify APi
 const SpotifyPlayer: FC = () => {
@@ -400,15 +397,6 @@ const SpotifyPlayer: FC = () => {
     }
   };
 
-  // State function for change volume UI
-  const volumeChangeUI = (value: any) => {
-    setVolume(value);
-  };
-
-  // Show volume control when mouse hover over volume icon
-  // - note: only this function re-rendered, does not make getTrack() request
-  const debounceVolumeHandler = useMemo(() => debounce(volumeChangeUI, 25), []);
-
   // Get volume value after mouse-up from mouse click
   const trackVolumeChangeCommitted = (volumePercent: any) => {
     chrome.runtime.sendMessage(
@@ -425,6 +413,11 @@ const SpotifyPlayer: FC = () => {
           // Case: User is non-premium user
           chrome.storage.local.set({ volume: volumePercent });
           await trackInjection(injectChangeVolume);
+          if (volume !== 0) {
+            setVolumeCached(volume);
+          }
+          // Note: need to set volume since api call is premium action
+          setVolume(volumePercent)
         } else {
           console.log("Unknown error when setting track volume.");
         }
@@ -469,22 +462,6 @@ const SpotifyPlayer: FC = () => {
     setIsMounted(false);
   };
 
-  // Theme for volume slider
-  const muiTheme = createTheme({
-    overrides: {
-      MuiSlider: {
-        thumb: {
-          color: "green",
-        },
-        track: {
-          color: "green",
-        },
-        rail: {
-          color: "black",
-        },
-      },
-    },
-  });
 
   // Sets thumb position value after mouse up event on thumb icon
   const thumbSeekChangeCommitted = (percent: any) => {
@@ -514,18 +491,19 @@ const SpotifyPlayer: FC = () => {
     );
   };
 
-  // Check if player has success status
+  // Check if player status is success
   const successPlayerStatus = () => {
     return playerStatus === PlayerStatus.SUCCESS;
   };
 
+  // Check if player status is success or ad
   const successOrAdPlayerStatus = () => {
     return (
       playerStatus === PlayerStatus.AD_PLAYING ||
       playerStatus === PlayerStatus.SUCCESS
     );
   };
- 
+
   return (
     <div className={styles.playerContainer} id="player-container">
       <AlbumArt playerStatus={playerStatus} albumUrl={albumUrl}></AlbumArt>
@@ -585,27 +563,19 @@ const SpotifyPlayer: FC = () => {
         </IconButton>
         <Box width={130}>
           <Stack>
-            <Grid item className={styles.volumeSlider}>
+            <Grid
+              item
+              className={styles.volumeSlider}
+              onMouseEnter={onVolumeEnterHandler}
+              onMouseLeave={onVolumeLeaveHandler}
+            >
               {showVolumeTrack && (
-                <ThemeProvider theme={muiTheme}>
-                  <Slider
-                    data-testid="volume-slider"
-                    className={
-                      isMounted ? styles.volumeMount : styles.volumeUnmount
-                    }
-                    onAnimationEnd={() => {
-                      if (!isMounted) setShowVolumeTrack(false);
-                    }}
-                    value={volume}
-                    orientation="vertical"
-                    onChange={(_, val) => debounceVolumeHandler(val)}
-                    onChangeCommitted={(_, val) =>
-                      trackVolumeChangeCommitted(val)
-                    }
-                    onMouseEnter={onVolumeEnterHandler}
-                    onMouseLeave={onVolumeLeaveHandler}
-                  ></Slider>
-                </ThemeProvider>
+                <VolumeSlider
+                  isMounted={isMounted}
+                  setShowVolumeTrack={setShowVolumeTrack}
+                  trackVolumeChangeCommitted={trackVolumeChangeCommitted}
+                  volume={volume}
+                />
               )}
             </Grid>
             <Grid item>
