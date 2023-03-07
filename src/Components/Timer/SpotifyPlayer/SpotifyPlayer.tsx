@@ -245,8 +245,10 @@ const SpotifyPlayer: FC = (props) => {
   const trackInjection = (commandFxn: () => void) => {
     return new Promise((resolve, _) => {
       chrome.tabs.query({}, (tabs) => {
+        // Search for tab with spotify using regex pattern
         tabs.forEach((tab) => {
           if (tab.url && re.test(tab.url) && tab.id) {
+            // Set/reset script result boolean in chrome storage 
             chrome.storage.local.set({ scriptSuccess: false });
             chrome.scripting
               .executeScript({

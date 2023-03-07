@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=VT323&display=swap");
 
 .playerContainer {
   height: 100%;
@@ -18,7 +18,7 @@
 
 .playerControls {
   margin-right: 1rem;
-  
+
   display: flex;
   justify-content: center;
   align-items: center;
@@ -32,10 +32,29 @@
 .playerTrackSlider {
   margin-top: -0.5rem;
   font-size: 0.8rem;
+
+  opacity: 0;
+  height: 0;
+  animation: trackSliderAnimation 0.8s;
+  animation-fill-mode: forwards;
+  animation-delay: 0.5s;
+}
+
+@keyframes trackSliderAnimation {
+  0% {
+    opacity: 0;
+    height: 0;
+  }
+  70% {
+    height: 2rem;
+  }
+  100% {
+    opacity: 1;
+    height: 2rem;
+  }
 }
 
 .trackTitle {
-
   color: #212529;
   font-weight: 600;
   font-size: 0.9rem;
@@ -74,12 +93,10 @@
 } */
 
 .trackTitleContainer {
-    border: black 1.5px solid;
-    overflow: hidden;
-    border-radius: 5px;
+  border: black 1.5px solid;
+  overflow: hidden;
+  border-radius: 5px;
 }
-
-
 
 .trackArtist {
   color: #212529;
@@ -89,9 +106,26 @@
 
 .trackTextContainer {
   text-align: center;
-  width: 65%;
   white-space: nowrap;
   margin-bottom: -0.5rem;
+
+  opacity: 0;
+  width: 0;
+  animation: textAnimation 1s;
+  animation-fill-mode: forwards;
+  animation-delay: 0.1s;
+}
+
+/* TODO: Fix text animation */
+@keyframes textAnimation {
+  0% {
+    opacity: 0;
+    width: 0;
+  }
+  100% {
+    opacity: 1;
+    width: 65%;
+  }
 }
 
 .volumeSlider {
@@ -103,15 +137,14 @@
 }
 
 .playerSeekTime {
-    font-family: 'VT323', monospace;
-    font-weight: 600;
+  font-family: "VT323", monospace;
+  font-weight: 600;
 }
 
 .volumeMount {
   animation: inAnimation 300ms ease-in;
   animation-fill-mode: forwards;
-
-} 
+}
 
 @keyframes inAnimation {
   0% {
@@ -127,10 +160,10 @@
 .volumeUnmount {
   animation-name: outAnimation;
   animation-delay: 0s;
-  animation-duration: 300ms;
+  animation-duration: 500ms;
   animation-timing-function: ease-out;
   /* Note: prevents flicking on easing out  */
-  animation-fill-mode: forwards; 
+  animation-fill-mode: forwards;
 }
 
 @keyframes outAnimation {
