@@ -13,7 +13,6 @@ const AlbumArt: FC<Props> = (props: any) => {
   const [status, setStatus] = useState(PlayerStatus.LOADING);
   const [previousStatus, setPreviousStatus] = useState(PlayerStatus.LOADING);
 
-  console.log("Rendered album artwork");
   // Update based on parent components player status
   useEffect(() => {
     setPreviousStatus(status);

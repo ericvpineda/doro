@@ -53,11 +53,11 @@ const SpotifyPlayer: FC = (props) => {
       { message: PlayerActions.GET_CURRENTLY_PLAYING },
       (res) => {
         // Note: Will return success on tracks and advertisements
-        console.log("Getting new track data", res);
         if (res !== undefined && res.status === Status.SUCCESS) {
           setTrack(res.data.track);
           const bufferTrail = res.data.artist.length > 30 ? "..." : "";
-          setArtist(res.data.artist.substring(0, 30) + bufferTrail);
+          const receivedArtist = res.data.artist.substring(0, 30) + bufferTrail;
+          setArtist(receivedArtist);
           setAlbumUrl(res.data.albumUrl);
           setIsPlaying(res.data.isPlaying);
           setTrackId(res.data.id);
@@ -654,7 +654,7 @@ const SpotifyPlayer: FC = (props) => {
           </Stack>
         </Box>
       </div>
-      <div className={successOrAdPlayerStatus() && styles.playerTrackSlider}>
+      <div className={successOrAdPlayerStatus() ? styles.playerTrackSlider: ""}>
         {successOrAdPlayerStatus() && (
           <Box width={225}>
             <Grid container spacing={1} alignItems="center">
