@@ -342,7 +342,7 @@ const SpotifyPlayer: FC = (props) => {
             if (success) {
               setTimeout(() => {
                 getTrack();
-              }, 200);
+              }, 250);
             }
           } else {
             console.log("Unknown error when getting previous track.");
@@ -654,7 +654,7 @@ const SpotifyPlayer: FC = (props) => {
           </Stack>
         </Box>
       </div>
-      <div className={styles.playerTrackSlider}>
+      <div className={successOrAdPlayerStatus() && styles.playerTrackSlider}>
         {successOrAdPlayerStatus() && (
           <Box width={225}>
             <Grid container spacing={1} alignItems="center">

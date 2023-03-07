@@ -22,7 +22,9 @@ const AlbumArt: FC<Props> = (props: any) => {
 
   // Show album artwork or webpage sign in prompt
   const showAlbum = () => {
-    if (status === PlayerStatus.REQUIRE_WEBPAGE) {
+    if (status === PlayerStatus.LOADING) {
+      return <div/>
+    } else if (status === PlayerStatus.REQUIRE_WEBPAGE) {
       return (
         <div className={styles.blankImage}>
           <span className={styles.blankImageText}>
@@ -67,11 +69,7 @@ const AlbumArt: FC<Props> = (props: any) => {
   // Note: Loading page until parent gets item information and updates status
   return (
     <Fragment>
-      {status === PlayerStatus.LOADING ? (
-        <div className={styles.blankImage}>{/* <span>Loading...</span> */}</div>
-      ) : (
-        showAlbum()
-      )}
+      {showAlbum()}
     </Fragment>
   );
 };
