@@ -49,6 +49,7 @@ const SpotifyPlayer: FC = () => {
     chrome.runtime.sendMessage(
       { message: PlayerActions.GET_CURRENTLY_PLAYING },
       (res) => {
+        console.log("Get current playing...")
         // Note: Will return success on tracks and advertisements
         if (res !== undefined && res.status === Status.SUCCESS) {
           setTrack(res.data.track);
@@ -61,18 +62,17 @@ const SpotifyPlayer: FC = () => {
           setTrackSaved(res.data.isSaved);
           setDeviceId(res.data.deviceId);
           setVolume(res.data.volumePercent);
-          setProgressMs(res.data.progressMs);
-          setDurationMs(res.data.durationMs);
           const progress = res.data.progressMs;
           const duration = res.data.durationMs;
-          setProgressMs(progress + 500);
+          if (res.data.type === "ad") {
+            setProgressMs(progress % 15000 + 500);
+            setPlayerStatus(PlayerStatus.AD_PLAYING);
+          } else {
+            setPlayerStatus(PlayerStatus.SUCCESS);
+            setProgressMs(progress + 500);
+            setThumbPosition(getThumbPosition(progress, duration));
+          }
           setDurationMs(duration);
-          setThumbPosition(getThumbPosition(progress, duration));
-          const status =
-            res.data.type === "ad"
-              ? PlayerStatus.AD_PLAYING
-              : PlayerStatus.SUCCESS;
-          setPlayerStatus(status);
           setTrackType(res.data.type);
         } else if (res.status === Status.FAILURE) {
           // Case: User did not complete webpage requirement prompt
@@ -92,6 +92,8 @@ const SpotifyPlayer: FC = () => {
       }
     );
   };
+
+  console.log(progressMs, durationMs)
 
   // On popup open, get track data
   useEffect(() => getTrack(), []);
@@ -530,7 +532,7 @@ const SpotifyPlayer: FC = () => {
         </IconButton>
         {!isPlaying ? (
           <IconButton
-            disabled={!successPlayerStatus()}
+            disabled={!successOrAdPlayerStatus()}
             onClick={trackPlay}
             data-testid="play-btn"
           >
@@ -541,7 +543,7 @@ const SpotifyPlayer: FC = () => {
           </IconButton>
         ) : (
           <IconButton
-            disabled={!successPlayerStatus()}
+            disabled={!successOrAdPlayerStatus()}
             onClick={trackPause}
             data-testid="pause-btn"
           >

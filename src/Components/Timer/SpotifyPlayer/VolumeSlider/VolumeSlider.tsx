@@ -17,9 +17,9 @@ interface Props {
 // Volume slider component
 const VolumeSlider: FC<Props> = (props) => {
   const [isMounted, setIsMounted] = useState(false);
+  const [volume, setVolume] = useState(0);
   const setShowVolumeTrack = props.setShowVolumeTrack;
   const trackVolumeChangeCommitted = props.trackVolumeChangeCommitted;
-  const [volume, setVolume] = useState(0);
 
   // Theme for slider
   const muiTheme = createTheme({
@@ -48,9 +48,12 @@ const VolumeSlider: FC<Props> = (props) => {
 
   // Set initial volume and mounted information from parent component
   useEffect(() => {
-    setIsMounted(props.isMounted);
     setVolume(props.volume);
-  }, [props.isMounted, props.volume]);
+  }, [props.volume]);
+
+  useEffect(() => {
+    setIsMounted(props.isMounted);
+  }, [props.isMounted])
 
   return (
     <ThemeProvider theme={muiTheme}>

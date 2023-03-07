@@ -79,19 +79,6 @@
   }
 }
 
-/* @keyframes start-animation {
-  from {
-    -moz-transform: translateX(0%);
-    -webkit-transform: translateX(0%);
-    transform: translateX(0%);
-  }
-  to {
-    -moz-transform: translateX(-100%);
-    -webkit-transform: translateX(-100%);
-    transform: translateX(-100%);
-  }
-} */
-
 .trackTitleContainer {
   border: black 1.5px solid;
   overflow: hidden;
@@ -132,11 +119,6 @@
   height: 4rem;
 
   position: absolute;
-  bottom: 7rem;
+  bottom: 6.8rem;
   right: 8.3rem;
 }
-
-/* .playerSeekTime {
-  font-family: "VT323", monospace;
-  font-weight: 600;
-} */
