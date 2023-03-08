@@ -21,55 +21,56 @@ const AlbumArt: FC<Props> = (props: any) => {
 
   // Show album artwork or webpage sign in prompt
   const showAlbum = () => {
-    if (status === PlayerStatus.LOADING) {
-      return <div />;
-    } else if (status === PlayerStatus.REQUIRE_WEBPAGE) {
-      return (
-        <div className={styles.signInContainer}>
-          <span className={styles.signInText}>
-            <a href="https://open.spotify.com/" target="_blank">
-              Sign in
-            </a>{" "}
-            spotify <br></br> web player and <br></br>{" "}
-            <mark className={styles.highlight}>PLAY a song</mark>!
-          </span>
-        </div>
-      );
-    } else if (status === PlayerStatus.AD_PLAYING) {
-      const adStyles =
-        previousStatus === PlayerStatus.LOADING
-          ? styles.adWithAnimation
-          : styles.ad;
-      return (
-        <div className={adStyles}>
-          <span>Ad is currently playing...</span>
-        </div>
-      );
-    } else if (status === PlayerStatus.ERROR) {
-      const adStyles =
-        previousStatus === PlayerStatus.LOADING
-          ? styles.adWithAnimation
-          : styles.ad;
-      return (
-        <div className={adStyles}>
-          <span>Error occured, please close and reopen extension.</span>
-        </div>
-      );
-    } else {
-      const imageStyles =
-        previousStatus === PlayerStatus.LOADING
-          ? styles.imageWithAnimation
-          : styles.image;
-      return (
-        <img
-          data-testid="album-art"
-          id="album-art"
-          src={props.albumUrl}
-          className={imageStyles}
-          alt=""
-          crossOrigin="anonymous"
-        />
-      );
+    switch (status) {
+      case PlayerStatus.LOADING:
+        return <Fragment />;
+      case PlayerStatus.REQUIRE_WEBPAGE:
+        return (
+          <div className={styles.signInContainer}>
+            <span className={styles.signInText}>
+              <a href="https://open.spotify.com/" target="_blank">
+                Sign in
+              </a>{" "}
+              spotify <br></br> web player and <br></br>{" "}
+              <mark className={styles.highlight}>PLAY a song</mark>!
+            </span>
+          </div>
+        );
+      case PlayerStatus.AD_PLAYING:
+        const adStyles =
+          previousStatus === PlayerStatus.LOADING
+            ? styles.adWithAnimation
+            : styles.ad;
+        return (
+          <div className={adStyles}>
+            <span>Ad is currently playing...</span>
+          </div>
+        );
+      case PlayerStatus.SUCCESS:
+        const imageStyles =
+          previousStatus === PlayerStatus.LOADING
+            ? styles.imageWithAnimation
+            : styles.image;
+        return (
+          <img
+            data-testid="album-art"
+            id="album-art"
+            src={props.albumUrl}
+            className={imageStyles}
+            alt=""
+            crossOrigin="anonymous"
+          />
+        );
+      default:
+        const errorStyles =
+          previousStatus === PlayerStatus.LOADING
+            ? styles.adWithAnimation
+            : styles.ad;
+        return (
+          <div className={errorStyles}>
+            <span>Error occured, please close and reopen extension.</span>
+          </div>
+        );
     }
   };
 
