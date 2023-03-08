@@ -42,59 +42,9 @@ const SpotifyPlayer: FC = () => {
   const [thumbPosition, setThumbPosition] = useState(0); // Tracks current thumb position
   const [playerStatus, setPlayerStatus] = useState(PlayerStatus.LOADING); // Players current state
   const [isMounted, setIsMounted] = useState(false); // Used for volume animation
-  const [trackType, setTrackType] = useState("");
+  const [trackType, setTrackType] = useState(""); // Used track identification
 
-  // Get initial track data upon loading page
-  const getTrack = () => {
-    chrome.runtime.sendMessage(
-      { message: PlayerActions.GET_CURRENTLY_PLAYING },
-      (res) => {
-        // Note: Will return success on tracks and advertisements
-        if (res !== undefined && res.status === Status.SUCCESS) {
-          setTrack(res.data.track);
-          const bufferTrail = res.data.artist.length > 30 ? "..." : "";
-          const receivedArtist = res.data.artist.substring(0, 30) + bufferTrail;
-          setArtist(receivedArtist);
-          setAlbumUrl(res.data.albumUrl);
-          setIsPlaying(res.data.isPlaying);
-          setTrackId(res.data.id);
-          setTrackSaved(res.data.isSaved);
-          setDeviceId(res.data.deviceId);
-          setVolume(res.data.volumePercent);
-          const progress = res.data.progressMs;
-          const duration = res.data.durationMs;
-          if (res.data.type === "ad") {
-            // Note: set ms value related to custom set ad time in background script
-            setProgressMs((progress % 15000) + 500);
-            setPlayerStatus(PlayerStatus.AD_PLAYING);
-          } else {
-            setPlayerStatus(PlayerStatus.SUCCESS);
-            setProgressMs(progress + 500);
-            setThumbPosition(getThumbPosition(progress, duration));
-          }
-          setDurationMs(duration);
-          setTrackType(res.data.type);
-        } else if (res.status === Status.FAILURE) {
-          // Case: User did not complete webpage requirement prompt
-          console.log(res.message);
-          setPlayerStatus(PlayerStatus.REQUIRE_WEBPAGE);
-        } else if (res.status === Status.ERROR) {
-          // TODO: Sign user out when error occurs?
-          console.log(res.message);
-          setPlayerStatus(PlayerStatus.ERROR);
-        } else {
-          // Note: Automatic signout when unknown status received
-          chrome.runtime.sendMessage({ message: PlayerActions.SIGNOUT });
-          console.log("Unknown error when getting track data.");
-        }
-      }
-    );
-  };
-
-  // On popup open, get track data
-  useEffect(() => getTrack(), []);
-
-  const re = new RegExp("^https://[-a-zA-Z0-9@:%._+~#=]{1,256}.spotify.com");
+  // Script Injection helper functions
 
   // Inject script for play and pause (Non-premium users)
   const injectTrackPlayPause = () => {
@@ -219,6 +169,9 @@ const SpotifyPlayer: FC = () => {
 
   // Helper function to execute chrome injection scripts
   const trackInjection = (commandFxn: () => void) => {
+    // Spotify regex expresion
+    const re = new RegExp("^https://[-a-zA-Z0-9@:%._+~#=]{1,256}.spotify.com");
+
     return new Promise((resolve, reject) => {
       chrome.tabs.query({}, (tabs) => {
         // Search for tab with spotify using regex pattern
@@ -226,6 +179,7 @@ const SpotifyPlayer: FC = () => {
           if (tab.url && re.test(tab.url) && tab.id) {
             // Set/reset script result boolean in chrome storage
             chrome.storage.local.set({ scriptSuccess: false });
+            // Execute script injection into chrome browser
             chrome.scripting
               .executeScript({
                 target: { tabId: tab.id },
@@ -245,6 +199,54 @@ const SpotifyPlayer: FC = () => {
         });
       });
     });
+  };
+
+  // Spotify API command calling fuctions
+
+  // Get initial track data upon loading page
+  const getTrack = () => {
+    chrome.runtime.sendMessage(
+      { message: PlayerActions.GET_CURRENTLY_PLAYING },
+      (res) => {
+        // Note: Will return success on tracks and advertisements
+        if (res.status === Status.SUCCESS) {
+          setTrack(res.data.track);
+          const bufferTrail = res.data.artist.length > 30 ? "..." : "";
+          const receivedArtist = res.data.artist.substring(0, 30) + bufferTrail;
+          setArtist(receivedArtist);
+          setAlbumUrl(res.data.albumUrl);
+          setIsPlaying(res.data.isPlaying);
+          setTrackId(res.data.id);
+          setTrackSaved(res.data.isSaved);
+          setDeviceId(res.data.deviceId);
+          setVolume(res.data.volumePercent);
+          const progress = res.data.progressMs;
+          const duration = res.data.durationMs;
+          if (res.data.type === "ad") {
+            // Note: set ms value related to custom set ad time in background script
+            setProgressMs((progress % 15000) + 500);
+            setPlayerStatus(PlayerStatus.AD_PLAYING);
+          } else {
+            setPlayerStatus(PlayerStatus.SUCCESS);
+            setProgressMs(progress + 500);
+            setThumbPosition(getThumbPosition(progress, duration));
+          }
+          setDurationMs(duration);
+          setTrackType(res.data.type);
+        } else if (res.status === Status.FAILURE) {
+          // Case: User did not complete webpage requirement prompt
+          console.log(res.message);
+          setPlayerStatus(PlayerStatus.REQUIRE_WEBPAGE);
+        } else if (res.status === Status.ERROR) {
+          console.log(res.message);
+          setPlayerStatus(PlayerStatus.ERROR);
+        } else {
+          // Note: Automatic signout when unknown status received
+          chrome.runtime.sendMessage({ message: PlayerActions.SIGNOUT });
+          console.log("Unknown error when getting track data.");
+        }
+      }
+    );
   };
 
   // Pause current track
@@ -283,16 +285,20 @@ const SpotifyPlayer: FC = () => {
   const trackNext = () => {
     chrome.runtime.sendMessage({ message: PlayerActions.NEXT }, async (res) => {
       if (res.status === Status.SUCCESS) {
-        getTrack(); // Update track information state
+        // Update track information state
+        getTrack(); 
       } else if (res.status === Status.FAILURE) {
         // Case: User is non-premium user
-        await trackInjection(injectTrackNext).then(
-          (res: any) => {if (res.data === true) {
-            setTimeout(() => {
-              getTrack();
-            }, 200);
-          }}
-        ).catch(() => console.log("Failure when getting next track."))
+        await trackInjection(injectTrackNext)
+          .then((res: any) => {
+            if (res.data === true) {
+              // Need to account for api call lag time
+              setTimeout(() => {
+                getTrack();
+              }, 200);
+            }
+          })
+          .catch(() => console.log("Failure when getting next track."));
       } else {
         console.log("Unknown error when getting next track.");
       }
@@ -309,17 +315,20 @@ const SpotifyPlayer: FC = () => {
         { message: PlayerActions.PREVIOUS },
         async (res) => {
           if (res.status === Status.SUCCESS) {
+            // Get updated track information 
             getTrack();
           } else if (res.status === Status.FAILURE) {
             // Case: User is non-premium user
-            await trackInjection(injectTrackPrevious).then(
-              (res: any) => {if (res.data === true) {
-                setTimeout(() => {
-                  getTrack();
-                }, 250);
-              }}
-            )
-            .catch(() => console.log("Failure when getting previous track."));
+            await trackInjection(injectTrackPrevious)
+              .then((res: any) => {
+              // Need to account for api call lag time
+                if (res.data === true) {
+                  setTimeout(() => {
+                    getTrack();
+                  }, 250);
+                }
+              })
+              .catch(() => console.log("Failure when getting previous track."));
           } else {
             console.log("Unknown error when getting previous track.");
           }
@@ -366,35 +375,6 @@ const SpotifyPlayer: FC = () => {
     );
   };
 
-  // Show saved/unsaved track information
-  const showHeart = () => {
-    if (playerStatus === PlayerStatus.SUCCESS && trackSaved) {
-      return (
-        <IconButton onClick={trackRemoveSaved} data-testid="remove-track-btn">
-          <HeartFill
-            className={styles.playerControlIcons}
-            size={18}
-          ></HeartFill>
-        </IconButton>
-      );
-    } else if (playerStatus === PlayerStatus.SUCCESS) {
-      return (
-        <IconButton onClick={trackSave} data-testid="save-track-btn">
-          <Heart className={styles.playerControlIcons} size={18}></Heart>
-        </IconButton>
-      );
-    } else {
-      return (
-        <IconButton disabled>
-          <HeartHalf
-            className={styles.playerControlIcons}
-            size={18}
-          ></HeartHalf>
-        </IconButton>
-      );
-    }
-  };
-
   // Get volume value after mouse-up from mouse click
   const trackVolumeChangeCommitted = (volumePercent: any) => {
     chrome.runtime.sendMessage(
@@ -411,22 +391,59 @@ const SpotifyPlayer: FC = () => {
           // Case: User is non-premium user
           chrome.storage.local.set({ volume: volumePercent });
           await trackInjection(injectChangeVolume)
-          .then((res: any) => {
-            if (res.data === true) {
-              if (volume !== 0) {
-                setVolumeCached(volume);
+            .then((res: any) => {
+              if (res.data === true) {
+                if (volume !== 0) {
+                  setVolumeCached(volume);
+                }
+                // Note: need to set volume since api call is premium action
+                setVolume(volumePercent);
               }
-              setVolume(volumePercent);
-            }
-          })
-          .catch(() => console.log("Failure when changing track volume."));
-          // Note: need to set volume since api call is premium action
+            })
+            .catch(() => console.log("Failure when changing track volume."));
         } else {
           console.log("Unknown error when setting track volume.");
         }
       }
     );
   };
+
+  // Sets thumb position value after mouse up event on thumb icon
+  const trackSeekChangeCommitted = (percent: any) => {
+    const positionMs = Math.floor(durationMs * (percent * 0.01));
+    chrome.runtime.sendMessage(
+      {
+        message: PlayerActions.SEEK_POSITION,
+        query: { positionMs, deviceId },
+      },
+      async (res) => {
+        if (res.status === Status.SUCCESS) {
+          setProgressMs(positionMs);
+          const updatedThumbPos = getThumbPosition(positionMs, durationMs);
+          setThumbPosition(updatedThumbPos);
+        } else if (res.status === Status.FAILURE) {
+          // Case: User is not non-premium user
+          chrome.storage.local.set({ percent });
+          await trackInjection(injectSeekTrack)
+            .then((res: any) => {
+              if (res.data === true) {
+                setProgressMs(positionMs);
+                const updatedThumbPos = getThumbPosition(
+                  positionMs,
+                  durationMs
+                );
+                setThumbPosition(updatedThumbPos);
+              }
+            })
+            .catch(() => console.log("Failure when seeking track."));
+        } else {
+          console.log("Unknown error when seeking track volume.");
+        }
+      }
+    );
+  };
+
+  // Spotify volume helper functions
 
   // Mimic common volume press behavior
   const muteVolumeHandler = () => {
@@ -465,36 +482,7 @@ const SpotifyPlayer: FC = () => {
     setIsMounted(false);
   };
 
-  // Sets thumb position value after mouse up event on thumb icon
-  const trackSeekChangeCommitted = (percent: any) => {
-    const positionMs = Math.floor(durationMs * (percent * 0.01));
-    chrome.runtime.sendMessage(
-      {
-        message: PlayerActions.SEEK_POSITION,
-        query: { positionMs, deviceId },
-      },
-      async (res) => {
-        if (res.status === Status.SUCCESS) {
-          setProgressMs(positionMs);
-          const updatedThumbPos = getThumbPosition(positionMs, durationMs);
-          setThumbPosition(updatedThumbPos);
-        } else if (res.status === Status.FAILURE) {
-          // Case: User is not non-premium user
-          chrome.storage.local.set({ percent });
-          await trackInjection(injectSeekTrack)
-            .then((res: any) => {
-              if (res.data === true) {
-                setProgressMs(positionMs);
-                const updatedThumbPos = getThumbPosition(positionMs, durationMs);
-                setThumbPosition(updatedThumbPos);
-              }
-            }).catch(() => console.log("Failure when seeking track."))
-        } else {
-          console.log("Unknown error when seeking track volume.");
-        }
-      }
-    );
-  };
+  // Player status helper functions
 
   // Check if player status is success
   const successPlayerStatus = () => {
@@ -508,6 +496,38 @@ const SpotifyPlayer: FC = () => {
       playerStatus === PlayerStatus.SUCCESS
     );
   };
+
+  // Show saved/unsaved track information
+  const showHeart = () => {
+    if (playerStatus === PlayerStatus.SUCCESS && trackSaved) {
+      return (
+        <IconButton onClick={trackRemoveSaved} data-testid="remove-track-btn">
+          <HeartFill
+            className={styles.playerControlIcons}
+            size={18}
+          ></HeartFill>
+        </IconButton>
+      );
+    } else if (playerStatus === PlayerStatus.SUCCESS) {
+      return (
+        <IconButton onClick={trackSave} data-testid="save-track-btn">
+          <Heart className={styles.playerControlIcons} size={18}></Heart>
+        </IconButton>
+      );
+    } else {
+      return (
+        <IconButton disabled>
+          <HeartHalf
+            className={styles.playerControlIcons}
+            size={18}
+          ></HeartHalf>
+        </IconButton>
+      );
+    }
+  };
+
+  // On initial popup, get track data
+  useEffect(() => getTrack(), []);
 
   return (
     <div className={styles.playerContainer} id="player-container">
