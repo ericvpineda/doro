@@ -103,7 +103,6 @@
   animation-delay: 0.1s;
 }
 
-/* TODO: Fix text animation */
 @keyframes textAnimation {
   0% {
     opacity: 0;

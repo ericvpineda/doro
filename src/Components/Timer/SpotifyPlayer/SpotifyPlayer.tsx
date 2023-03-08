@@ -49,7 +49,6 @@ const SpotifyPlayer: FC = () => {
     chrome.runtime.sendMessage(
       { message: PlayerActions.GET_CURRENTLY_PLAYING },
       (res) => {
-        console.log("Get current playing...")
         // Note: Will return success on tracks and advertisements
         if (res !== undefined && res.status === Status.SUCCESS) {
           setTrack(res.data.track);
@@ -65,6 +64,7 @@ const SpotifyPlayer: FC = () => {
           const progress = res.data.progressMs;
           const duration = res.data.durationMs;
           if (res.data.type === "ad") {
+            // Note: set ms value related to custom set ad time in background script
             setProgressMs(progress % 15000 + 500);
             setPlayerStatus(PlayerStatus.AD_PLAYING);
           } else {
@@ -77,12 +77,10 @@ const SpotifyPlayer: FC = () => {
         } else if (res.status === Status.FAILURE) {
           // Case: User did not complete webpage requirement prompt
           console.log(res.message);
-          setThumbPosition(-1);
           setPlayerStatus(PlayerStatus.REQUIRE_WEBPAGE);
         } else if (res.status === Status.ERROR) {
           // TODO: Sign user out when error occurs?
           console.log(res.message);
-          setThumbPosition(-1);
           setPlayerStatus(PlayerStatus.REQUIRE_WEBPAGE);
         } else {
           // Note: Automatic signout when unknown status received
@@ -92,8 +90,6 @@ const SpotifyPlayer: FC = () => {
       }
     );
   };
-
-  console.log(progressMs, durationMs)
 
   // On popup open, get track data
   useEffect(() => getTrack(), []);
@@ -508,7 +504,7 @@ const SpotifyPlayer: FC = () => {
 
   return (
     <div className={styles.playerContainer} id="player-container">
-      <AlbumArt playerStatus={playerStatus} albumUrl={albumUrl}></AlbumArt>
+      <AlbumArt playerStatus={playerStatus} albumUrl={albumUrl}/>
       {successPlayerStatus() && (
         <div className={styles.trackTextContainer}>
           <div className={styles.trackTitleContainer}>

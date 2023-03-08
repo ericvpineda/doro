@@ -2,7 +2,7 @@ import { PlayerActions, Status, SpotifyScope } from "../Utils/SpotifyUtils";
 // import {ChromeData} from "../Utils/ChromeUtils";
 
 // DEBUG: Used to check if background script runs in console
-console.log("Running: Background script...");
+// console.log("Running: Background script...");
 
 // User Authentication functions and objects
 
@@ -105,23 +105,16 @@ const signOut = () => {
 };
 
 // Sets automatic refresh token call
-// FIX: Figure out why refresh token is not working
 const setRefreshTokenTimer = (data: any) => {
   const timeout = setInterval(() => {
-    // chrome.storage.local.get([ChromeData.expiresIn], (res) => {});
-    // console.log("Refresh token client", client, data);
     requestRefreshToken(client)
       .then((res) => res.json())
       .then((data) => setAccessTokenHandler(data))
-      .catch((err) => {
-        // console.log("Refresh token error:", err);
+      .catch(() => {
         signOut();
       });
   }, (data.expires_in - 60) * 1000);
-  return () => {
-    signOut();
-    clearInterval(timeout);
-  };
+  return () => clearInterval(timeout);
 };
 
 // Launch user auth flow
@@ -209,7 +202,6 @@ const request = async (method: string, path: string, accessToken: string) => {
 };
 
 // Helper method to get get user profile
-// - Note: must always get update user profile
 const getUserProfile = async (params: any) => {
   let response = {}; // Used as return object from async fxn
   await request("GET", "", params.accessToken)
@@ -225,7 +217,6 @@ const getUserProfile = async (params: any) => {
     .then((data) => {
       const profileUrl = (data.images.length > 0 && data.images[0].url) || "";
       response = { status: Status.SUCCESS, data: { profileUrl } };
-      // chrome.storage.local.set({ profileUrl: profileUrl });
     })
     .catch((err) => {
       response = {
@@ -396,8 +387,6 @@ const trackCommand = async (
 };
 
 // Listen for spotify playback actions events
-// - Note:
-//  - should condition check endtime instead of signedIn?
 chrome.runtime.onMessage.addListener((req, sender, res) => {
   chrome.storage.local.get(["accessToken", "signedIn"], (result: any) => {
     let query: any;

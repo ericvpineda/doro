@@ -22,7 +22,7 @@ const AlbumArt: FC<Props> = (props: any) => {
   // Show album artwork or webpage sign in prompt
   const showAlbum = () => {
     if (status === PlayerStatus.LOADING) {
-      return <div/>
+      return <div />;
     } else if (status === PlayerStatus.REQUIRE_WEBPAGE) {
       return (
         <div className={styles.signInContainer}>
@@ -46,7 +46,15 @@ const AlbumArt: FC<Props> = (props: any) => {
         </div>
       );
     } else if (status === PlayerStatus.ERROR) {
-      // TODO-LATER: Dependant on SpotifyPlayer component will render if error occurrs
+      const adStyles =
+        previousStatus === PlayerStatus.LOADING
+          ? styles.adWithAnimation
+          : styles.ad;
+      return (
+        <div className={adStyles}>
+          <span>Error occured, please close and reopen extension.</span>
+        </div>
+      );
     } else {
       const imageStyles =
         previousStatus === PlayerStatus.LOADING
@@ -66,11 +74,7 @@ const AlbumArt: FC<Props> = (props: any) => {
   };
 
   // Note: Loading page until parent gets item information and updates status
-  return (
-    <Fragment>
-      {showAlbum()}
-    </Fragment>
-  );
+  return <Fragment>{showAlbum()}</Fragment>;
 };
 
 export default AlbumArt;
