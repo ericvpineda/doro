@@ -369,7 +369,7 @@ const trackCommand = async (
       if (res.status === 200 || res.status === 204) {
         response = { status: Status.SUCCESS };
       } else if (res.status === 403) {
-        // User is does not have premium account error
+        // Note: User is does not have premium account error
         response = { status: Status.FAILURE };
       } else {
         throw {status: Status.ERROR}

@@ -79,7 +79,7 @@
   color: black;
 }
 
-.signInContainer {
+.textContainer {
 
   margin-top: 1rem;
   margin-bottom: 0.5rem;
@@ -116,6 +116,22 @@
   animation: signInTextAnimation 1s;
   animation-fill-mode: forwards;
   animation-delay: 0.5s;
+}
+
+@keyframes signInTextAnimation {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.errorText {
+  opacity: 0;
+  animation: signInTextAnimation 1s;
+  animation-fill-mode: forwards;
+  animation-delay: 0.75s;
 }
 
 @keyframes signInTextAnimation {

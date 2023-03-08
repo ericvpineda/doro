@@ -81,7 +81,7 @@ const SpotifyPlayer: FC = () => {
         } else if (res.status === Status.ERROR) {
           // TODO: Sign user out when error occurs?
           console.log(res.message);
-          setPlayerStatus(PlayerStatus.REQUIRE_WEBPAGE);
+          setPlayerStatus(PlayerStatus.ERROR);
         } else {
           // Note: Automatic signout when unknown status received
           chrome.runtime.sendMessage({ message: PlayerActions.SIGNOUT });
@@ -287,7 +287,6 @@ const SpotifyPlayer: FC = () => {
       } else if (res.status === Status.FAILURE) {
         // Case: User is non-premium user
         let success = false;
-        // Note: cannot run state updating function in then() function
         await trackInjection(injectTrackNext).then(
           (res: any) => (success = res.data)
         ).catch(() => console.log("Failure when getting next track."))
@@ -495,7 +494,6 @@ const SpotifyPlayer: FC = () => {
                 setThumbPosition(updatedThumbPos);
               }
             }).catch(() => console.log("Failure when seeking track."))
-          // TODO: Add condition on if injection results in error
         } else {
           console.log("Unknown error when seeking track volume.");
         }

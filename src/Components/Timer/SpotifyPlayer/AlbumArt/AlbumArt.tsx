@@ -26,7 +26,7 @@ const AlbumArt: FC<Props> = (props: any) => {
         return <Fragment />;
       case PlayerStatus.REQUIRE_WEBPAGE:
         return (
-          <div className={styles.signInContainer}>
+          <div className={styles.textContainer}>
             <span className={styles.signInText}>
               <a href="https://open.spotify.com/" target="_blank">
                 Sign in
@@ -62,13 +62,14 @@ const AlbumArt: FC<Props> = (props: any) => {
           />
         );
       default:
-        const errorStyles =
-          previousStatus === PlayerStatus.LOADING
-            ? styles.adWithAnimation
-            : styles.ad;
         return (
-          <div className={errorStyles}>
-            <span>Error occured, please close and reopen extension.</span>
+          <div className={styles.textContainer}>
+            <span className={styles.errorText}>
+              Error occured, please{" "}
+              <mark className={styles.highlight}>
+                close and<br/>reopen extension.
+              </mark>
+            </span>
           </div>
         );
     }
