@@ -25,7 +25,7 @@ const FocusText: FC = () => {
 
   return (
     <Fragment>
-      {isExecutingRequest && ctx.isShowing ? (
+      {isExecutingRequest || ctx.isShowing ? (
         <footer className={styles.focusBox} data-testid="focus-text-active">
           Task: <span className={styles.description}>{description}</span>
         </footer>

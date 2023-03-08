@@ -52,6 +52,10 @@ module.exports = {
           from: path.resolve("src/img/doro_logo.png"),
           to: path.resolve("dist/img"),
         },
+        {
+          from: path.resolve("src/img/timer.png"),
+          to: path.resolve("dist/img"),
+        },
       ],
     }),
     ...getHtmlPlugins(["index"]),
