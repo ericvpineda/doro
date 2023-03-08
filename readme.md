@@ -7,13 +7,13 @@
 - React Typescript chrome extension for time management and music playback.
 
 ## Features 
-- Spotify playback commands (Free AND premium Spotify users**)
+- Spotify playback commands (Free and premium Spotify users*)
     - Play/pause track 
     - Previous/next track
     - Save/unsave track
     - Seek track 
     - Volume control 
-- Pomodoro timer
+- Pomodoro timer commands
     - Clear timer
     - Pause timer
     - Play timer
@@ -25,7 +25,7 @@
 - Front-end library: [ReactJS](https://reactjs.org/)
 - Front-end framework: [Bootstrap](https://icons.getbootstrap.com/)
 - TypeScript bundler: [Webpack](https://webpack.js.org/)
-- Spotify Library: [Spotify Web API](https://developer.spotify.com/documentation/web-api/reference/#/)
+- Spotify library: [Spotify Web API](https://developer.spotify.com/documentation/web-api/reference/#/)
 - Chome extension API: [Chome API Reference](https://developer.chrome.com/docs/extensions/reference/)
 - Testing library: [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
 
