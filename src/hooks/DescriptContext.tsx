@@ -1,13 +1,15 @@
 import React, { createContext, useState, useEffect } from "react";
 import { ChromeData } from "../Utils/ChromeUtils";
 
+// Description context 
+// - Used to create manual state update in FocuxText component
 const DescriptContext = createContext({
   isShowing: false,
   showDescription: () => {},
   hideDescription: () => {},
 });
 
-
+// Provier wrapper that houses context state
 export const DescriptContextProvider = (props: any) => {
   const [isShowing, setIsShowing] = useState(false);
   
