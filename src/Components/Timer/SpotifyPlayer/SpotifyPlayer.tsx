@@ -286,16 +286,13 @@ const SpotifyPlayer: FC = () => {
         getTrack(); // Update track information state
       } else if (res.status === Status.FAILURE) {
         // Case: User is non-premium user
-        let success = false;
         await trackInjection(injectTrackNext).then(
-          (res: any) => (success = res.data)
+          (res: any) => {if (res.data === true) {
+            setTimeout(() => {
+              getTrack();
+            }, 200);
+          }}
         ).catch(() => console.log("Failure when getting next track."))
-
-        if (success) {
-          setTimeout(() => {
-            getTrack();
-          }, 200);
-        }
       } else {
         console.log("Unknown error when getting next track.");
       }
@@ -315,16 +312,14 @@ const SpotifyPlayer: FC = () => {
             getTrack();
           } else if (res.status === Status.FAILURE) {
             // Case: User is non-premium user
-            let success = false;
             await trackInjection(injectTrackPrevious).then(
-              (res: any) => (success = res.data)
+              (res: any) => {if (res.data === true) {
+                setTimeout(() => {
+                  getTrack();
+                }, 250);
+              }}
             )
             .catch(() => console.log("Failure when getting previous track."));
-            if (success) {
-              setTimeout(() => {
-                getTrack();
-              }, 250);
-            }
           } else {
             console.log("Unknown error when getting previous track.");
           }
