@@ -27,3 +27,7 @@
 - Spotify Library: [Spotify Web API](https://developer.spotify.com/documentation/web-api/reference/#/)
 - Chome extension API: [Chome API Reference](https://developer.chrome.com/docs/extensions/reference/)
 - Testing library: [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
+
+## Future Tasks
+- Submit Spotify quota extension request
+- Publish extension to chrome web store 
