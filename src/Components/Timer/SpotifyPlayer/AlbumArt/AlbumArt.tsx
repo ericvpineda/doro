@@ -19,7 +19,7 @@ const AlbumArt: FC<Props> = (props: any) => {
     setStatus(props.playerStatus);
   }, [props.playerStatus]);
 
-  // Show album artwork or webpage sign in prompt
+  // Show prompt/window to user based on player current player status
   const showAlbum = () => {
     switch (status) {
       case PlayerStatus.LOADING:
