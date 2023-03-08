@@ -23,9 +23,11 @@ const FocusText: FC = () => {
     );
   }, [ctx.isShowing, description, isExecutingRequest]);
 
+  // Note: Updating isExecutingRequest when popup open will not update in component
+  // - Need ctx.isShowing to create manual update
   return (
     <Fragment>
-      {isExecutingRequest || ctx.isShowing ? (
+      {isExecutingRequest && ctx.isShowing? (
         <footer className={styles.focusBox} data-testid="focus-text-active">
           Task: <span className={styles.description}>{description}</span>
         </footer>

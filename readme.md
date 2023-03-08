@@ -4,7 +4,7 @@
 ![Spotify Player](./src/img/spotify_player.png)
 
 ## Description 
-- React Typescript chrome extension for time management and music playback.
+- React typescript chrome extension for time management and music playback.
 
 ## Features 
 - Spotify playback commands (Free and premium Spotify users*)
