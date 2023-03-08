@@ -1,12 +1,13 @@
 # Doro - Pomodoro Timer with Spotify Player 
 ![Doro Clock screen](./src/img/timer.png)
+
 ![Spotify Player](./src/img/spotify_player.png)
 
 ## Description 
 - React Typescript chrome extension for time management and music playback.
 
 ## Features 
-- Spotify playback commands (**free AND premium Spotify users)
+- Spotify playback commands (Free AND premium Spotify users**)
     - Play/pause track 
     - Previous/next track
     - Save/unsave track
