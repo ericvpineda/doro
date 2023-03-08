@@ -44,7 +44,7 @@ const SpotifyPlayer: FC = () => {
   const [isMounted, setIsMounted] = useState(false); // Used for volume animation
   const [trackType, setTrackType] = useState(""); // Used track identification
 
-  // Script Injection helper functions
+  // ----- Script Injection helper functions ----- 
 
   // Inject script for play and pause (Non-premium users)
   const injectTrackPlayPause = () => {
@@ -201,7 +201,7 @@ const SpotifyPlayer: FC = () => {
     });
   };
 
-  // Spotify API command calling fuctions
+  // ----- Spotify API command calling fuctions -----
 
   // Get initial track data upon loading page
   const getTrack = () => {
@@ -443,7 +443,7 @@ const SpotifyPlayer: FC = () => {
     );
   };
 
-  // Spotify volume helper functions
+  // ----- Spotify volume helper functions -----
 
   // Mimic common volume press behavior
   const muteVolumeHandler = () => {
@@ -482,7 +482,7 @@ const SpotifyPlayer: FC = () => {
     setIsMounted(false);
   };
 
-  // Player status helper functions
+  // ----- Player status helper functions -----
 
   // Check if player status is success
   const successPlayerStatus = () => {

@@ -1,10 +1,10 @@
 import { PlayerActions, Status, SpotifyScope } from "../Utils/SpotifyUtils";
-// import {ChromeData} from "../Utils/ChromeUtils";
 
-// DEBUG: Used to check if background script runs in console
-// console.log("Running: Background script...");
+// REMOVE: Used to check if background script runs in console
+// console.log("DEBUG: Running background script...");
 
-// User Authentication functions and objects
+
+// ----- User Authentication functions and objects -----
 
 // Spotify scopes
 const scopes = [
@@ -189,7 +189,7 @@ const userSignIn = async (params: any) => {
   }
 };
 
-// Playback Actions
+// ----- Playback Actions -----
 
 // Helper function for calling playback actions
 const request = async (method: string, path: string, accessToken: string) => {
@@ -315,7 +315,7 @@ const getCurrentlyPlaying = async (params: any) => {
           progressMs: data.progress_ms,
           type: "ad",
         };
-        // Note: need "loophole" so ad path does not get queried futher
+        // Note: need "loophole" so ad status path does not get queried futher
         throw {
           status: Status.SUCCESS,
           data: itemData,
