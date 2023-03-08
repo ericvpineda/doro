@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect, } from "react";
+import React, { FC, useState, useEffect } from "react";
 import styles from "./SpotifyPlayer.module.css";
 import Stack from "@mui/material/Stack";
 import VolumeDownIcon from "@material-ui/icons/VolumeDown";
@@ -65,7 +65,7 @@ const SpotifyPlayer: FC = () => {
           const duration = res.data.durationMs;
           if (res.data.type === "ad") {
             // Note: set ms value related to custom set ad time in background script
-            setProgressMs(progress % 15000 + 500);
+            setProgressMs((progress % 15000) + 500);
             setPlayerStatus(PlayerStatus.AD_PLAYING);
           } else {
             setPlayerStatus(PlayerStatus.SUCCESS);
@@ -219,7 +219,7 @@ const SpotifyPlayer: FC = () => {
 
   // Helper function to execute chrome injection scripts
   const trackInjection = (commandFxn: () => void) => {
-    return new Promise((resolve, _) => {
+    return new Promise((resolve, reject) => {
       chrome.tabs.query({}, (tabs) => {
         // Search for tab with spotify using regex pattern
         tabs.forEach((tab) => {
@@ -232,9 +232,13 @@ const SpotifyPlayer: FC = () => {
                 func: commandFxn,
               })
               .then(() => {
-                chrome.storage.local.get([ChromeData.scriptSuccess], (res) =>
-                  resolve({ data: res.scriptSuccess })
-                );
+                chrome.storage.local.get([ChromeData.scriptSuccess], (res) => {
+                  if (res.scriptSuccess) {
+                    resolve({ data: true });
+                  } else {
+                    reject({ data: false });
+                  }
+                });
               })
               .catch(() => resolve({ data: false }));
           }
@@ -250,9 +254,9 @@ const SpotifyPlayer: FC = () => {
         setIsPlaying(false);
       } else if (res.status === Status.FAILURE) {
         // Case: User is non-premium user
-        trackInjection(injectTrackPlayPause);
-        // TODO: Set conditional for failure case
-        setIsPlaying(false);
+        trackInjection(injectTrackPlayPause)
+          .then(() => setIsPlaying(false))
+          .catch(() => console.log("Failure when pausing track."));
       } else {
         console.log("Unknown error when pausing track.");
       }
@@ -266,9 +270,9 @@ const SpotifyPlayer: FC = () => {
         setIsPlaying(true);
       } else if (res.status === Status.FAILURE) {
         // Case: User is non-premium user
-        trackInjection(injectTrackPlayPause);
-        // TODO: Set conditional for failure case
-        setIsPlaying(true);
+        trackInjection(injectTrackPlayPause)
+          .then(() => setIsPlaying(true))
+          .catch(() => console.log("Failure when playing track."));
       } else {
         console.log("Unknown error when playing track.");
       }
@@ -286,7 +290,8 @@ const SpotifyPlayer: FC = () => {
         // Note: cannot run state updating function in then() function
         await trackInjection(injectTrackNext).then(
           (res: any) => (success = res.data)
-        );
+        ).catch(() => console.log("Failure when getting next track."))
+
         if (success) {
           setTimeout(() => {
             getTrack();
@@ -301,7 +306,7 @@ const SpotifyPlayer: FC = () => {
   // Get players previous track
   const trackPrevious = () => {
     if (thumbPosition > 0) {
-      thumbSeekChangeCommitted(0);
+      trackSeekChangeCommitted(0);
       setThumbPosition(0);
     } else {
       chrome.runtime.sendMessage(
@@ -314,7 +319,8 @@ const SpotifyPlayer: FC = () => {
             let success = false;
             await trackInjection(injectTrackPrevious).then(
               (res: any) => (success = res.data)
-            );
+            )
+            .catch(() => console.log("Failure when getting previous track."));
             if (success) {
               setTimeout(() => {
                 getTrack();
@@ -410,12 +416,17 @@ const SpotifyPlayer: FC = () => {
         } else if (res.status === Status.FAILURE) {
           // Case: User is non-premium user
           chrome.storage.local.set({ volume: volumePercent });
-          await trackInjection(injectChangeVolume);
-          if (volume !== 0) {
-            setVolumeCached(volume);
-          }
+          await trackInjection(injectChangeVolume)
+          .then((res: any) => {
+            if (res.data === true) {
+              if (volume !== 0) {
+                setVolumeCached(volume);
+              }
+              setVolume(volumePercent);
+            }
+          })
+          .catch(() => console.log("Failure when changing track volume."));
           // Note: need to set volume since api call is premium action
-          setVolume(volumePercent)
         } else {
           console.log("Unknown error when setting track volume.");
         }
@@ -460,9 +471,8 @@ const SpotifyPlayer: FC = () => {
     setIsMounted(false);
   };
 
-
   // Sets thumb position value after mouse up event on thumb icon
-  const thumbSeekChangeCommitted = (percent: any) => {
+  const trackSeekChangeCommitted = (percent: any) => {
     const positionMs = Math.floor(durationMs * (percent * 0.01));
     chrome.runtime.sendMessage(
       {
@@ -477,11 +487,15 @@ const SpotifyPlayer: FC = () => {
         } else if (res.status === Status.FAILURE) {
           // Case: User is not non-premium user
           chrome.storage.local.set({ percent });
-          await trackInjection(injectSeekTrack);
+          await trackInjection(injectSeekTrack)
+            .then((res: any) => {
+              if (res.data === true) {
+                setProgressMs(positionMs);
+                const updatedThumbPos = getThumbPosition(positionMs, durationMs);
+                setThumbPosition(updatedThumbPos);
+              }
+            }).catch(() => console.log("Failure when seeking track."))
           // TODO: Add condition on if injection results in error
-          setProgressMs(positionMs);
-          const updatedThumbPos = getThumbPosition(positionMs, durationMs);
-          setThumbPosition(updatedThumbPos);
         } else {
           console.log("Unknown error when seeking track volume.");
         }
@@ -504,7 +518,7 @@ const SpotifyPlayer: FC = () => {
 
   return (
     <div className={styles.playerContainer} id="player-container">
-      <AlbumArt playerStatus={playerStatus} albumUrl={albumUrl}/>
+      <AlbumArt playerStatus={playerStatus} albumUrl={albumUrl} />
       {successPlayerStatus() && (
         <div className={styles.trackTextContainer}>
           <div className={styles.trackTitleContainer}>
@@ -598,7 +612,7 @@ const SpotifyPlayer: FC = () => {
             playerStatus={playerStatus}
             progressMs={progressMs}
             thumbPosition={thumbPosition}
-            thumbSeekChangeCommitted={thumbSeekChangeCommitted}
+            trackSeekChangeCommitted={trackSeekChangeCommitted}
             durationMs={durationMs}
             successPlayerStatus={successPlayerStatus}
             successOrAdPlayerStatus={successOrAdPlayerStatus}

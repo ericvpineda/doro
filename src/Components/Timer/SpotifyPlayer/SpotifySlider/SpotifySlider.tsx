@@ -15,7 +15,7 @@ interface Props {
   playerStatus: PlayerStatus;
   progressMs: number;
   thumbPosition: number;
-  thumbSeekChangeCommitted: (param: any) => void;
+  trackSeekChangeCommitted: (param: any) => void;
   durationMs: number;
   successPlayerStatus: () => boolean;
   successOrAdPlayerStatus: () => boolean;
@@ -29,7 +29,7 @@ const SpotifySlider: FC<Props> = (props) => {
   const [thumbPosition, setThumbPosition] = useState(0);
   const playerStatus = props.playerStatus;
   const durationMs = props.durationMs;
-  const thumbSeekChangeCommitted = props.thumbSeekChangeCommitted;
+  const trackSeekChangeCommitted = props.trackSeekChangeCommitted;
   const successPlayerStatus = props.successPlayerStatus;
   const successOrAdPlayerStatus = props.successOrAdPlayerStatus;
   const getTrack = props.getTrack;
@@ -106,7 +106,7 @@ const SpotifySlider: FC<Props> = (props) => {
               data-testid="seek-position-slider"
               value={adPlayerStatus() ? 0 : thumbPosition}
               onChange={(_, val) => debounceThumbSeekHandler(val)}
-              onChangeCommitted={(_, val) => thumbSeekChangeCommitted(val)}
+              onChangeCommitted={(_, val) => trackSeekChangeCommitted(val)}
             ></Slider>
           </ThemeProvider>
         </Grid>

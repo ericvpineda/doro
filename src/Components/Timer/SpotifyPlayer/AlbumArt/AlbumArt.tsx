@@ -74,7 +74,6 @@ const AlbumArt: FC<Props> = (props: any) => {
     }
   };
 
-  // Note: Loading page until parent gets item information and updates status
   return <Fragment>{showAlbum()}</Fragment>;
 };
 
