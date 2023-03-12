@@ -73,10 +73,12 @@ const SpotifyPlayer: FC = () => {
     const prevTrackBtn = document.querySelector(
       "[data-testid=control-button-skip-back]"
     ) as HTMLButtonElement;
-    prevTrackBtn.addEventListener("click", () =>
-      chrome.storage.local.set({ scriptSuccess: true })
-    );
-    prevTrackBtn.click();
+    if (prevTrackBtn) {
+      prevTrackBtn.addEventListener("click", () =>
+        chrome.storage.local.set({ scriptSuccess: true })
+      );
+      prevTrackBtn.click();
+    }
   };
 
   // Inject script for change volume (Non-premium users)
@@ -181,11 +183,11 @@ const SpotifyPlayer: FC = () => {
             chrome.storage.local.set({ scriptSuccess: false });
             // Execute script injection into chrome browser
             chrome.scripting
-              .executeScript({
-                target: { tabId: tab.id },
-                func: commandFxn,
-              })
-              .then(() => {
+            .executeScript({
+              target: { tabId: tab.id },
+              func: commandFxn,
+            })
+            .then(() => {
                 chrome.storage.local.get([ChromeData.scriptSuccess], (res) => {
                   if (res.scriptSuccess) {
                     resolve({ data: true });
@@ -318,7 +320,7 @@ const SpotifyPlayer: FC = () => {
             // Get updated track information 
             getTrack();
           } else if (res.status === Status.FAILURE) {
-            // Case: User is non-premium user
+            // Case: User is non-premium user 
             await trackInjection(injectTrackPrevious)
               .then((res: any) => {
               // Need to account for api call lag time
@@ -329,7 +331,11 @@ const SpotifyPlayer: FC = () => {
                 }
               })
               .catch(() => console.log("Failure when getting previous track."));
-          } else {
+          } else if (res.status === Status.ERROR) {
+            // Note: Need to account for error case
+            console.log(res.error.message)
+          }
+          else {
             console.log("Unknown error when getting previous track.");
           }
         }

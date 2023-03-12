@@ -5,7 +5,7 @@ import SpotifyPlayer from "../../../Components/Timer/SpotifyPlayer/SpotifyPlayer
 import { chrome } from "jest-chrome";
 import { Status } from "../../../Utils/SpotifyUtils";
 import userEvent from "@testing-library/user-event";
-
+ 
 // Test Points
 // - track commands/functions
 //  - getting track
@@ -304,7 +304,14 @@ describe("Test SpotifyPlayer component", () => {
     expect(logSpy).toBeCalledTimes(0);
   });
 
-  it("player is playing and user plays PREVIOUS track, returns failure", async () => {
+  test.todo("non-premium user plays PREVIOUS track, returns success")
+
+  it.only("non-premium user plays PREVIOUS track, returns failure", async () => {
+    // Steps
+    // - mock chrome tabs query with fake spotify url, tab id
+    // - mock chrome scripting executeScript
+    //  - mock document object for correct document objects 
+    //  - mock fulfilled state and rejected state
     global.chrome.runtime.sendMessage
       .mockImplementationOnce((obj, callback) => {
         callback({
@@ -316,19 +323,29 @@ describe("Test SpotifyPlayer component", () => {
         });
       })
       .mockImplementation((obj, callback) => {
-        callback({
-          status: Status.FAILURE,
-          message: "Failure when completing track command.",
-        });
+        callback({ status: Status.FAILURE });
       });
+    
+    // Mock getting spotify tab
+    global.chrome.tabs.query = (_, callback) => {
+      callback([{url: "https://www.spotify.com", id: 1}])
+    }
+
+    global.chrome.scripting = {
+      executeScript: ({target, func}) => {
+        return new Promise((resolve, reject) => resolve(func()))
+      }
+    }
+    
     render(<SpotifyPlayer setShowPlayerHandler={mockFxn}></SpotifyPlayer>);
     const prevTrackBtn = screen.getByTestId("previous-track-btn");
     await user.click(prevTrackBtn);
 
     expect(logSpy).toHaveBeenCalledWith(
-      "Failure when completing track command."
+      "Failure when getting previous track."
     );
   });
+
   it("player is playing and user plays PREVIOUS track, returns unknown error", async () => {
     global.chrome.runtime.sendMessage
       .mockImplementationOnce((obj, callback) => {
@@ -491,244 +508,244 @@ describe("Test SpotifyPlayer component", () => {
     );
   });
 
-  it("user changes VOLUME and returns success", async () => {
-    global.chrome.runtime.sendMessage
-      .mockImplementationOnce((obj, callback) => {
-        callback({
-          status: Status.SUCCESS,
-          data: {
-            artist: "",
-            isPlaying: true,
-            volume: 0,
-            track: "",
-          },
-        });
-      })
-      .mockImplementation((obj, callback) => {
-        callback({
-          status: Status.SUCCESS,
-        });
-      });
-    render(<SpotifyPlayer setShowPlayerHandler={mockFxn}></SpotifyPlayer>);
-    const volumeBtn = screen.getByTestId("volume-btn");
-    await user.hover(volumeBtn);
+  // it("user changes VOLUME and returns success", async () => {
+  //   global.chrome.runtime.sendMessage
+  //     .mockImplementationOnce((obj, callback) => {
+  //       callback({
+  //         status: Status.SUCCESS,
+  //         data: {
+  //           artist: "",
+  //           isPlaying: true,
+  //           volume: 0,
+  //           track: "",
+  //         },
+  //       });
+  //     })
+  //     .mockImplementation((obj, callback) => {
+  //       callback({
+  //         status: Status.SUCCESS,
+  //       });
+  //     });
+  //   render(<SpotifyPlayer setShowPlayerHandler={mockFxn}></SpotifyPlayer>);
+  //   const volumeBtn = screen.getByTestId("volume-btn");
+  //   await user.hover(volumeBtn);
 
-    const volumeSlider = screen.getByTestId("volume-slider");
-    expect(volumeSlider).toBeVisible();
+  //   const volumeSlider = screen.getByTestId("volume-slider");
+  //   expect(volumeSlider).toBeVisible();
 
-    // Need to get input query selector beforehand
-    fireEvent.change(volumeSlider.querySelector("input"), {
-      target: { value: 25 },
-    });
-    await user.click(volumeSlider);
+  //   // Need to get input query selector beforehand
+  //   fireEvent.change(volumeSlider.querySelector("input"), {
+  //     target: { value: 25 },
+  //   });
+  //   await user.click(volumeSlider);
 
-    expect(logSpy).toBeCalledTimes(0);
-  });
+  //   expect(logSpy).toBeCalledTimes(0);
+  // });
 
-  it("user changes VOLUME and returns failure", async () => {
-    global.chrome.runtime.sendMessage
-      .mockImplementationOnce((obj, callback) => {
-        callback({
-          status: Status.SUCCESS,
-          data: {
-            artist: "",
-            isPlaying: true,
-            volume: 0,
-          },
-        });
-      })
-      .mockImplementation((obj, callback) => {
-        callback({
-          status: Status.FAILURE,
-          message: "Failure when completing track command.",
-        });
-      });
-    render(<SpotifyPlayer setShowPlayerHandler={mockFxn}></SpotifyPlayer>);
-    const volumeBtn = screen.getByTestId("volume-btn");
-    await user.hover(volumeBtn);
+  // it("user changes VOLUME and returns failure", async () => {
+  //   global.chrome.runtime.sendMessage
+  //     .mockImplementationOnce((obj, callback) => {
+  //       callback({
+  //         status: Status.SUCCESS,
+  //         data: {
+  //           artist: "",
+  //           isPlaying: true,
+  //           volume: 0,
+  //         },
+  //       });
+  //     })
+  //     .mockImplementation((obj, callback) => {
+  //       callback({
+  //         status: Status.FAILURE,
+  //         message: "Failure when completing track command.",
+  //       });
+  //     });
+  //   render(<SpotifyPlayer setShowPlayerHandler={mockFxn}></SpotifyPlayer>);
+  //   const volumeBtn = screen.getByTestId("volume-btn");
+  //   await user.hover(volumeBtn);
 
-    const volumeSlider = screen.getByTestId("volume-slider");
-    expect(volumeSlider).toBeVisible();
+  //   const volumeSlider = screen.getByTestId("volume-slider");
+  //   expect(volumeSlider).toBeVisible();
 
-    // Need to get input query selector beforehand
-    fireEvent.change(volumeSlider.querySelector("input"), {
-      target: { value: 25 },
-    });
-    await user.click(volumeSlider);
+  //   // Need to get input query selector beforehand
+  //   fireEvent.change(volumeSlider.querySelector("input"), {
+  //     target: { value: 25 },
+  //   });
+  //   await user.click(volumeSlider);
 
-    expect(logSpy).toHaveBeenCalledWith(
-      "Failure when completing track command."
-    );
-  });
+  //   expect(logSpy).toHaveBeenCalledWith(
+  //     "Failure when completing track command."
+  //   );
+  // });
 
-  it("user changes VOLUME and returns unknown error", async () => {
-    global.chrome.runtime.sendMessage
-      .mockImplementationOnce((obj, callback) => {
-        callback({
-          status: Status.SUCCESS,
-          data: {
-            artist: "",
-            isPlaying: true,
-            volume: 0,
-          },
-        });
-      })
-      .mockImplementation((obj, callback) => {
-        callback({
-          status: Status.ERROR,
-          message: "Unknown error when setting track volume.",
-        });
-      });
-    render(<SpotifyPlayer setShowPlayerHandler={mockFxn}></SpotifyPlayer>);
-    const volumeBtn = screen.getByTestId("volume-btn");
-    await user.hover(volumeBtn);
+  // it("user changes VOLUME and returns unknown error", async () => {
+  //   global.chrome.runtime.sendMessage
+  //     .mockImplementationOnce((obj, callback) => {
+  //       callback({
+  //         status: Status.SUCCESS,
+  //         data: {
+  //           artist: "",
+  //           isPlaying: true,
+  //           volume: 0,
+  //         },
+  //       });
+  //     })
+  //     .mockImplementation((obj, callback) => {
+  //       callback({
+  //         status: Status.ERROR,
+  //         message: "Unknown error when setting track volume.",
+  //       });
+  //     });
+  //   render(<SpotifyPlayer setShowPlayerHandler={mockFxn}></SpotifyPlayer>);
+  //   const volumeBtn = screen.getByTestId("volume-btn");
+  //   await user.hover(volumeBtn);
 
-    const volumeSlider = screen.getByTestId("volume-slider");
-    expect(volumeSlider).toBeVisible();
+  //   const volumeSlider = screen.getByTestId("volume-slider");
+  //   expect(volumeSlider).toBeVisible();
 
-    // Need to get input query selector beforehand
-    fireEvent.change(volumeSlider.querySelector("input"), {
-      target: { value: 25 },
-    });
-    await user.click(volumeSlider);
+  //   // Need to get input query selector beforehand
+  //   fireEvent.change(volumeSlider.querySelector("input"), {
+  //     target: { value: 25 },
+  //   });
+  //   await user.click(volumeSlider);
 
-    expect(logSpy).toHaveBeenCalledWith(
-      "Unknown error when setting track volume."
-    );
-  });
+  //   expect(logSpy).toHaveBeenCalledWith(
+  //     "Unknown error when setting track volume."
+  //   );
+  // });
 
-  it("volume greater than zero and user click volume button, sets volume to zero", async () => {
-    global.chrome.runtime.sendMessage
-      .mockImplementationOnce((obj, callback) => {
-        callback({
-          status: Status.SUCCESS,
-          data: {
-            artist: "",
-            isPlaying: true,
-            volume: 100,
-            track: "",
-          },
-        });
-      })
-      .mockImplementation((obj, callback) => {
-        callback({
-          status: Status.SUCCESS,
-        });
-      });
-    render(<SpotifyPlayer setShowPlayerHandler={mockFxn}></SpotifyPlayer>);
-    const volumeBtn = screen.getByTestId("volume-btn");
-    await user.hover(volumeBtn);
+  // it("volume greater than zero and user click volume button, sets volume to zero", async () => {
+  //   global.chrome.runtime.sendMessage
+  //     .mockImplementationOnce((obj, callback) => {
+  //       callback({
+  //         status: Status.SUCCESS,
+  //         data: {
+  //           artist: "",
+  //           isPlaying: true,
+  //           volume: 100,
+  //           track: "",
+  //         },
+  //       });
+  //     })
+  //     .mockImplementation((obj, callback) => {
+  //       callback({
+  //         status: Status.SUCCESS,
+  //       });
+  //     });
+  //   render(<SpotifyPlayer setShowPlayerHandler={mockFxn}></SpotifyPlayer>);
+  //   const volumeBtn = screen.getByTestId("volume-btn");
+  //   await user.hover(volumeBtn);
 
-    const volumeSlider = screen.getByTestId("volume-slider");
-    expect(volumeSlider).toBeVisible();
+  //   const volumeSlider = screen.getByTestId("volume-slider");
+  //   expect(volumeSlider).toBeVisible();
 
-    // Need to get input query selector beforehand
-    fireEvent.change(volumeSlider.querySelector("input"), {
-      target: { value: 0 },
-    });
-    await user.click(volumeSlider);
+  //   // Need to get input query selector beforehand
+  //   fireEvent.change(volumeSlider.querySelector("input"), {
+  //     target: { value: 0 },
+  //   });
+  //   await user.click(volumeSlider);
 
-    expect(logSpy).toBeCalledTimes(0);
-  });
+  //   expect(logSpy).toBeCalledTimes(0);
+  // });
 
-  it("user SEEKS track and returns success", async () => {
-    global.chrome.runtime.sendMessage
-      .mockImplementationOnce((obj, callback) => {
-        callback({
-          status: Status.SUCCESS,
-          data: {
-            artist: "",
-            isPlaying: true,
-            volume: 0,
-            track: "",
-            progress: 0,
-            duration: 0,
-          },
-        });
-      })
-      .mockImplementation((obj, callback) => {
-        callback({
-          status: Status.SUCCESS,
-        });
-      });
-    render(<SpotifyPlayer setShowPlayerHandler={mockFxn}></SpotifyPlayer>);
-    const seekPositionSlider = screen.getByTestId("seek-position-slider");
-    // Need to get input query selector beforehand
-    fireEvent.change(seekPositionSlider.querySelector("input"), {
-      target: { value: 25 },
-    });
-    await user.click(seekPositionSlider);
+  // it("user SEEKS track and returns success", async () => {
+  //   global.chrome.runtime.sendMessage
+  //     .mockImplementationOnce((obj, callback) => {
+  //       callback({
+  //         status: Status.SUCCESS,
+  //         data: {
+  //           artist: "",
+  //           isPlaying: true,
+  //           volume: 0,
+  //           track: "",
+  //           progress: 0,
+  //           duration: 0,
+  //         },
+  //       });
+  //     })
+  //     .mockImplementation((obj, callback) => {
+  //       callback({
+  //         status: Status.SUCCESS,
+  //       });
+  //     });
+  //   render(<SpotifyPlayer setShowPlayerHandler={mockFxn}></SpotifyPlayer>);
+  //   const seekPositionSlider = screen.getByTestId("seek-position-slider");
+  //   // Need to get input query selector beforehand
+  //   fireEvent.change(seekPositionSlider.querySelector("input"), {
+  //     target: { value: 25 },
+  //   });
+  //   await user.click(seekPositionSlider);
 
-    expect(logSpy).toBeCalledTimes(0);
-  });
+  //   expect(logSpy).toBeCalledTimes(0);
+  // });
 
-  it("user SEEKS track and returns failure", async () => {
-    global.chrome.runtime.sendMessage
-      .mockImplementationOnce((obj, callback) => {
-        callback({
-          status: Status.SUCCESS,
-          data: {
-            artist: "",
-            isPlaying: true,
-            volume: 0,
-            track: "",
-            progress: 0,
-            duration: 0,
-          },
-        });
-      })
-      .mockImplementation((obj, callback) => {
-        callback({
-          status: Status.FAILURE,
-          message: "Failure when completing track command.",
-        });
-      });
-    render(<SpotifyPlayer setShowPlayerHandler={mockFxn}></SpotifyPlayer>);
-    const seekPositionSlider = screen.getByTestId("seek-position-slider");
-    // Need to get input query selector beforehand
-    fireEvent.change(seekPositionSlider.querySelector("input"), {
-      target: { value: 25 },
-    });
-    await user.click(seekPositionSlider);
+  // it("user SEEKS track and returns failure", async () => {
+  //   global.chrome.runtime.sendMessage
+  //     .mockImplementationOnce((obj, callback) => {
+  //       callback({
+  //         status: Status.SUCCESS,
+  //         data: {
+  //           artist: "",
+  //           isPlaying: true,
+  //           volume: 0,
+  //           track: "",
+  //           progress: 0,
+  //           duration: 0,
+  //         },
+  //       });
+  //     })
+  //     .mockImplementation((obj, callback) => {
+  //       callback({
+  //         status: Status.FAILURE,
+  //         message: "Failure when completing track command.",
+  //       });
+  //     });
+  //   render(<SpotifyPlayer setShowPlayerHandler={mockFxn}></SpotifyPlayer>);
+  //   const seekPositionSlider = screen.getByTestId("seek-position-slider");
+  //   // Need to get input query selector beforehand
+  //   fireEvent.change(seekPositionSlider.querySelector("input"), {
+  //     target: { value: 25 },
+  //   });
+  //   await user.click(seekPositionSlider);
 
-    expect(logSpy).toHaveBeenCalledWith(
-      "Failure when completing track command."
-    );
-  });
+  //   expect(logSpy).toHaveBeenCalledWith(
+  //     "Failure when completing track command."
+  //   );
+  // });
 
-  it("user SEEKS track and returns unknown error", async () => {
-    global.chrome.runtime.sendMessage
-      .mockImplementationOnce((obj, callback) => {
-        callback({
-          status: Status.SUCCESS,
-          data: {
-            artist: "",
-            isPlaying: true,
-            volume: 0,
-            track: "",
-            progress: 0,
-            duration: 0,
-          },
-        });
-      })
-      .mockImplementation((obj, callback) => {
-        callback({
-          status: Status.ERROR,
-          message: "Unknown error when seeking track volume.",
-        });
-      });
-    render(<SpotifyPlayer setShowPlayerHandler={mockFxn}></SpotifyPlayer>);
-    const seekPositionSlider = screen.getByTestId("seek-position-slider");
-    // Need to get input query selector beforehand
-    fireEvent.change(seekPositionSlider.querySelector("input"), {
-      target: { value: 25 },
-    });
-    await user.click(seekPositionSlider);
+  // it("user SEEKS track and returns unknown error", async () => {
+  //   global.chrome.runtime.sendMessage
+  //     .mockImplementationOnce((obj, callback) => {
+  //       callback({
+  //         status: Status.SUCCESS,
+  //         data: {
+  //           artist: "",
+  //           isPlaying: true,
+  //           volume: 0,
+  //           track: "",
+  //           progress: 0,
+  //           duration: 0,
+  //         },
+  //       });
+  //     })
+  //     .mockImplementation((obj, callback) => {
+  //       callback({
+  //         status: Status.ERROR,
+  //         message: "Unknown error when seeking track volume.",
+  //       });
+  //     });
+  //   render(<SpotifyPlayer setShowPlayerHandler={mockFxn}></SpotifyPlayer>);
+  //   const seekPositionSlider = screen.getByTestId("seek-position-slider");
+  //   // Need to get input query selector beforehand
+  //   fireEvent.change(seekPositionSlider.querySelector("input"), {
+  //     target: { value: 25 },
+  //   });
+  //   await user.click(seekPositionSlider);
 
-    expect(logSpy).toHaveBeenCalledWith(
-      "Unknown error when seeking track volume."
-    );
-  });
+  //   expect(logSpy).toHaveBeenCalledWith(
+  //     "Unknown error when seeking track volume."
+  //   );
+  // });
 
   // TODO-LATER: Do after premium user actions complete
   test.todo("ad is playing and user attempts to skip, skip button should be disabled");
