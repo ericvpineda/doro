@@ -1,11 +1,10 @@
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import SpotifyPlayer from "../../../Components/Timer/SpotifyPlayer/SpotifyPlayer";
 import { chrome } from "jest-chrome";
 import { Status } from "../../../Utils/SpotifyUtils";
 import userEvent from "@testing-library/user-event";
-import { it } from "node:test";
 
 // Test Points
 // - track commands/functions
@@ -19,8 +18,7 @@ import { it } from "node:test";
 
 // Tests for SpotifyPlayer component
 describe("Test SpotifyPlayer component", () => {
-  let mockFxn, user, logSpy;
-
+  let mockFxn, user, logSpy
   beforeEach(() => {
     mockFxn = jest.fn();
     user = userEvent.setup();
@@ -43,7 +41,7 @@ describe("Test SpotifyPlayer component", () => {
 
   afterEach(() => {
     jest.clearAllMocks(); // Clears spy mocks
-    document.body.innerHTML = ""; // Clear modified body elements
+    document.body.innerHTML = "";
   });
 
   it("player GETS track successfully", () => {
@@ -184,8 +182,42 @@ describe("Test SpotifyPlayer component", () => {
     await user.click(pauseBtn);
 
     expect(logSpy).toHaveBeenCalledWith(
-      "Failure when completing track command."
+      "Failure when pausing track."
     );
+  });
+
+  it("player is playing and non-premium user PAUSES track, injection script returns failure", async () => {
+    global.chrome.runtime.sendMessage
+      .mockImplementationOnce((obj, callback) => {
+        callback({
+          status: Status.SUCCESS,
+          data: {
+            artist: "",
+            isPlaying: true,
+          },
+        });
+      })
+      .mockImplementation((obj, callback) =>
+        callback({ status: Status.FAILURE })
+      );
+
+    // Mock getting spotify tab in chrome browser
+    global.chrome.tabs.query = (_, callback) => {
+      callback([{ url: "https://www.spotify.com", id: 1 }]);
+    };
+
+    // Mock script injection function
+    global.chrome.scripting = {
+      executeScript: ({ target, func }) => {
+        return new Promise((resolve, reject) => reject(func()));
+      },
+    };
+
+    render(<SpotifyPlayer setShowPlayerHandler={mockFxn}></SpotifyPlayer>);
+    const pauseBtn = screen.getByTestId("pause-btn");
+    await user.click(pauseBtn);
+
+    expect(logSpy).toHaveBeenCalledWith("Failure when pausing track.");
   });
 
   it("player is playing and user PAUSES track, returns unknown error", async () => {
@@ -296,9 +328,41 @@ describe("Test SpotifyPlayer component", () => {
     const playBtn = screen.getByTestId("play-btn");
     await user.click(playBtn);
 
-    expect(logSpy).toHaveBeenCalledWith(
-      "Failure when completing track command."
-    );
+    expect(logSpy).toHaveBeenCalledWith("Failure when playing track.");
+  });
+
+  it("player is paused and non-premium user PLAYS track, injection script returns failure", async () => {
+    global.chrome.runtime.sendMessage
+      .mockImplementationOnce((obj, callback) => {
+        callback({
+          status: Status.SUCCESS,
+          data: {
+            artist: "",
+            isPlaying: false,
+          },
+        });
+      })
+      .mockImplementation((obj, callback) =>
+        callback({ status: Status.FAILURE })
+      );
+
+    // Mock getting spotify tab
+    global.chrome.tabs.query = (_, callback) => {
+      callback([{ url: "https://www.spotify.com", id: 1 }]);
+    };
+
+    // Mock script injection function
+    global.chrome.scripting = {
+      executeScript: ({ target, func }) => {
+        return new Promise((resolve, reject) => reject(func()));
+      },
+    };
+
+    render(<SpotifyPlayer setShowPlayerHandler={mockFxn}></SpotifyPlayer>);
+    const playBtn = screen.getByTestId("play-btn");
+    await user.click(playBtn);
+
+    expect(logSpy).toHaveBeenCalledWith("Failure when playing track.");
   });
 
   it("player is paused and user PLAYS track, returns unknown error", async () => {
@@ -410,24 +474,62 @@ describe("Test SpotifyPlayer component", () => {
     await user.click(nextTrackBtn);
 
     expect(logSpy).toHaveBeenCalledWith(
-      "Failure when completing track command."
+      "Failure when getting next track."
     );
   });
 
-  it("player is playing and user plays NEXT track, returns unknown error", async () => {
+  it("player is playing and non-premium user plays NEXT track, injection script returns failure", async () => {
     global.chrome.runtime.sendMessage
       .mockImplementationOnce((obj, callback) => {
         callback({
           status: Status.SUCCESS,
           data: {
             artist: "",
-            isPlaying: false,
+            isPlaying: true,
           },
         });
       })
-      .mockImplementation((obj, callback) => {
-        callback({});
-      });
+      .mockImplementation((obj, callback) =>
+        callback({ status: Status.FAILURE })
+      );
+
+    // Mock getting spotify tab
+    global.chrome.tabs.query = (_, callback) => {
+      callback([{ url: "https://www.spotify.com", id: 1 }]);
+    };
+
+    // Mock script injection function
+    global.chrome.scripting = {
+      executeScript: ({ target, func }) => {
+        return new Promise((resolve, reject) => reject(func()));
+      },
+    };
+
+    render(<SpotifyPlayer setShowPlayerHandler={mockFxn}></SpotifyPlayer>);
+    const nextTrackBtn = screen.getByTestId("next-track-btn");
+    await user.click(nextTrackBtn);
+
+    expect(logSpy).toHaveBeenCalledWith(
+      "Failure when getting next track."
+    );
+  });
+
+  it("player is playing and user plays NEXT track, returns unknown error", async () => {
+      global.chrome.runtime.sendMessage
+        .mockImplementationOnce((obj, callback) => {
+          callback({
+            status: Status.SUCCESS,
+            data: {
+              artist: "",
+              isPlaying: true,
+            },
+          });
+        })
+        .mockImplementation((obj, callback) => {
+          if (typeof callback === "function") {
+            callback({ status: Status.TESTING });
+          }
+        });
     render(<SpotifyPlayer setShowPlayerHandler={mockFxn}></SpotifyPlayer>);
     const nextTrackBtn = screen.getByTestId("next-track-btn");
     await user.click(nextTrackBtn);
@@ -535,24 +637,63 @@ describe("Test SpotifyPlayer component", () => {
     expect(logSpy).toHaveBeenCalledWith("Failure when getting previous track.");
   });
 
-  it("player is playing and user plays PREVIOUS track, returns unknown error", async () => {
+  it("non-premium user plays PREVIOUS track, injection script returns failure", async () => {
     global.chrome.runtime.sendMessage
       .mockImplementationOnce((obj, callback) => {
         callback({
           status: Status.SUCCESS,
           data: {
             artist: "",
-            isPlaying: false,
+            isPlaying: true,
           },
         });
       })
       .mockImplementation((obj, callback) => {
-        callback({});
+        callback({ status: Status.FAILURE });
       });
+
+    // Mock getting spotify tab
+    global.chrome.tabs.query = (_, callback) => {
+      callback([{ url: "https://www.spotify.com", id: 1 }]);
+    };
+
+    // Mock script injection function
+    global.chrome.scripting = {
+      executeScript: ({ target, func }) => {
+        return new Promise((resolve, reject) => resolve(func()));
+      },
+    };
+
     render(<SpotifyPlayer setShowPlayerHandler={mockFxn}></SpotifyPlayer>);
     const prevTrackBtn = screen.getByTestId("previous-track-btn");
     await user.click(prevTrackBtn);
 
+    expect(logSpy).toHaveBeenCalledWith("Failure when getting previous track.");
+  });
+
+
+  it("player is playing and user plays PREVIOUS track, returns unknown error", async () => {
+
+    global.chrome.runtime.sendMessage
+      .mockImplementationOnce((obj, callback) => {
+        callback({
+          status: Status.SUCCESS,
+          data: {
+            artist: "",
+            isPlaying: true,
+          },
+        });
+      })
+      .mockImplementation((obj, callback) => {
+        if (typeof callback === "function") {
+          callback({ status: Status.TESTING });
+        }
+      });
+
+    render(<SpotifyPlayer setShowPlayerHandler={mockFxn}></SpotifyPlayer>);
+    const prevTrackBtn = screen.getByTestId("previous-track-btn");
+    await user.click(prevTrackBtn);
+    
     expect(logSpy).toHaveBeenCalledWith(
       "Unknown error when getting previous track."
     );
