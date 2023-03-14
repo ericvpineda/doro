@@ -9,6 +9,7 @@ import userEvent from "@testing-library/user-event";
 // Test points
 // - user sign in (success, failure, error)
 // - user sign out
+// - TODO: Add tests for props.setShowPlayer prop 
 
 describe("Test Login component", () => {
   let mockFxn;
@@ -35,7 +36,7 @@ describe("Test Login component", () => {
       callback({ status: Status.SUCCESS, data: { profileUrl: "" } });
     });
     mockFxn = jest.fn();
-    render(<Login setSignedIn={mockFxn}></Login>);
+    render(<Login setSignedIn={mockFxn} setShowPlayer={mockFxn}></Login>);
     const spotifyButton = screen.getByTestId("spotify-button");
     expect(spotifyButton).toBeInTheDocument();
 
@@ -53,7 +54,7 @@ describe("Test Login component", () => {
     });
     mockFxn = jest.fn();
 
-    render(<Login setSignedIn={mockFxn}></Login>);
+    render(<Login setSignedIn={mockFxn} setShowPlayer={mockFxn}></Login>);
 
     const spotifyButton = screen.getByTestId("spotify-button");
     expect(spotifyButton).toBeInTheDocument();
@@ -74,7 +75,7 @@ describe("Test Login component", () => {
       });
     });
     mockFxn = jest.fn();
-    render(<Login setSignedIn={mockFxn}></Login>);
+    render(<Login setSignedIn={mockFxn} setShowPlayer={mockFxn}></Login>);
     const spotifyButton = screen.getByTestId("spotify-button");
     expect(spotifyButton).toBeInTheDocument();
 
@@ -92,7 +93,7 @@ describe("Test Login component", () => {
     });
     chrome.storage.local.set({ signedIn: true });
     mockFxn = jest.fn();
-    render(<Login setSignedIn={mockFxn}></Login>);
+    render(<Login setSignedIn={mockFxn} setShowPlayer={mockFxn}></Login>);
 
     // Check profile icon visible and spotify button invisible
     const spotifyButton = screen.queryByTestId("spotify-button");
@@ -116,7 +117,7 @@ describe("Test Login component", () => {
     });
     mockFxn = jest.fn();
 
-    render(<Login setSignedIn={mockFxn}></Login>);
+    render(<Login setSignedIn={mockFxn} setShowPlayer={mockFxn}></Login>);
 
     const spotifyButton = screen.getByTestId("spotify-button");
     expect(spotifyButton).toBeInTheDocument();
@@ -134,7 +135,7 @@ describe("Test Login component", () => {
     });
     chrome.storage.local.set({ signedIn: true });
     mockFxn = jest.fn();
-    render(<Login setSignedIn={mockFxn}></Login>);
+    render(<Login setSignedIn={mockFxn} setShowPlayer={mockFxn}></Login>);
     
     // Click profile icon and click signout button
     const profileIcon = screen.getByTestId("profile-icon");

@@ -20,6 +20,7 @@ enum Status {
   SUCCESS,
   FAILURE,
   ERROR,
+  TESTING // Used for testing only 
 }
 
 enum PlayerStatus {

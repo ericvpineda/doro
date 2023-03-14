@@ -59,6 +59,7 @@ const VolumeSlider: FC<Props> = (props) => {
     <ThemeProvider theme={muiTheme}>
       <Slider
         data-testid="volume-slider"
+        id="volume-slider"
         className={isMounted ? styles.volumeMount : styles.volumeUnmount}
         onAnimationEnd={() => {
           if (!isMounted) setShowVolumeTrack(false);
