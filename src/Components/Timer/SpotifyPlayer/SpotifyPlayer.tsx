@@ -137,7 +137,8 @@ const SpotifyPlayer: FC = () => {
         "[data-testid=progress-bar]"
       ) as HTMLDivElement;
 
-      if (playbackContainer && progressBar) {
+      const validPercent = typeof res.percent === "number" && !Number.isNaN(res.percent)
+      if (playbackContainer && progressBar && validPercent) {
         const percent = res.percent / 100;
         const totalLength =
           progressBar.getBoundingClientRect().right -
@@ -449,19 +450,23 @@ const SpotifyPlayer: FC = () => {
           setThumbPosition(updatedThumbPos);
         } else if (res.status === Status.FAILURE) {
           // Case: User is not non-premium user
-          chrome.storage.local.set({ percent });
-          await trackInjection(injectSeekTrack)
+          if (typeof percent === "number" && !Number.isNaN(percent)) {
+            chrome.storage.local.set({ percent });
+            await trackInjection(injectSeekTrack)
             .then((res: any) => {
               if (res.data === true) {
                 setProgressMs(positionMs);
                 const updatedThumbPos = getThumbPosition(
                   positionMs,
                   durationMs
-                );
-                setThumbPosition(updatedThumbPos);
-              }
-            })
-            .catch(() => console.log("Failure when seeking track."));
+                  );
+                  setThumbPosition(updatedThumbPos);
+                } else {
+                  console.log("Failure when seeking track.")
+                }
+              })
+              .catch(() => console.log("Failure when seeking track."));
+            }
         } else {
           console.log("Unknown error when seeking track volume.");
         }

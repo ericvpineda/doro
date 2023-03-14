@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, fireEvent, act} from "@testing-library/react";
+import { render, screen, fireEvent, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import SpotifyPlayer from "../../../Components/Timer/SpotifyPlayer/SpotifyPlayer";
 import { chrome } from "jest-chrome";
@@ -53,7 +53,7 @@ describe("Test SpotifyPlayer component", () => {
         },
       });
     });
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     expect(logSpy).toBeCalledTimes(0);
   });
 
@@ -64,7 +64,7 @@ describe("Test SpotifyPlayer component", () => {
         message: "Web player not open in browser.",
       });
     });
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     expect(logSpy).toHaveBeenCalledWith("Web player not open in browser.");
   });
 
@@ -75,7 +75,7 @@ describe("Test SpotifyPlayer component", () => {
         message: "Error occured when getting track data.",
       });
     });
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     expect(logSpy).toHaveBeenCalledWith(
       "Error occured when getting track data."
     );
@@ -88,7 +88,7 @@ describe("Test SpotifyPlayer component", () => {
         message: "Unknown error when getting track data.",
       });
     });
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     expect(logSpy).toHaveBeenCalledWith(
       "Unknown error when getting track data."
     );
@@ -104,7 +104,7 @@ describe("Test SpotifyPlayer component", () => {
         },
       });
     });
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const pauseBtn = screen.getByTestId("pause-btn");
     await user.click(pauseBtn);
 
@@ -143,7 +143,7 @@ describe("Test SpotifyPlayer component", () => {
       },
     };
 
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const pauseBtn = screen.getByTestId("pause-btn");
     await user.click(pauseBtn);
 
@@ -178,7 +178,7 @@ describe("Test SpotifyPlayer component", () => {
       },
     };
 
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const pauseBtn = screen.getByTestId("pause-btn");
     await user.click(pauseBtn);
 
@@ -212,7 +212,7 @@ describe("Test SpotifyPlayer component", () => {
       },
     };
 
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const pauseBtn = screen.getByTestId("pause-btn");
     await user.click(pauseBtn);
 
@@ -233,7 +233,7 @@ describe("Test SpotifyPlayer component", () => {
       .mockImplementation((obj, callback) => {
         callback({});
       });
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const pauseBtn = screen.getByTestId("pause-btn");
     await user.click(pauseBtn);
 
@@ -250,7 +250,7 @@ describe("Test SpotifyPlayer component", () => {
         },
       });
     });
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const playBtn = screen.getByTestId("play-btn");
     await user.click(playBtn);
 
@@ -289,7 +289,7 @@ describe("Test SpotifyPlayer component", () => {
       },
     };
 
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const playBtn = screen.getByTestId("play-btn");
     await user.click(playBtn);
 
@@ -323,7 +323,7 @@ describe("Test SpotifyPlayer component", () => {
       },
     };
 
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const playBtn = screen.getByTestId("play-btn");
     await user.click(playBtn);
 
@@ -357,7 +357,7 @@ describe("Test SpotifyPlayer component", () => {
       },
     };
 
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const playBtn = screen.getByTestId("play-btn");
     await user.click(playBtn);
 
@@ -378,7 +378,7 @@ describe("Test SpotifyPlayer component", () => {
       .mockImplementation((obj, callback) => {
         callback({});
       });
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const playBtn = screen.getByTestId("play-btn");
     await user.click(playBtn);
 
@@ -395,7 +395,7 @@ describe("Test SpotifyPlayer component", () => {
         },
       });
     });
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const nextTrackBtn = screen.getByTestId("next-track-btn");
     await user.click(nextTrackBtn);
 
@@ -434,7 +434,7 @@ describe("Test SpotifyPlayer component", () => {
       },
     };
 
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const nextTrackBtn = screen.getByTestId("next-track-btn");
     await user.click(nextTrackBtn);
 
@@ -468,7 +468,7 @@ describe("Test SpotifyPlayer component", () => {
       },
     };
 
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const nextTrackBtn = screen.getByTestId("next-track-btn");
     await user.click(nextTrackBtn);
 
@@ -502,7 +502,7 @@ describe("Test SpotifyPlayer component", () => {
       },
     };
 
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const nextTrackBtn = screen.getByTestId("next-track-btn");
     await user.click(nextTrackBtn);
 
@@ -525,7 +525,7 @@ describe("Test SpotifyPlayer component", () => {
           callback({ status: Status.TESTING });
         }
       });
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const nextTrackBtn = screen.getByTestId("next-track-btn");
     await user.click(nextTrackBtn);
 
@@ -544,7 +544,7 @@ describe("Test SpotifyPlayer component", () => {
         },
       });
     });
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const prevTrackBtn = screen.getByTestId("previous-track-btn");
     await user.click(prevTrackBtn);
 
@@ -590,7 +590,7 @@ describe("Test SpotifyPlayer component", () => {
       },
     };
 
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const prevTrackBtn = screen.getByTestId("previous-track-btn");
     expect(prevTrackBtn).toBeVisible();
     await user.click(prevTrackBtn);
@@ -625,7 +625,7 @@ describe("Test SpotifyPlayer component", () => {
       },
     };
 
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const prevTrackBtn = screen.getByTestId("previous-track-btn");
     await user.click(prevTrackBtn);
 
@@ -659,7 +659,7 @@ describe("Test SpotifyPlayer component", () => {
       },
     };
 
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const prevTrackBtn = screen.getByTestId("previous-track-btn");
     await user.click(prevTrackBtn);
 
@@ -683,7 +683,7 @@ describe("Test SpotifyPlayer component", () => {
         }
       });
 
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const prevTrackBtn = screen.getByTestId("previous-track-btn");
     await user.click(prevTrackBtn);
 
@@ -702,7 +702,7 @@ describe("Test SpotifyPlayer component", () => {
         },
       });
     });
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const saveTrackBtn = screen.getByTestId("save-track-btn");
     await user.click(saveTrackBtn);
 
@@ -726,7 +726,7 @@ describe("Test SpotifyPlayer component", () => {
           message: "Failure when completing track command.",
         });
       });
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const saveTrackBtn = screen.getByTestId("save-track-btn");
     await user.click(saveTrackBtn);
 
@@ -749,7 +749,7 @@ describe("Test SpotifyPlayer component", () => {
       .mockImplementation((obj, callback) => {
         callback({ status: Status.ERROR });
       });
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const saveTrackBtn = screen.getByTestId("save-track-btn");
     await user.click(saveTrackBtn);
 
@@ -774,7 +774,7 @@ describe("Test SpotifyPlayer component", () => {
           status: Status.SUCCESS,
         });
       });
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const removeTrackBtn = screen.getByTestId("remove-track-btn");
     await user.click(removeTrackBtn);
 
@@ -799,7 +799,7 @@ describe("Test SpotifyPlayer component", () => {
           message: "Failure when completing track command.",
         });
       });
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const removeTrackBtn = screen.getByTestId("remove-track-btn");
     await user.click(removeTrackBtn);
 
@@ -822,7 +822,7 @@ describe("Test SpotifyPlayer component", () => {
       .mockImplementation((obj, callback) => {
         callback({});
       });
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const removeTrackBtn = screen.getByTestId("remove-track-btn");
     await user.click(removeTrackBtn);
 
@@ -852,7 +852,7 @@ describe("Test SpotifyPlayer component", () => {
           status: Status.SUCCESS,
         });
       });
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const volumeBtn = screen.getByTestId("volume-btn");
     await user.hover(volumeBtn);
 
@@ -860,10 +860,16 @@ describe("Test SpotifyPlayer component", () => {
     expect(volumeSlider).toBeVisible();
 
     await act(() => {
-      fireEvent.mouseDown(volumeSlider, {clientY: volumeSlider.getBoundingClientRect().bottom})
-      fireEvent.mouseMove(volumeSlider, {clientY: volumeSlider.getBoundingClientRect().bottom + 1})
-      fireEvent.mouseUp(volumeSlider, {clientY: volumeSlider.getBoundingClientRect().bottom + 1})
-    })
+      fireEvent.mouseDown(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom,
+      });
+      fireEvent.mouseMove(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom + 1,
+      });
+      fireEvent.mouseUp(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom + 1,
+      });
+    });
 
     expect(logSpy).toBeCalledTimes(0);
   });
@@ -881,9 +887,11 @@ describe("Test SpotifyPlayer component", () => {
           },
         });
       })
-      .mockImplementation((obj, callback) => callback({ status: Status.FAILURE}));
+      .mockImplementation((obj, callback) =>
+        callback({ status: Status.FAILURE })
+      );
 
-      // Mock getting spotify tab in chrome browser
+    // Mock getting spotify tab in chrome browser
     global.chrome.tabs.query = (_, callback) => {
       callback([{ url: "https://www.spotify.com", id: 1 }]);
     };
@@ -895,7 +903,7 @@ describe("Test SpotifyPlayer component", () => {
       },
     };
 
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const volumeBtn = screen.getByTestId("volume-btn");
     await user.hover(volumeBtn);
 
@@ -903,25 +911,31 @@ describe("Test SpotifyPlayer component", () => {
     expect(volumeSlider).toBeVisible();
 
     await act(() => {
-      fireEvent.mouseDown(volumeSlider, {clientY: volumeSlider.getBoundingClientRect().bottom})
-      fireEvent.mouseMove(volumeSlider, {clientY: volumeSlider.getBoundingClientRect().bottom + 1})
-      fireEvent.mouseUp(volumeSlider, {clientY: volumeSlider.getBoundingClientRect().bottom + 1})
-    })
+      fireEvent.mouseDown(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom,
+      });
+      fireEvent.mouseMove(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom + 1,
+      });
+      fireEvent.mouseUp(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom + 1,
+      });
+    });
 
-    // Note: Do not place expect() in waitFor function (will show false success) 
+    // Note: Do not place expect() in waitFor function (will show false success)
     expect(logSpy).toHaveBeenCalledWith("Failure when setting track volume.");
   });
 
   // Note: does not mimic same environment since popup and "browser" have shared html
   it("non-premium user changes VOLUME and injection script returns failure", async () => {
     // Mock document to have volume slider since injecting on spotify volume slider
-    const volumeBar = document.createElement("div")
+    const volumeBar = document.createElement("div");
     volumeBar.setAttribute("data-testid", "volume-bar");
-    const progressBar = document.createElement("div")
+    const progressBar = document.createElement("div");
     progressBar.setAttribute("data-testid", "progress-bar");
     volumeBar.appendChild(progressBar);
     document.body.appendChild(volumeBar);
-    
+
     expect(volumeBar).toBeInTheDocument();
     expect(progressBar).toBeInTheDocument();
 
@@ -936,9 +950,11 @@ describe("Test SpotifyPlayer component", () => {
           },
         });
       })
-      .mockImplementation((obj, callback) => callback({ status: Status.FAILURE}));
+      .mockImplementation((obj, callback) =>
+        callback({ status: Status.FAILURE })
+      );
 
-      // Mock getting spotify tab in chrome browser
+    // Mock getting spotify tab in chrome browser
     global.chrome.tabs.query = (_, callback) => {
       callback([{ url: "https://www.spotify.com", id: 1 }]);
     };
@@ -950,7 +966,7 @@ describe("Test SpotifyPlayer component", () => {
       },
     };
 
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
 
     const volumeBtn = screen.getByTestId("volume-btn");
     await user.hover(volumeBtn);
@@ -959,19 +975,25 @@ describe("Test SpotifyPlayer component", () => {
     expect(volumeSlider).toBeVisible();
 
     await act(() => {
-      fireEvent.mouseDown(volumeSlider, {clientY: volumeSlider.getBoundingClientRect().bottom})
-      fireEvent.mouseMove(volumeSlider, {clientY: volumeSlider.getBoundingClientRect().bottom + 1})
-      fireEvent.mouseUp(volumeSlider, {clientY: volumeSlider.getBoundingClientRect().bottom + 1})
-    })
+      fireEvent.mouseDown(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom,
+      });
+      fireEvent.mouseMove(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom + 1,
+      });
+      fireEvent.mouseUp(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom + 1,
+      });
+    });
 
     expect(logSpy).toHaveBeenCalledWith("Failure when setting track volume.");
   });
 
   it("non-premium user changes VOLUME and returns success", async () => {
     // Mock document to have volume slider since injecting on spotify volume slider
-    const volumeBar = document.createElement("div")
+    const volumeBar = document.createElement("div");
     volumeBar.setAttribute("data-testid", "volume-bar");
-    const progressBar = document.createElement("div")
+    const progressBar = document.createElement("div");
     progressBar.setAttribute("data-testid", "progress-bar");
     volumeBar.appendChild(progressBar);
     document.body.appendChild(volumeBar);
@@ -990,9 +1012,11 @@ describe("Test SpotifyPlayer component", () => {
           },
         });
       })
-      .mockImplementation((obj, callback) => callback({ status: Status.FAILURE}));
+      .mockImplementation((obj, callback) =>
+        callback({ status: Status.FAILURE })
+      );
 
-      // Mock getting spotify tab in chrome browser
+    // Mock getting spotify tab in chrome browser
     global.chrome.tabs.query = (_, callback) => {
       callback([{ url: "https://www.spotify.com", id: 1 }]);
     };
@@ -1004,20 +1028,26 @@ describe("Test SpotifyPlayer component", () => {
       },
     };
 
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
 
     const volumeBtn = screen.getByTestId("volume-btn");
     await user.hover(volumeBtn);
-    
+
     const volumeSlider = screen.getByTestId("volume-slider");
     expect(volumeSlider).toBeVisible();
-    expect(volumeSlider.querySelector("input").value).toBe("24")
+    expect(volumeSlider.querySelector("input").value).toBe("24");
 
     await act(() => {
-      fireEvent.mouseDown(volumeSlider, {clientY: volumeSlider.getBoundingClientRect().bottom})
-      fireEvent.mouseMove(volumeSlider, {clientY: volumeSlider.getBoundingClientRect().bottom + 1})
-      fireEvent.mouseUp(volumeSlider, {clientY: volumeSlider.getBoundingClientRect().bottom + 1})
-    })
+      fireEvent.mouseDown(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom,
+      });
+      fireEvent.mouseMove(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom + 1,
+      });
+      fireEvent.mouseUp(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom + 1,
+      });
+    });
 
     expect(logSpy).toBeCalledTimes(0);
   });
@@ -1037,7 +1067,7 @@ describe("Test SpotifyPlayer component", () => {
       .mockImplementation((obj, callback) => {
         callback({ status: Status.TESTING });
       });
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const volumeBtn = screen.getByTestId("volume-btn");
     await user.hover(volumeBtn);
 
@@ -1045,10 +1075,16 @@ describe("Test SpotifyPlayer component", () => {
     expect(volumeSlider).toBeVisible();
 
     await act(() => {
-      fireEvent.mouseDown(volumeSlider, {clientY: volumeSlider.getBoundingClientRect().bottom})
-      fireEvent.mouseMove(volumeSlider, {clientY: volumeSlider.getBoundingClientRect().bottom + 1})
-      fireEvent.mouseUp(volumeSlider, {clientY: volumeSlider.getBoundingClientRect().bottom + 1})
-    })
+      fireEvent.mouseDown(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom,
+      });
+      fireEvent.mouseMove(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom + 1,
+      });
+      fireEvent.mouseUp(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom + 1,
+      });
+    });
 
     expect(logSpy).toHaveBeenCalledWith(
       "Unknown error when setting track volume."
@@ -1073,24 +1109,24 @@ describe("Test SpotifyPlayer component", () => {
           status: Status.SUCCESS,
         });
       });
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const volumeBtn = screen.getByTestId("volume-btn");
-    await user.click(volumeBtn)
+    await user.click(volumeBtn);
 
     expect(logSpy).toBeCalledTimes(0);
   });
 
   it("volume greater than zero and non-premium user click volume button, sets volume to zero", async () => {
-       // Mock document to have volume slider since injecting on spotify volume slider
-       const volumeBar = document.createElement("div")
-       volumeBar.setAttribute("data-testid", "volume-bar");
-       const progressBar = document.createElement("div")
-       progressBar.setAttribute("data-testid", "progress-bar");
-       volumeBar.appendChild(progressBar);
-       document.body.appendChild(volumeBar);
-   
-       expect(volumeBar).toBeInTheDocument();
-       expect(progressBar).toBeInTheDocument();
+    // Mock document to have volume slider since injecting on spotify volume slider
+    const volumeBar = document.createElement("div");
+    volumeBar.setAttribute("data-testid", "volume-bar");
+    const progressBar = document.createElement("div");
+    progressBar.setAttribute("data-testid", "progress-bar");
+    volumeBar.appendChild(progressBar);
+    document.body.appendChild(volumeBar);
+
+    expect(volumeBar).toBeInTheDocument();
+    expect(progressBar).toBeInTheDocument();
 
     global.chrome.runtime.sendMessage
       .mockImplementationOnce((obj, callback) => {
@@ -1109,7 +1145,7 @@ describe("Test SpotifyPlayer component", () => {
           status: Status.FAILURE,
         });
       });
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const volumeBtn = screen.getByTestId("volume-btn");
     await user.hover(volumeBtn);
 
@@ -1119,107 +1155,253 @@ describe("Test SpotifyPlayer component", () => {
     expect(logSpy).toBeCalledTimes(0);
   });
 
-  // it("user SEEKS track and returns success", async () => {
-  //   global.chrome.runtime.sendMessage
-  //     .mockImplementationOnce((obj, callback) => {
-  //       callback({
-  //         status: Status.SUCCESS,
-  //         data: {
-  //           artist: "",
-  //           isPlaying: true,
-  //           volumePercent: 0,
-  //           track: "",
-  //           progress: 0,
-  //           duration: 0,
-  //         },
-  //       });
-  //     })
-  //     .mockImplementation((obj, callback) => {
-  //       callback({
-  //         status: Status.SUCCESS,
-  //       });
-  //     });
-  //   render(<SpotifyPlayer/>);
-  //   const seekPositionSlider = screen.getByTestId("seek-position-slider");
-  //   // Need to get input query selector beforehand
-  //   fireEvent.change(seekPositionSlider.querySelector("input"), {
-  //     target: { value: 25 },
-  //   });
-  //   await user.click(seekPositionSlider);
+  it("premium user SEEKS track and returns success", async () => {
+    global.chrome.runtime.sendMessage
+      .mockImplementationOnce((obj, callback) => {
+        callback({
+          status: Status.SUCCESS,
+          data: {
+            artist: "",
+            isPlaying: true,
+            volumePercent: 0,
+            track: "",
+            progress: 0,
+            duration: 0,
+          },
+        });
+      })
+      .mockImplementation((obj, callback) => {
+        callback({
+          status: Status.SUCCESS,
+        });
+      });
+    render(<SpotifyPlayer />);
+    const seekTrackSlider = screen.getByTestId("seek-position-slider");
 
-  //   expect(logSpy).toBeCalledTimes(0);
-  // });
+    await act(() => {
+      fireEvent.mouseDown(seekTrackSlider, {
+        clientX: seekTrackSlider.getBoundingClientRect().left,
+      });
+      fireEvent.mouseMove(seekTrackSlider, {
+        clientX: seekTrackSlider.getBoundingClientRect().left + 1,
+      });
+      fireEvent.mouseUp(seekTrackSlider, {
+        clientX: seekTrackSlider.getBoundingClientRect().left + 1,
+      });
+    });
 
-  // it("user SEEKS track and returns failure", async () => {
-  //   global.chrome.runtime.sendMessage
-  //     .mockImplementationOnce((obj, callback) => {
-  //       callback({
-  //         status: Status.SUCCESS,
-  //         data: {
-  //           artist: "",
-  //           isPlaying: true,
-  //           volumePercent: 0,
-  //           track: "",
-  //           progress: 0,
-  //           duration: 0,
-  //         },
-  //       });
-  //     })
-  //     .mockImplementation((obj, callback) => {
-  //       callback({
-  //         status: Status.FAILURE,
-  //         message: "Failure when completing track command.",
-  //       });
-  //     });
-  //   render(<SpotifyPlayer/>);
-  //   const seekPositionSlider = screen.getByTestId("seek-position-slider");
-  //   // Need to get input query selector beforehand
-  //   fireEvent.change(seekPositionSlider.querySelector("input"), {
-  //     target: { value: 25 },
-  //   });
-  //   await user.click(seekPositionSlider);
+    expect(logSpy).toBeCalledTimes(0);
+  });
 
-  //   expect(logSpy).toHaveBeenCalledWith(
-  //     "Failure when completing track command."
-  //   );
-  // });
+  it("non-premium user SEEKS track and returns failure", async () => {
+    global.chrome.runtime.sendMessage
+      .mockImplementationOnce((obj, callback) => {
+        callback({
+          status: Status.SUCCESS,
+          data: {
+            artist: "",
+            isPlaying: true,
+            volumePercent: 0,
+            track: "",
+            progress: 0,
+            duration: 0,
+          },
+        });
+      })
+      .mockImplementation((obj, callback) => {
+        callback({
+          status: Status.FAILURE,
+        });
+      });
 
-  // it("user SEEKS track and returns unknown error", async () => {
-  //   global.chrome.runtime.sendMessage
-  //     .mockImplementationOnce((obj, callback) => {
-  //       callback({
-  //         status: Status.SUCCESS,
-  //         data: {
-  //           artist: "",
-  //           isPlaying: true,
-  //           volumePercent: 0,
-  //           track: "",
-  //           progress: 0,
-  //           duration: 0,
-  //         },
-  //       });
-  //     })
-  //     .mockImplementation((obj, callback) => {
-  //       callback({
-  //         status: Status.ERROR,
-  //         message: "Unknown error when seeking track volume.",
-  //       });
-  //     });
-  //   render(<SpotifyPlayer/>);
-  //   const seekPositionSlider = screen.getByTestId("seek-position-slider");
-  //   // Need to get input query selector beforehand
-  //   fireEvent.change(seekPositionSlider.querySelector("input"), {
-  //     target: { value: 25 },
-  //   });
-  //   await user.click(seekPositionSlider);
+    // Mock getting spotify tab in chrome browser
+    global.chrome.tabs.query = (_, callback) => {
+      callback([{ url: "https://www.spotify.com", id: 1 }]);
+    };
 
-  //   expect(logSpy).toHaveBeenCalledWith(
-  //     "Unknown error when seeking track volume."
-  //   );
-  // });
+    // Mock script injection function
+    global.chrome.scripting = {
+      executeScript: ({ target, func }) => {
+        return new Promise((resolve, reject) => resolve(func()));
+      },
+    };
 
-  // TODO-LATER: Do after premium user actions complete
-  test.todo(
-    "ad is playing and user attempts to skip, skip button should be disabled"
-  );
+    render(<SpotifyPlayer />);
+    const seekTrackSlider = screen.getByTestId("seek-position-slider");
+
+    await act(() => {
+      fireEvent.mouseDown(seekTrackSlider, {
+        clientX: seekTrackSlider.getBoundingClientRect().left,
+      });
+      fireEvent.mouseMove(seekTrackSlider, {
+        clientX: seekTrackSlider.getBoundingClientRect().left + 1,
+      });
+      fireEvent.mouseUp(seekTrackSlider, {
+        clientX: seekTrackSlider.getBoundingClientRect().left + 1,
+      });
+    });
+
+    expect(logSpy).toHaveBeenCalledWith("Failure when seeking track.");
+  });
+
+  it("non-premium user SEEKS track and returns injection script failure", async () => {
+    // Mock document to have volume slider since injecting on spotify volume slider
+    const playbackBar = document.createElement("div");
+    playbackBar.setAttribute("data-testid", "playback-progressbar");
+    const progressBar = document.createElement("div");
+    progressBar.setAttribute("data-testid", "progress-bar");
+    playbackBar.appendChild(progressBar);
+    document.body.appendChild(playbackBar);
+
+    global.chrome.runtime.sendMessage
+      .mockImplementationOnce((obj, callback) => {
+        callback({
+          status: Status.SUCCESS,
+          data: {
+            artist: "",
+            isPlaying: true,
+            volumePercent: 0,
+            track: "",
+            progress: 0,
+            duration: 0,
+          },
+        });
+      })
+      .mockImplementation((obj, callback) => {
+        callback({
+          status: Status.FAILURE,
+        });
+      });
+
+    // Mock getting spotify tab in chrome browser
+    global.chrome.tabs.query = (_, callback) => {
+      callback([{ url: "https://www.spotify.com", id: 1 }]);
+    };
+
+    // Mock script injection function
+    global.chrome.scripting = {
+      executeScript: ({ target, func }) => {
+        return new Promise((resolve, reject) => reject(func()));
+      },
+    };
+
+    render(<SpotifyPlayer />);
+    const seekTrackSlider = screen.getByTestId("seek-position-slider");
+
+    await act(() => {
+      fireEvent.mouseDown(seekTrackSlider, {
+        clientX: seekTrackSlider.getBoundingClientRect().left,
+      });
+      fireEvent.mouseMove(seekTrackSlider, {
+        clientX: seekTrackSlider.getBoundingClientRect().left + 1,
+      });
+      fireEvent.mouseUp(seekTrackSlider, {
+        clientX: seekTrackSlider.getBoundingClientRect().left + 1,
+      });
+    });
+
+    expect(logSpy).toHaveBeenCalledWith("Failure when seeking track.");
+  });
+
+  it("non-premium user SEEKS track and returns success", async () => {
+    // Mock document to have volume slider since injecting on spotify volume slider
+    const playbackBar = document.createElement("div");
+    playbackBar.setAttribute("data-testid", "playback-progressbar");
+    const progressBar = document.createElement("div");
+    progressBar.setAttribute("data-testid", "progress-bar");
+    playbackBar.appendChild(progressBar);
+    document.body.appendChild(playbackBar);
+
+    expect(playbackBar).toBeInTheDocument();
+    expect(progressBar).toBeInTheDocument();
+
+    global.chrome.runtime.sendMessage
+      .mockImplementationOnce((obj, callback) => {
+        callback({
+          status: Status.SUCCESS,
+          data: {
+            artist: "",
+            isPlaying: true,
+            volumePercent: 0,
+            track: "",
+            progress: 0,
+            duration: 0,
+          },
+        });
+      })
+      .mockImplementation((obj, callback) => {
+        callback({
+          status: Status.FAILURE,
+        });
+      });
+
+    // Mock getting spotify tab in chrome browser
+    global.chrome.tabs.query = (_, callback) => {
+      callback([{ url: "https://www.spotify.com", id: 1 }]);
+    };
+
+    // Mock script injection function
+    global.chrome.scripting = {
+      executeScript: ({ target, func }) => {
+        return new Promise((resolve, reject) => resolve(func()));
+      },
+    };
+
+    render(<SpotifyPlayer />);
+    const seekTrackSlider = screen.getByTestId("seek-position-slider");
+
+    await act(() => {
+      fireEvent.mouseDown(seekTrackSlider, {
+        clientX: seekTrackSlider.getBoundingClientRect().left,
+      });
+      fireEvent.mouseMove(seekTrackSlider, {
+        clientX: seekTrackSlider.getBoundingClientRect().left + 1,
+      });
+      fireEvent.mouseUp(seekTrackSlider, {
+        clientX: seekTrackSlider.getBoundingClientRect().left + 1,
+      });
+    });
+
+    expect(logSpy).toBeCalledTimes(0);
+  });
+
+  it("user SEEKS track and returns unknown error", async () => {
+    global.chrome.runtime.sendMessage
+      .mockImplementationOnce((obj, callback) => {
+        callback({
+          status: Status.SUCCESS,
+          data: {
+            artist: "",
+            isPlaying: true,
+            volumePercent: 0,
+            track: "",
+            progress: 0,
+            duration: 0,
+          },
+        });
+      })
+      .mockImplementation((obj, callback) => {
+        callback({
+          status: Status.TESTING,
+        });
+      });
+    render(<SpotifyPlayer/>);
+    const seekTrackSlider = screen.getByTestId("seek-position-slider");
+
+    await act(() => {
+      fireEvent.mouseDown(seekTrackSlider, {
+        clientX: seekTrackSlider.getBoundingClientRect().left,
+      });
+      fireEvent.mouseMove(seekTrackSlider, {
+        clientX: seekTrackSlider.getBoundingClientRect().left + 1,
+      });
+      fireEvent.mouseUp(seekTrackSlider, {
+        clientX: seekTrackSlider.getBoundingClientRect().left + 1,
+      });
+    });
+
+    expect(logSpy).toHaveBeenCalledWith(
+      "Unknown error when seeking track volume."
+    );
+  });
 });
