@@ -871,6 +871,9 @@ describe("Test SpotifyPlayer component", () => {
       });
     });
 
+    // Unhover volume button event
+    await user.unhover(volumeBtn);
+
     expect(logSpy).toBeCalledTimes(0);
   });
 
@@ -1091,7 +1094,7 @@ describe("Test SpotifyPlayer component", () => {
     );
   });
 
-  it("volume greater than zero and premium user click volume button, sets volume to zero", async () => {
+  it("volume value greater than zero and premium user click volume button, setting volume to zero, clicks volume button, setting volume to original value", async () => {
     global.chrome.runtime.sendMessage
       .mockImplementationOnce((obj, callback) => {
         callback({
@@ -1112,6 +1115,14 @@ describe("Test SpotifyPlayer component", () => {
     render(<SpotifyPlayer />);
     const volumeBtn = screen.getByTestId("volume-btn");
     await user.click(volumeBtn);
+
+    const volumeSlider = screen.getByTestId("volume-slider");
+    let volumeValue = volumeSlider.querySelector("input").value;
+    expect(volumeValue).toBe("0");
+
+    await user.click(volumeBtn);
+    volumeValue = volumeSlider.querySelector("input").value;
+    expect(volumeValue).toBe("100");
 
     expect(logSpy).toBeCalledTimes(0);
   });
@@ -1147,10 +1158,7 @@ describe("Test SpotifyPlayer component", () => {
       });
     render(<SpotifyPlayer />);
     const volumeBtn = screen.getByTestId("volume-btn");
-    await user.hover(volumeBtn);
-
-    const volumeSlider = screen.getByTestId("volume-slider");
-    expect(volumeSlider).toBeVisible();
+    await user.click(volumeBtn);
 
     expect(logSpy).toBeCalledTimes(0);
   });
@@ -1194,6 +1202,7 @@ describe("Test SpotifyPlayer component", () => {
   });
 
   it("non-premium user SEEKS track and returns failure", async () => {
+    
     global.chrome.runtime.sendMessage
       .mockImplementationOnce((obj, callback) => {
         callback({
@@ -1228,6 +1237,8 @@ describe("Test SpotifyPlayer component", () => {
 
     render(<SpotifyPlayer />);
     const seekTrackSlider = screen.getByTestId("seek-position-slider");
+    // const browserTrackSlider = screen.getByTestId("playback-progressbar");
+    // expect(browserTrackSlider).not.toBeInTheDocument();
 
     await act(() => {
       fireEvent.mouseDown(seekTrackSlider, {
@@ -1385,7 +1396,7 @@ describe("Test SpotifyPlayer component", () => {
           status: Status.TESTING,
         });
       });
-    render(<SpotifyPlayer/>);
+    render(<SpotifyPlayer />);
     const seekTrackSlider = screen.getByTestId("seek-position-slider");
 
     await act(() => {

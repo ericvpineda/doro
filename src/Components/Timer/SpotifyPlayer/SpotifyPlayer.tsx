@@ -90,12 +90,13 @@ const SpotifyPlayer: FC = () => {
       // Container parent
       const volumeBarContainer = document.querySelector(
         "[data-testid=volume-bar]"
-      ) as HTMLDivElement;
-
-      // Note: data-testid progress-bar is also id of seek track bar
-      const progressBar = volumeBarContainer.querySelector(
-        "[data-testid=progress-bar]"
-      ) as HTMLDivElement;
+      );
+       
+      let progressBar;
+      if (volumeBarContainer) {
+        // Note: data-testid progress-bar is also id of seek track bar
+        progressBar = volumeBarContainer.querySelector("[data-testid=progress-bar]");
+      }
       
       const isValidVolume = typeof res.volume === "number" && !Number.isNaN(res.volume)
       if (volumeBarContainer && progressBar && isValidVolume) {
@@ -132,10 +133,14 @@ const SpotifyPlayer: FC = () => {
       const playbackContainer = document.querySelector(
         "[data-testid=playback-progressbar]"
       ) as HTMLDivElement;
-      // Note: data-testid progress-bar is also id of seek track bar
-      const progressBar = playbackContainer.querySelector(
-        "[data-testid=progress-bar]"
-      ) as HTMLDivElement;
+
+      let progressBar;
+      if (playbackContainer) {
+        // Note: data-testid progress-bar is also id of seek track bar
+        progressBar = playbackContainer.querySelector(
+          "[data-testid=progress-bar]"
+        ) as HTMLDivElement;
+      }
 
       const validPercent = typeof res.percent === "number" && !Number.isNaN(res.percent)
       if (playbackContainer && progressBar && validPercent) {
@@ -411,7 +416,6 @@ const SpotifyPlayer: FC = () => {
           }
         } else if (res.status === Status.FAILURE) {
           if (typeof volumePercent === "number" && !Number.isNaN(volumePercent)) {
-            // console.log("DEBUG: volume=", typeof volumePercent === "number" && !Number.isNaN(volumePercent))
             // Case: User is non-premium user
             chrome.storage.local.set({ volume: volumePercent });
             await trackInjection(injectChangeVolume)
