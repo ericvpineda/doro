@@ -131,7 +131,7 @@ const Clock: FC = () => {
 
   return (
     <div id="timer-outer" className={styles.timerOuter}>
-      <div className={styles.timerRing} onClick={setIsRunningHandler}>
+      <div data-testid="timer-ring" className={styles.timerRing} onClick={setIsRunningHandler}>
         <div className={styles.timer}>
           <span id="hours" data-testid="test-hours">
             {timer.hours}

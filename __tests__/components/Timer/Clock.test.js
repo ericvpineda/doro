@@ -38,9 +38,12 @@ describe("Test Clock component", () => {
       }
       return callback(map);
     };
+    global.chrome.storage.onChanged = {
+      addListener: (func) => func(),
+    };
   });
 
-  it("executing timer that is paused shows correct time and clock button", () => {
+  it("timer (executing, non-running) that is paused, shows correct time and clock buttons", () => {
     global.chrome.storage.local.set({
       setTime: { hours: 1, minutes: 1, seconds: 0 },
       hours: 1,
@@ -69,7 +72,7 @@ describe("Test Clock component", () => {
     expect(seconds).toBe("12");
   });
 
-  it("executing timer shows pause btn, and clicking play button shows play btn", async () => {
+  it("user clicks play button on timer (executing, non-running) that is currently paused, shows play button", async () => {
     global.chrome.storage.local.set({
       setTime: { hours: 1, minutes: 1, seconds: 0 },
       hours: 1,
@@ -93,7 +96,7 @@ describe("Test Clock component", () => {
     expect(playBtn).toBeInTheDocument();
   });
 
-  it("non-executing timer defaults time to zeros, clock button not shown", () => {
+  it("timer (non-executing) defaults time to zeros, clock button not shown", () => {
     render(<Clock></Clock>);
     const hours = screen.getByTestId("test-hours").textContent;
     const minutes = screen.getByTestId("test-minutes").textContent;
@@ -113,7 +116,7 @@ describe("Test Clock component", () => {
     expect(pauseBtn).not.toBeInTheDocument();
   });
 
-  it("executing timer with reset mode command and timer not started, does not change timer state", async () => {
+  it("user click reset button on timer (executing, non-running) that has not started, does not change timer state", async () => {
     global.chrome.storage.local.set({
       setTime: { hours: 0, minutes: 45, seconds: 0 },
       hours: 0,
@@ -141,7 +144,7 @@ describe("Test Clock component", () => {
     expect(seconds).toBe("00");
   });
 
-  it("executing timer running with reset mode command, reverts timer state", async () => {
+  it("user clicks reset button on timer (executing, running), reverts timer state", async () => {
     global.chrome.storage.local.set({
       setTime: { hours: 0, minutes: 45, seconds: 0 },
       hours: 0,
@@ -177,74 +180,123 @@ describe("Test Clock component", () => {
     expect(seconds).toBe("00");
   });
 
-  it("executing timer done with reset mode command, reverts timer state", async () => {
+  it("user click reset button on timer (executing, non-running) that has already started, reverts timer state", async () => {
     global.chrome.storage.local.set({
-        setTime: { hours: 1, minutes: 45, seconds: 0 },
-        hours: 0,
-        minutes: 0,
-        seconds: 1,
-        isRunning: false,
-        isExecutingRequest: true,
-      });
-  
-      render(<Clock></Clock>);
-  
-      let hours = screen.getByTestId("test-hours").textContent;
-      let minutes = screen.getByTestId("test-minutes").textContent;
-      let seconds = screen.getByTestId("test-seconds").textContent;
-      const resetBtn = screen.getByTestId("reset-btn");
+      setTime: { hours: 1, minutes: 45, seconds: 0 },
+      hours: 0,
+      minutes: 0,
+      seconds: 1,
+      isRunning: false,
+      isExecutingRequest: true,
+    });
 
-      expect(hours).toBe("00");
-      expect(minutes).toBe("00");
-      expect(seconds).toBe("01");
-  
-      await user.click(resetBtn);
+    render(<Clock></Clock>);
 
-      // Note: need to reassign to get updated values
-      hours = screen.getByTestId("test-hours").textContent;
-      minutes = screen.getByTestId("test-minutes").textContent;
-      seconds = screen.getByTestId("test-seconds").textContent;
+    let hours = screen.getByTestId("test-hours").textContent;
+    let minutes = screen.getByTestId("test-minutes").textContent;
+    let seconds = screen.getByTestId("test-seconds").textContent;
+    const resetBtn = screen.getByTestId("reset-btn");
 
-      expect(hours).toBe("01");
-      expect(minutes).toBe("45");
-      expect(seconds).toBe("00");
+    expect(hours).toBe("00");
+    expect(minutes).toBe("00");
+    expect(seconds).toBe("01");
+
+    await user.click(resetBtn);
+
+    // Note: need to reassign to get updated values
+    hours = screen.getByTestId("test-hours").textContent;
+    minutes = screen.getByTestId("test-minutes").textContent;
+    seconds = screen.getByTestId("test-seconds").textContent;
+
+    expect(hours).toBe("01");
+    expect(minutes).toBe("45");
+    expect(seconds).toBe("00");
   });
 
-  it("executing time with clear mode command, defaults timer values to 0 and removes clock buttons", async () => {
+  it("user clicks clear button on timer (executing, non-running) that has already started, defaults timer values to 0 and removes clock buttons", async () => {
     global.chrome.storage.local.set({
-        setTime: { hours: 0, minutes: 45, seconds: 0 },
-        hours: 0,
-        minutes: 0,
-        seconds: 10,
-        isRunning: false,
-        isExecutingRequest: true,
-      });
-  
-      render(<Clock></Clock>);
-      let clearBtn = screen.getByTestId("clear-btn")
-      await user.click(clearBtn);
+      setTime: { hours: 0, minutes: 45, seconds: 0 },
+      hours: 0,
+      minutes: 0,
+      seconds: 10,
+      isRunning: false,
+      isExecutingRequest: true,
+    });
 
-      // screen.debug();
+    render(<Clock></Clock>);
+    let clearBtn = screen.getByTestId("clear-btn");
+    await user.click(clearBtn);
 
-      const hours = screen.getByTestId("test-hours").textContent;
-      const minutes = screen.getByTestId("test-minutes").textContent;
-      const seconds = screen.getByTestId("test-seconds").textContent;
-      const playBtn = screen.queryByTestId("play-btn");
-      const pauseBtn = screen.queryByTestId("pause-btn");
-      const resetBtn = screen.queryByTestId("reset-btn");
-      clearBtn = screen.queryByTestId("clear-btn");
-  
-      expect(hours).toBe("00");
-      expect(minutes).toBe("00");
-      expect(seconds).toBe("00");
-  
-      expect(playBtn).not.toBeInTheDocument();
-      expect(resetBtn).not.toBeInTheDocument();
-      expect(clearBtn).not.toBeInTheDocument();
-      expect(pauseBtn).not.toBeInTheDocument();
-  })
+    // screen.debug();
 
-  // Note: This is for end-to-end  test
+    const hours = screen.getByTestId("test-hours").textContent;
+    const minutes = screen.getByTestId("test-minutes").textContent;
+    const seconds = screen.getByTestId("test-seconds").textContent;
+    const playBtn = screen.queryByTestId("play-btn");
+    const pauseBtn = screen.queryByTestId("pause-btn");
+    const resetBtn = screen.queryByTestId("reset-btn");
+    clearBtn = screen.queryByTestId("clear-btn");
+
+    expect(hours).toBe("00");
+    expect(minutes).toBe("00");
+    expect(seconds).toBe("00");
+
+    expect(playBtn).not.toBeInTheDocument();
+    expect(resetBtn).not.toBeInTheDocument();
+    expect(clearBtn).not.toBeInTheDocument();
+    expect(pauseBtn).not.toBeInTheDocument();
+  });
+
+  it("user clicks clock gui on timer (executing, non-running) that is paused, timer starts to run", async () => {
+    global.chrome.storage.local.set({
+      setTime: { hours: 12, minutes: 45, seconds: 0 },
+      hours: 10,
+      minutes: 0,
+      seconds: 10,
+      isRunning: false,
+      isExecutingRequest: true,
+    });
+
+    chrome.storage.local.set({ isRunning: false });
+
+    render(<Clock></Clock>);
+    let clockGUI = screen.getByTestId("timer-ring");
+    await user.click(clockGUI);
+
+    let isRunning;
+    await chrome.storage.local.get(["isRunning"], (res) => {
+      isRunning = res.isRunning;
+    })
+
+    expect(isRunning).toBe(true);
+  });
+
+  // Note: branch conditional setIsRunningHandler
+  it("user clicks clock gui on timer (non-executing, non-running) that is paused, timer does nothing", async () => {
+    global.chrome.storage.local.set({
+      setTime: { hours: 12, minutes: 45, seconds: 0 },
+      hours: 10,
+      minutes: 0,
+      seconds: 10,
+      isRunning: false,
+      isExecutingRequest: false,
+    });
+
+    chrome.storage.local.set({ isRunning: false });
+
+    render(<Clock></Clock>);
+    let clockGUI = screen.getByTestId("timer-ring");
+    await user.click(clockGUI);
+
+    let isRunning;
+    await chrome.storage.local.get(["isRunning"], (res) => {
+      isRunning = res.isRunning;
+    })
+
+    expect(isRunning).toBe(false);
+  });
+
+  // Note: This is for E2E test
   test.todo(
     "successful submit of hours and description shows clear button, reset button, and pause button"
   );

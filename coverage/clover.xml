@@ -1,35 +1,87 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1678858010429" clover="3.2.0">
-  <project timestamp="1678858010430" name="All files">
-    <metrics statements="32" coveredstatements="19" conditionals="17" coveredconditionals="7" methods="5" coveredmethods="3" elements="54" coveredelements="29" complexity="0" loc="32" ncloc="32" packages="2" files="2" classes="2"/>
+<coverage generated="1678859788312" clover="3.2.0">
+  <project timestamp="1678859788312" name="All files">
+    <metrics statements="78" coveredstatements="65" conditionals="35" coveredconditionals="25" methods="17" coveredmethods="15" elements="130" coveredelements="105" complexity="0" loc="78" ncloc="78" packages="3" files="3" classes="3"/>
+    <package name="Components.Timer.Clock">
+      <metrics statements="46" coveredstatements="46" conditionals="18" coveredconditionals="18" methods="12" coveredmethods="12"/>
+      <file name="Clock.tsx" path="C:\Users\evpin\Desktop\coding\projects\12_pomodoro_spotify\src\Components\Timer\Clock\Clock.tsx">
+        <metrics statements="46" coveredstatements="46" conditionals="18" coveredconditionals="18" methods="12" coveredmethods="12"/>
+        <line num="12" count="3" type="stmt"/>
+        <line num="13" count="42" type="stmt"/>
+        <line num="14" count="42" type="stmt"/>
+        <line num="15" count="42" type="stmt"/>
+        <line num="16" count="42" type="stmt"/>
+        <line num="24" count="42" type="stmt"/>
+        <line num="27" count="42" type="stmt"/>
+        <line num="28" count="44" type="stmt"/>
+        <line num="37" count="44" type="stmt"/>
+        <line num="39" count="44" type="cond" truecount="2" falsecount="0"/>
+        <line num="42" count="33" type="cond" truecount="2" falsecount="0"/>
+        <line num="44" count="33" type="cond" truecount="2" falsecount="0"/>
+        <line num="46" count="33" type="cond" truecount="2" falsecount="0"/>
+        <line num="47" count="33" type="stmt"/>
+        <line num="49" count="33" type="stmt"/>
+        <line num="51" count="33" type="stmt"/>
+        <line num="54" count="33" type="stmt"/>
+        <line num="56" count="11" type="stmt"/>
+        <line num="59" count="44" type="cond" truecount="2" falsecount="0"/>
+        <line num="60" count="21" type="stmt"/>
+        <line num="70" count="42" type="stmt"/>
+        <line num="71" count="3" type="stmt"/>
+        <line num="72" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="73" count="2" type="stmt"/>
+        <line num="74" count="2" type="stmt"/>
+        <line num="80" count="42" type="stmt"/>
+        <line num="81" count="1" type="stmt"/>
+        <line num="90" count="1" type="stmt"/>
+        <line num="91" count="1" type="stmt"/>
+        <line num="93" count="1" type="stmt"/>
+        <line num="97" count="42" type="stmt"/>
+        <line num="98" count="3" type="stmt"/>
+        <line num="99" count="3" type="stmt"/>
+        <line num="100" count="3" type="stmt"/>
+        <line num="107" count="3" type="stmt"/>
+        <line num="108" count="3" type="stmt"/>
+        <line num="112" count="42" type="stmt"/>
+        <line num="113" count="24" type="stmt"/>
+        <line num="116" count="24" type="cond" truecount="2" falsecount="0"/>
+        <line num="117" count="16" type="stmt"/>
+        <line num="118" count="16" type="stmt"/>
+        <line num="122" count="24" type="stmt"/>
+        <line num="126" count="42" type="stmt"/>
+        <line num="127" count="22" type="stmt"/>
+        <line num="128" count="17" type="stmt"/>
+        <line num="132" count="42" type="stmt"/>
+      </file>
+    </package>
     <package name="Components.Timer.SpotifyPlayer.AlbumArt">
       <metrics statements="16" coveredstatements="16" conditionals="9" coveredconditionals="7" methods="3" coveredmethods="3"/>
       <file name="AlbumArt.tsx" path="C:\Users\evpin\Desktop\coding\projects\12_pomodoro_spotify\src\Components\Timer\SpotifyPlayer\AlbumArt\AlbumArt.tsx">
         <metrics statements="16" coveredstatements="16" conditionals="9" coveredconditionals="7" methods="3" coveredmethods="3"/>
-        <line num="12" count="1" type="stmt"/>
-        <line num="13" count="9" type="stmt"/>
-        <line num="14" count="9" type="stmt"/>
-        <line num="17" count="9" type="stmt"/>
-        <line num="18" count="5" type="stmt"/>
-        <line num="19" count="5" type="stmt"/>
-        <line num="23" count="9" type="stmt"/>
-        <line num="24" count="9" type="cond" truecount="5" falsecount="0"/>
-        <line num="26" count="5" type="stmt"/>
+        <line num="12" count="3" type="stmt"/>
+        <line num="13" count="12" type="stmt"/>
+        <line num="14" count="12" type="stmt"/>
+        <line num="17" count="12" type="stmt"/>
+        <line num="18" count="8" type="stmt"/>
+        <line num="19" count="8" type="stmt"/>
+        <line num="23" count="12" type="stmt"/>
+        <line num="24" count="12" type="cond" truecount="5" falsecount="0"/>
+        <line num="26" count="8" type="stmt"/>
         <line num="28" count="1" type="stmt"/>
         <line num="41" count="1" type="cond" truecount="1" falsecount="1"/>
         <line num="44" count="1" type="stmt"/>
         <line num="51" count="1" type="cond" truecount="1" falsecount="1"/>
         <line num="54" count="1" type="stmt"/>
         <line num="65" count="1" type="stmt"/>
-        <line num="78" count="9" type="stmt"/>
+        <line num="78" count="12" type="stmt"/>
       </file>
     </package>
     <package name="Utils">
       <metrics statements="16" coveredstatements="3" conditionals="8" coveredconditionals="0" methods="2" coveredmethods="0"/>
       <file name="SpotifyUtils.tsx" path="C:\Users\evpin\Desktop\coding\projects\12_pomodoro_spotify\src\Utils\SpotifyUtils.tsx">
         <metrics statements="16" coveredstatements="3" conditionals="8" coveredconditionals="0" methods="2" coveredmethods="0"/>
-        <line num="35" count="1" type="stmt"/>
-        <line num="49" count="1" type="stmt"/>
+        <line num="35" count="3" type="stmt"/>
+        <line num="49" count="3" type="stmt"/>
         <line num="50" count="0" type="stmt"/>
         <line num="51" count="0" type="stmt"/>
         <line num="52" count="0" type="stmt"/>
@@ -42,7 +94,7 @@
         <line num="60" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="61" count="0" type="stmt"/>
         <line num="63" count="0" type="stmt"/>
-        <line num="66" count="1" type="stmt"/>
+        <line num="66" count="3" type="stmt"/>
         <line num="67" count="0" type="stmt"/>
       </file>
     </package>

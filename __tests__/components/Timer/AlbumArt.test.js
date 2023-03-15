@@ -11,6 +11,7 @@ import { PlayerStatus } from '../../../src/Utils/SpotifyUtils';
 //  - ad playing
 //  - require webpage 
 //  - error
+// - Note: unable to tests lines 41-51 since require rendering parent component (SpotifyPlayer)
 
 describe("Test AlbumArt component", () => {
     
