@@ -11,6 +11,7 @@ import UserInput from "../../../src/Components/UserInput/UserInput/UserInput.tsx
 // - invalid description shows error message
 
 describe("Test UserInput component", () => {
+
   let startBtn, user, mockFxn;
   beforeEach(() => {
     user = userEvent.setup();
@@ -74,19 +75,34 @@ describe("Test UserInput component", () => {
     });
   });
 
-  it("user input valid hours and description, submission success", async () => {
+  it("user input valid hours, minutes, and description, return success", async () => {
+
+    chrome.storage.local.set({description: "Default"})
+    
     render(<UserInput setShowTimerHandler={mockFxn}></UserInput>);
 
     // Set time to valid value
     const inputHours = screen.getByLabelText("Hours");
+    const inputMinutes = screen.getByLabelText("Minutes");
     const message = "1";
     user.type(inputHours, message);
     await waitFor(() => expect(inputHours).toHaveValue(+message));
+    
+    user.type(inputMinutes, message)
+    await waitFor(() => expect(inputMinutes).toHaveValue(+message));
 
     // Set description to invalid value
     const inputDescription = screen.getByRole("textbox");
     const description = "This message is valid!";
+    user.type(inputDescription, "{backspace}")
+    user.type(inputDescription, "{backspace}")
+    user.type(inputDescription, "{backspace}")
+    user.type(inputDescription, "{backspace}")
+    user.type(inputDescription, "{backspace}")
+    user.type(inputDescription, "{backspace}")
+    user.type(inputDescription, "{backspace}")
     user.type(inputDescription, description);
+    
     await waitFor(() => {
       expect(inputDescription).toHaveValue(description);
       // Click start button
@@ -96,7 +112,7 @@ describe("Test UserInput component", () => {
     });
   })
 
-  it("user clicks return to clock button and is successful", async () => {
+  it("user clicks return to clock button, returns success", async () => {
     render(<UserInput setShowTimerHandler={mockFxn}></UserInput>);
     const returnButton = screen.getByTestId("return-button");
     await user.click(returnButton);
