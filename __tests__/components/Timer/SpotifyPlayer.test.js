@@ -1121,9 +1121,11 @@ describe("Test SpotifyPlayer component", () => {
         clientY: volumeSlider.getBoundingClientRect().bottom + 1,
       });
     });
-
+    
     // Unhover volume button event
-    await user.unhover(volumeBtn);
+    await act(() => {
+      fireEvent.mouseOut(volumeBtn);
+    })
 
     expect(logSpy).toBeCalledTimes(0);
   });
@@ -1170,7 +1172,9 @@ describe("Test SpotifyPlayer component", () => {
     });
 
     // Unhover volume button event
-    await user.unhover(volumeBtn);
+    await act(() => {
+      fireEvent.mouseOut(volumeBtn);
+    })
 
     expect(logSpy).toHaveBeenCalledWith("Error when completing track command.");
   });

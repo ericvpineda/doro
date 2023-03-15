@@ -1,16 +1,14 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import VolumeSlider from "../../../src/Components/Timer/SpotifyPlayer/VolumeSlider/VolumeSlider";
 import { chrome } from "jest-chrome";
-import { Status } from "../../../src/Utils/SpotifyUtils";
 import userEvent from "@testing-library/user-event";
 
 describe("VolumeSlider component", () => {
-  let mockFxn, user, logSpy;
+  let user, logSpy;
 
   beforeEach(() => {
-    mockFxn = jest.fn();
     user = userEvent.setup();
     logSpy = jest.spyOn(console, "log");
     // Stub chrome api
@@ -34,6 +32,33 @@ describe("VolumeSlider component", () => {
     document.body.innerHTML = "";
   });
 
-  test.todo("")
-  
+  it("user changes volume, sets correct volume", async () => {
+    const mockTrackVolumeChange = jest.fn();
+
+    render(
+      <VolumeSlider
+        setShowVolumeTrack={jest.fn()}
+        trackVolumeChangeCommitted={mockTrackVolumeChange}
+        volume={100}
+        isMounted={true}
+      />
+    );
+
+    const volumeSlider = screen.getByTestId("volume-slider");
+    expect(volumeSlider).toBeVisible();
+
+    await act(() => {
+      fireEvent.mouseDown(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom,
+      });
+      fireEvent.mouseMove(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom + 1,
+      });
+      fireEvent.mouseUp(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom + 1,
+      });
+    });
+
+    expect(mockTrackVolumeChange).toHaveBeenCalledWith(0);
+  });
 });
