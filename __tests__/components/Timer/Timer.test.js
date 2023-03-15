@@ -12,6 +12,7 @@
  // - hide switch and player
  //     - not signed
  //     - toggle switch not visible 
+ // - note: unable to coverage line 80 since used as prop to Login child component 
 
  describe("Test Timer component", () => {
 
@@ -46,6 +47,7 @@
         expect(playerWindow).toBeVisible();
         
     })
+
     it("user signed in can toggle switch to correct windows", async () => {
         chrome.storage.local.set({signedIn: true});
         render(<Timer setShowTimerHandler={mockFxn}/>)
@@ -81,4 +83,5 @@
         
         expect(mockFxn).toHaveBeenCalledWith(false)
     })
+    
  })

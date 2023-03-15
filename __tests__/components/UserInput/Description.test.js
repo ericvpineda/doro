@@ -11,6 +11,7 @@ import "@testing-library/jest-dom";
 
 // Tests for Description Element
 describe("Test description input element", () => {
+
   let user, input, mockErrorFxn, mockDescriptionFxn, defaultMsg, description;
   beforeEach(() => {
     user = userEvent.setup();
@@ -38,7 +39,7 @@ describe("Test description input element", () => {
     jest.clearAllMocks();
   });
 
-  it("input valid description renders on screen", async () => {
+  it("user input valid description, renders successfuly on screen", async () => {
     render(
       <Description
         description={description}
@@ -52,7 +53,7 @@ describe("Test description input element", () => {
     expect(input.value).toBe("Working on doro extension");
   });
 
-  it("input description with greater than 30 characters shows error message", async () => {
+  it("user input description with greater than 30 characters, shows error message", async () => {
     render(
       <Description
         description={description}
@@ -74,7 +75,48 @@ describe("Test description input element", () => {
     });
   });
 
-  it("input description does not error, correct parent props set", async () => {
+  it("user input description, returns success and correct parent props set", async () => {
+    render(
+      <Description
+        description={description}
+        defaultMsg={defaultMsg}
+        setDescription={mockDescriptionFxn}
+        setErrorMessage={mockErrorFxn}
+      ></Description>
+    );
+    const message = "Testing description...";
+    const textBox = screen.getByRole("textbox");
+    user.type(textBox, message);
+    // Need to wait for debounce function to be called in componenet 
+    await waitFor(() => {
+      expect(textBox).toHaveValue(message);
+      expect(mockErrorFxn).toHaveBeenCalledWith("");
+      expect(mockDescriptionFxn).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("user input empty description, returns success and correct parent props set", async () => {
+    render(
+      <Description
+        description={description}
+        defaultMsg={defaultMsg}
+        setDescription={mockDescriptionFxn}
+        setErrorMessage={mockErrorFxn}
+      ></Description>
+    );
+    const textBox = screen.getByRole("textbox");
+    user.type(textBox, "T");
+    user.type(textBox, "{backspace}");
+
+    // Need to wait for debounce function to be called in componenet 
+    await waitFor(() => {
+      expect(textBox).toHaveValue("");
+      expect(mockErrorFxn).toHaveBeenCalledWith("");
+      expect(mockDescriptionFxn).toHaveBeenCalledWith(defaultMsg);
+    });
+  });
+
+  it("user input description, returns success and correct parent props set", async () => {
     render(
       <Description
         description={description}
@@ -108,4 +150,5 @@ describe("Test description input element", () => {
     input = screen.getByLabelText(/Focus Plan?/i);
     expect(input).toHaveValue(description);
   });
+
 });
