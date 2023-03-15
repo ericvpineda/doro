@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import { render, screen, fireEvent, act, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import SpotifyPlayer from "../../../src/Components/Timer/SpotifyPlayer/SpotifyPlayer";
 import { chrome } from "jest-chrome";
@@ -638,12 +638,13 @@ describe("Test SpotifyPlayer component", () => {
         });
       })
       .mockImplementation((obj, callback) => {
-        callback({ 
+        callback({
           status: Status.FAILURE,
           error: {
-            message: "This is used to prevent coverage from complaing about get track error message."
-          }
-         });
+            message:
+              "This is used to prevent coverage from complaing about get track error message.",
+          },
+        });
       });
 
     // Mock getting spotify tab
@@ -651,12 +652,12 @@ describe("Test SpotifyPlayer component", () => {
       callback([{ url: "https://www.spotify.com", id: 1 }]);
     };
 
-  // Mock script injection function
-  global.chrome.scripting = {
-    executeScript: async ({ target, func }) => {
-      return new Promise((resolve, reject) => reject(func()));
-    },
-  };
+    // Mock script injection function
+    global.chrome.scripting = {
+      executeScript: async ({ target, func }) => {
+        return new Promise((resolve, reject) => reject(func()));
+      },
+    };
 
     render(<SpotifyPlayer />);
     const nextTrackBtn = screen.getByTestId("next-track-btn");
@@ -878,12 +879,13 @@ describe("Test SpotifyPlayer component", () => {
         });
       })
       .mockImplementation((obj, callback) => {
-        callback({ 
+        callback({
           status: Status.FAILURE,
           error: {
-            message: "Used to used to prevent coverage from complaing about get track error message."
-          }
-         });
+            message:
+              "Used to used to prevent coverage from complaing about get track error message.",
+          },
+        });
       });
 
     // Mock getting spotify tab
@@ -1752,5 +1754,71 @@ describe("Test SpotifyPlayer component", () => {
     expect(logSpy).toHaveBeenCalledWith(
       "Unknown error when seeking track volume."
     );
+  });
+
+  // ----- AlbumArt DEPENDANT TESTS -----
+
+  // Note: PlayerStatus changes from SUCCESS -> AD_PLAYING
+  it("player is currently playing, non-premium user clicks next button, then ad starts to play, shows ad prompt", async () => {
+    // Mock document to have track button
+    document.body.innerHTML = `<div>
+    <button data-testid="control-button-skip-forward"></button>
+  </div>`;
+
+    global.chrome.runtime.sendMessage
+      .mockImplementationOnce((obj, callback) => {
+        callback({
+          status: Status.SUCCESS,
+          data: {
+            artist: "",
+            isPlaying: true,
+            volumePercent: 0,
+            track: "",
+            progress: 0,
+            duration: 0,
+            type: "track"
+          },
+        });
+      })
+      .mockImplementationOnce((obj, callback) =>
+        callback({ status: Status.FAILURE })
+      ).mockImplementationOnce((obj, callback) => {
+        callback({
+          status: Status.SUCCESS,
+          data: {
+            artist: "",
+            isPlaying: true,
+            volumePercent: 0,
+            track: "",
+            progress: 0,
+            duration: 0,
+            type: "ad"
+          },
+        });
+      })
+
+    // Mock getting spotify tab
+    global.chrome.tabs.query = (_, callback) => {
+      callback([{ url: "https://www.spotify.com", id: 1 }]);
+    };
+
+    // Mock script injection function
+    global.chrome.scripting = {
+      executeScript: ({ target, func }) => {
+        return new Promise((resolve, reject) => resolve(func()));
+      },
+    };
+
+    render(<SpotifyPlayer />);
+    const nextTrackBtn = screen.getByTestId("next-track-btn");
+    await user.click(nextTrackBtn);
+
+    expect(logSpy).toBeCalledTimes(0);
+
+    waitFor(() => {
+      const adPrompt = screen.getByText("Ad is currently playing...")
+      expect(adPrompt).toBeVisible()
+    })
+
   });
 });
