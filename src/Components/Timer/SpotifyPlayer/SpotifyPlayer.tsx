@@ -35,7 +35,7 @@ const SpotifyPlayer: FC = () => {
   const [trackSaved, setTrackSaved] = useState(false); // Track currently saved
   const [volume, setVolume] = useState(0); // Volume value
   const [deviceId, setDeviceId] = useState(""); // Web player device id
-  const [volumeCached, setVolumeCached] = useState(volume); // Helps with common volume icon press behavior
+  const [volumeCached, setVolumeCached] = useState(0); // Helps with common volume icon press behavior
   const [showVolumeTrack, setShowVolumeTrack] = useState(false); // Shows volume track
   const [durationMs, setDurationMs] = useState(0); // Tracks total duration
   const [progressMs, setProgressMs] = useState(0); // Tracks current progress
@@ -216,6 +216,8 @@ const SpotifyPlayer: FC = () => {
               .catch(() => {
                 reject({ data: false });
               });
+          } else {
+            reject({ data: false })
           }
         });
       });
@@ -240,7 +242,7 @@ const SpotifyPlayer: FC = () => {
           setTrackId(res.data.id);
           setTrackSaved(res.data.isSaved);
           setDeviceId(res.data.deviceId);
-          setVolume(res.data.volumePercent);
+          setVolume(+res.data.volumePercent);
           const progress = res.data.progressMs;
           const duration = res.data.durationMs;
           if (res.data.type === "ad") {
@@ -330,7 +332,7 @@ const SpotifyPlayer: FC = () => {
         .then(async (response: any) => {
           if (response.data === true) {
             // Need to account for api call lag time
-              await new Promise(() => setTimeout(getTrack, 250));
+              setTimeout(getTrack, 250);
             } else {
               console.log("Failure when getting next track.");
             }
@@ -362,7 +364,7 @@ const SpotifyPlayer: FC = () => {
               .then(async (res: any) => {
                 // Need to account for api call lag time
                 if (res.data === true) {
-                  await new Promise(() => setTimeout(getTrack, 250));
+                  setTimeout(getTrack, 250)
                 } else {
                   console.log("Failure when getting previous track.");
                 }

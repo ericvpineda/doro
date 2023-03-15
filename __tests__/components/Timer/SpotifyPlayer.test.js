@@ -15,10 +15,10 @@ import userEvent from "@testing-library/user-event";
 // - note:
 //  - isExecutingRequest is assumed to be true (in order to make player active)
 //  - how to test setInterval for thumbPosition tick correctness?
+//  - unable to test:
 
 // Tests for SpotifyPlayer component
 describe("Test SpotifyPlayer component", () => {
-
   let mockFxn, user, logSpy;
   beforeEach(() => {
     mockFxn = jest.fn();
@@ -69,7 +69,7 @@ describe("Test SpotifyPlayer component", () => {
           status: Status.SUCCESS,
           data: {
             artist: "This artist has a name larger than 30 characters",
-            type: "ad"
+            type: "ad",
           },
         });
       }
@@ -171,6 +171,38 @@ describe("Test SpotifyPlayer component", () => {
     await user.click(pauseBtn);
 
     expect(logSpy).toHaveBeenCalledWith("Error when completing track command.");
+  });
+
+  it("player is playing and non-premium user PAUSES track, spotify window not found, returns failure", async () => {
+    // Mock document to have track button
+    document.body.innerHTML = `<div>
+    <button data-testid="control-button-playpause"></button>
+  </div>`;
+
+    global.chrome.runtime.sendMessage
+      .mockImplementationOnce((obj, callback) => {
+        callback({
+          status: Status.SUCCESS,
+          data: {
+            artist: "",
+            isPlaying: true,
+          },
+        });
+      })
+      .mockImplementation((obj, callback) =>
+        callback({ status: Status.FAILURE })
+      );
+
+    // Mock getting spotify tab in chrome browser
+    global.chrome.tabs.query = (_, callback) => {
+      callback([{ url: "", id: 1 }]);
+    };
+
+    render(<SpotifyPlayer />);
+    const pauseBtn = screen.getByTestId("pause-btn");
+    await user.click(pauseBtn);
+
+    expect(logSpy).toHaveBeenCalledWith("Failure when pausing track.");
   });
 
   it("player is playing and non-premium user PAUSES track, returns success", async () => {
@@ -484,7 +516,6 @@ describe("Test SpotifyPlayer component", () => {
         data: {
           artist: "",
           isPlaying: true,
-          
         },
       });
     });
@@ -583,7 +614,7 @@ describe("Test SpotifyPlayer component", () => {
 
     // Mock script injection function
     global.chrome.scripting = {
-      executeScript: ({ target, func }) => {
+      executeScript: async ({ target, func }) => {
         return new Promise((resolve, reject) => resolve(func()));
       },
     };
@@ -596,7 +627,6 @@ describe("Test SpotifyPlayer component", () => {
   });
 
   it("player is playing and non-premium user plays NEXT track, injection script returns failure", async () => {
-
     global.chrome.runtime.sendMessage
       .mockImplementationOnce((obj, callback) => {
         callback({
@@ -608,7 +638,12 @@ describe("Test SpotifyPlayer component", () => {
         });
       })
       .mockImplementation((obj, callback) => {
-        callback({ status: Status.FAILURE });
+        callback({ 
+          status: Status.FAILURE,
+          error: {
+            message: "This is used to prevent coverage from complaing about get track error message."
+          }
+         });
       });
 
     // Mock getting spotify tab
@@ -616,12 +651,12 @@ describe("Test SpotifyPlayer component", () => {
       callback([{ url: "https://www.spotify.com", id: 1 }]);
     };
 
-    // Mock script injection function
-    global.chrome.scripting = {
-      executeScript: ({ target, func }) => {
-        return new Promise((resolve, reject) => reject(func()));
-      },
-    };
+  // Mock script injection function
+  global.chrome.scripting = {
+    executeScript: async ({ target, func }) => {
+      return new Promise((resolve, reject) => reject(func()));
+    },
+  };
 
     render(<SpotifyPlayer />);
     const nextTrackBtn = screen.getByTestId("next-track-btn");
@@ -665,7 +700,7 @@ describe("Test SpotifyPlayer component", () => {
           artist: "",
           isPlaying: true,
           progressMs: 0,
-          durationMs: 10000
+          durationMs: 10000,
         },
       });
     });
@@ -675,7 +710,7 @@ describe("Test SpotifyPlayer component", () => {
 
     expect(logSpy).toBeCalledTimes(0);
   });
- 
+
   it("player is playing song greater than 0ms and user plays PREVIOUS track, returns success", async () => {
     global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
       callback({
@@ -685,7 +720,7 @@ describe("Test SpotifyPlayer component", () => {
           isPlaying: true,
           type: "track",
           progressMs: 10000,
-          durationMs: 15000 
+          durationMs: 15000,
         },
       });
     });
@@ -696,7 +731,7 @@ describe("Test SpotifyPlayer component", () => {
     expect(logSpy).toBeCalledTimes(0);
   });
 
-  // Note: Seek track back to 0ms 
+  // Note: Seek track back to 0ms
   it("player is playing and user plays PREVIOUS track, returns error", async () => {
     global.chrome.runtime.sendMessage
       .mockImplementationOnce((obj, callback) => {
@@ -843,7 +878,12 @@ describe("Test SpotifyPlayer component", () => {
         });
       })
       .mockImplementation((obj, callback) => {
-        callback({ status: Status.FAILURE });
+        callback({ 
+          status: Status.FAILURE,
+          error: {
+            message: "Used to used to prevent coverage from complaing about get track error message."
+          }
+         });
       });
 
     // Mock getting spotify tab
@@ -854,7 +894,9 @@ describe("Test SpotifyPlayer component", () => {
     // Mock script injection function
     global.chrome.scripting = {
       executeScript: ({ target, func }) => {
-        return new Promise((resolve, reject) => reject(func()));
+        return new Promise((resolve, reject) => {
+          reject(func());
+        });
       },
     };
 
@@ -1050,6 +1092,7 @@ describe("Test SpotifyPlayer component", () => {
             isPlaying: true,
             volumePercent: 1,
             track: "",
+            type: "track",
           },
         });
       })
