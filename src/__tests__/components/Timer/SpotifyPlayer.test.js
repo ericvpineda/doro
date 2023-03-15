@@ -61,6 +61,22 @@ describe("Test SpotifyPlayer component", () => {
     expect(logSpy).toBeCalledTimes(0);
   });
 
+  it("player GETS advertisement track successfully", () => {
+    global.chrome.runtime.sendMessage.mockImplementationOnce(
+      (obj, callback) => {
+        callback({
+          status: Status.SUCCESS,
+          data: {
+            artist: "This artist has a name larger than 30 characters",
+            type: "ad"
+          },
+        });
+      }
+    );
+    render(<SpotifyPlayer />);
+    expect(logSpy).toBeCalledTimes(0);
+  });
+
   it("player GETS track and returns failure", () => {
     global.chrome.runtime.sendMessage.mockImplementationOnce(
       (obj, callback) => {
@@ -467,6 +483,7 @@ describe("Test SpotifyPlayer component", () => {
         data: {
           artist: "",
           isPlaying: true,
+          
         },
       });
     });
@@ -639,13 +656,35 @@ describe("Test SpotifyPlayer component", () => {
 
   // ----- PREVIOUS TRACK TESTS -----
 
-  it("player is playing and user plays PREVIOUS track, returns success", async () => {
+  it("player plays song at 0ms and user plays PREVIOUS track, returns success", async () => {
     global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
       callback({
         status: Status.SUCCESS,
         data: {
           artist: "",
           isPlaying: true,
+          progressMs: 0,
+          durationMs: 10000
+        },
+      });
+    });
+    render(<SpotifyPlayer />);
+    const prevTrackBtn = screen.getByTestId("previous-track-btn");
+    await user.click(prevTrackBtn);
+
+    expect(logSpy).toBeCalledTimes(0);
+  });
+ 
+  it("player is playing song greater than 0ms and user plays PREVIOUS track, returns success", async () => {
+    global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
+      callback({
+        status: Status.SUCCESS,
+        data: {
+          artist: "",
+          isPlaying: true,
+          type: "track",
+          progressMs: 10000,
+          durationMs: 15000 
         },
       });
     });
@@ -656,6 +695,7 @@ describe("Test SpotifyPlayer component", () => {
     expect(logSpy).toBeCalledTimes(0);
   });
 
+  // Note: Seek track back to 0ms 
   it("player is playing and user plays PREVIOUS track, returns error", async () => {
     global.chrome.runtime.sendMessage
       .mockImplementationOnce((obj, callback) => {
@@ -1007,7 +1047,7 @@ describe("Test SpotifyPlayer component", () => {
           data: {
             artist: "",
             isPlaying: true,
-            volumePercent: 0,
+            volumePercent: 1,
             track: "",
           },
         });

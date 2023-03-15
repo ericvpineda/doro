@@ -51,10 +51,13 @@ const SpotifyPlayer: FC = () => {
     const pauseBtn = document.querySelector(
       "[data-testid=control-button-playpause]"
     ) as HTMLButtonElement;
-    pauseBtn.addEventListener("click", () =>
+
+    if (pauseBtn) {
+      pauseBtn.addEventListener("click", () =>
       chrome.storage.local.set({ scriptSuccess: true })
-    );
-    pauseBtn.click();
+      );
+      pauseBtn.click();
+    }
   };
 
   // Inject script for next track (Non-premium users)
