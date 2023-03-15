@@ -26,8 +26,13 @@ const Time: FC<Props> = (props): JSX.Element => {
 
   // Sets user input hours
   const setHoursHandler = (event: ChangeEvent<HTMLInputElement>) => {
-    const value = +event.target.value;
-    props.setHours(value)
+    let value = +event.target.value; 
+
+    // Handle case when user clears input 
+    if (typeof value !== "number") {
+      value = 0
+    }
+    // props.setHours(value)
 
     if (value > 24) {
       props.setErrorMessage("Hours must be between 0-24.");
@@ -42,8 +47,13 @@ const Time: FC<Props> = (props): JSX.Element => {
 
   // Sets user input minutes
   const setMinutesHandler = (event: ChangeEvent<HTMLInputElement>) => {
-    const value = +event.target.value;
-    props.setMinutes(value)
+    let value = +event.target.value; 
+
+    // Handle case when user clears input 
+    if (typeof value !== "number") {
+      value = 0
+    }
+    // props.setMinutes(value)
     
     if (value > 59) {
       props.setErrorMessage("Minutes must be between 0-59.");
