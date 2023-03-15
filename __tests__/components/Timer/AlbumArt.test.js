@@ -4,11 +4,13 @@ import "@testing-library/jest-dom"
 import AlbumArt from '../../../src/Components/Timer/SpotifyPlayer/AlbumArt/AlbumArt';
 import { PlayerStatus } from '../../../src/Utils/SpotifyUtils';
 
-//Test Points
-// - player status loading
-// - player status require webpage 
-// - player status success 
-// - TODO: Add tests for different user prompts
+// Test Points
+// - player status: 
+//  - loading
+//  - success 
+//  - ad playing
+//  - require webpage 
+//  - error
 
 describe("Test AlbumArt component", () => {
     
@@ -30,6 +32,14 @@ describe("Test AlbumArt component", () => {
         const albumArt = screen.getByTestId("album-art");
         expect(albumArt).toBeVisible();
     })
+
+    it("player status ad playing and shows ad screen prompt", () => {
+        render(<AlbumArt albumUrl={""} playerStatus={PlayerStatus.AD_PLAYING}></AlbumArt>)
+        const adPrompt = screen.getByText("Ad is currently playing...")
+
+        expect(adPrompt).toBeVisible();
+    })
+
     it("player status require webpage shows requirement prompt into webpage and play song", () => {
         render(<AlbumArt albumUrl={""} playerStatus={PlayerStatus.REQUIRE_WEBPAGE}></AlbumArt>)
         const signInPromptP1 = screen.getByText("Sign in");
@@ -38,4 +48,12 @@ describe("Test AlbumArt component", () => {
         expect(signInPromptP1).toBeVisible();
         expect(signInPromptP4).toBeVisible();
     })
+
+    it("player status error shows error prompt page", () => {
+        render(<AlbumArt albumUrl={""} playerStatus={PlayerStatus.ERROR}></AlbumArt>)
+        const errorPrompt = screen.getByText("Error occured, please")
+
+        expect(errorPrompt).toBeVisible();
+    })
+
 })
