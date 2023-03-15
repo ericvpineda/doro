@@ -1,9 +1,9 @@
 import React from "react";
 import { screen, render } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import Login from "../../../Components/Login/Login/Login";
+import Login from "../../../src/Components/Login/Login/Login"
 import { chrome } from "jest-chrome";
-import { Status } from "../../../Utils/SpotifyUtils";
+import { Status } from "../../../src/Utils/SpotifyUtils";
 import userEvent from "@testing-library/user-event";
 
 // Test points

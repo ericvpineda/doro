@@ -3,7 +3,7 @@ import { screen, render, waitFor } from "@testing-library/react";
 import { chrome } from "jest-chrome";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
-import UserInput from "../../../Components/UserInput/UserInput/UserInput.tsx";
+import UserInput from "../../../src/Components/UserInput/UserInput/UserInput.tsx";
 
 // Test Points
 // - valid hours and minutes and start button pushed

@@ -1,7 +1,7 @@
 import React from "react";
 import { screen, render } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import Clock from "../../../Components/Timer/Clock/Clock.tsx";
+import Clock from "../../../src/Components/Timer/Clock/Clock.tsx";
 import userEvent from "@testing-library/user-event";
 import { chrome } from "jest-chrome";
 

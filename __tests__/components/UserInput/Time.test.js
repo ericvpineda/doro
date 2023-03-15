@@ -1,15 +1,15 @@
-// Tests for Time Input Component
 import React from "react";
 import { render, fireEvent, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
-import Time from "../../../Components/UserInput/Time/Time.tsx";
+import Time from "../../../src/Components/UserInput/Time/Time.tsx";
 
 // Tests to run
 // - Check minutes and hours input validation:
 //  - prevent negative and floating point values
 //  - show error for large values
 
+// Tests for Time Input Component
 describe("Test hours input element", () => {
   let user, input;
   let mockHours, mockMinutes, mockErrorFxn;

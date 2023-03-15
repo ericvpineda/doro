@@ -1,10 +1,8 @@
 import React from 'react';
 import {render, screen} from "@testing-library/react"
 import "@testing-library/jest-dom"
-import AlbumArt from '../../../Components/Timer/SpotifyPlayer/AlbumArt/AlbumArt';
-import {chrome} from "jest-chrome"
-import { PlayerStatus } from '../../../Utils/SpotifyUtils';
-import userEvent from "@testing-library/user-event"
+import AlbumArt from '../../../src/Components/Timer/SpotifyPlayer/AlbumArt/AlbumArt';
+import { PlayerStatus } from '../../../src/Utils/SpotifyUtils';
 
 //Test Points
 // - player status loading

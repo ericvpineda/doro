@@ -3,8 +3,8 @@ import { screen, render } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";
 import { chrome } from "jest-chrome";
-import { Status } from "../../../Utils/SpotifyUtils";
-import Profile from "../../../Components/Login/Profile/Profile";
+import { Status } from "../../../src/Utils/SpotifyUtils";
+import Profile from "../../../src/Components/Login/Profile/Profile";
 
 // Test Points
 // - get user profile (success, failure, error)

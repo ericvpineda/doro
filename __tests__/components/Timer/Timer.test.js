@@ -1,7 +1,7 @@
  import React from 'react';
  import {render, screen} from "@testing-library/react"
  import "@testing-library/jest-dom"
- import Timer from "../../../Components/Timer/Timer/Timer"
+ import Timer from "../../../src/Components/Timer/Timer/Timer"
  import {chrome} from "jest-chrome"
  import userEvent from "@testing-library/user-event"
 

@@ -1,5 +1,5 @@
 import React from "react";
-import Description from "../../../Components/UserInput/Description/Description.tsx";
+import Description from "../../../src/Components/UserInput/Description/Description.tsx";
 import { render, fireEvent, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";

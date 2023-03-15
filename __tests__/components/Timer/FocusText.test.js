@@ -1,9 +1,9 @@
-import React, { createContext } from "react";
+import React from "react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import FocusText from "../../../Components/Timer/FocusText/FocusText.tsx";
+import FocusText from "../../../src/Components/Timer/FocusText/FocusText.tsx";
 import { chrome } from "jest-chrome";
-import DescriptContext from "../../../hooks/DescriptContext";
+import DescriptContext from "../../../src/hooks/DescriptContext";
 
 // Test Points
 // - timeer is executing
