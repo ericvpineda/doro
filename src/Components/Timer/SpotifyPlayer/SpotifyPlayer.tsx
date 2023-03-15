@@ -44,7 +44,7 @@ const SpotifyPlayer: FC = () => {
   const [isMounted, setIsMounted] = useState(false); // Used for volume animation
   const [trackType, setTrackType] = useState(""); // Used track identification
 
-  // ----- Script Injection helper functions ----- 
+  // ----- Script Injection helper functions -----
 
   // Inject script for play and pause (Non-premium users)
   const injectTrackPlayPause = () => {
@@ -62,10 +62,13 @@ const SpotifyPlayer: FC = () => {
     const nextTrackBtn = document.querySelector(
       "[data-testid=control-button-skip-forward]"
     ) as HTMLButtonElement;
-    nextTrackBtn.addEventListener("click", () =>
+
+    if (nextTrackBtn) {
+      nextTrackBtn.addEventListener("click", () =>
       chrome.storage.local.set({ scriptSuccess: true })
-    );
-    nextTrackBtn.click();
+      );
+      nextTrackBtn.click();
+    }
   };
 
   // Inject script for previous track (Non-premium users)
@@ -91,33 +94,36 @@ const SpotifyPlayer: FC = () => {
       const volumeBarContainer = document.querySelector(
         "[data-testid=volume-bar]"
       );
-       
+
       let progressBar;
       if (volumeBarContainer) {
         // Note: data-testid progress-bar is also id of seek track bar
-        progressBar = volumeBarContainer.querySelector("[data-testid=progress-bar]");
+        progressBar = volumeBarContainer.querySelector(
+          "[data-testid=progress-bar]"
+        );
       }
-      
-      const isValidVolume = typeof res.volume === "number" && !Number.isNaN(res.volume)
+
+      const isValidVolume =
+        typeof res.volume === "number" && !Number.isNaN(res.volume);
       if (volumeBarContainer && progressBar && isValidVolume) {
-         const volumeInt = res.volume;
-         const mousedown = new MouseEvent("mousedown", {
-           clientX: progressBar.getBoundingClientRect().left,
-           bubbles: true,
-           cancelable: true,
-          });
-          // Simulate drag mouse from left to right
-          const mousemove = new MouseEvent("mousemove", {
-            clientX: progressBar.getBoundingClientRect().left + volumeInt,
-            bubbles: true,
-            cancelable: true,
-          });
-          const mouseup = new MouseEvent("mouseup", {
-            clientX: progressBar.getBoundingClientRect().left + volumeInt,
-            bubbles: true,
-            cancelable: true,
-          });
-          
+        const volumeInt = res.volume;
+        const mousedown = new MouseEvent("mousedown", {
+          clientX: progressBar.getBoundingClientRect().left,
+          bubbles: true,
+          cancelable: true,
+        });
+        // Simulate drag mouse from left to right
+        const mousemove = new MouseEvent("mousemove", {
+          clientX: progressBar.getBoundingClientRect().left + volumeInt,
+          bubbles: true,
+          cancelable: true,
+        });
+        const mouseup = new MouseEvent("mouseup", {
+          clientX: progressBar.getBoundingClientRect().left + volumeInt,
+          bubbles: true,
+          cancelable: true,
+        });
+
         progressBar.dispatchEvent(mousedown);
         progressBar.dispatchEvent(mousemove);
         progressBar.dispatchEvent(mouseup);
@@ -142,7 +148,8 @@ const SpotifyPlayer: FC = () => {
         ) as HTMLDivElement;
       }
 
-      const validPercent = typeof res.percent === "number" && !Number.isNaN(res.percent)
+      const validPercent =
+        typeof res.percent === "number" && !Number.isNaN(res.percent);
       if (playbackContainer && progressBar && validPercent) {
         const percent = res.percent / 100;
         const totalLength =
@@ -189,11 +196,11 @@ const SpotifyPlayer: FC = () => {
             chrome.storage.local.set({ scriptSuccess: false });
             // Execute script injection into chrome browser
             chrome.scripting
-            .executeScript({
-              target: { tabId: tab.id },
-              func: commandFxn,
-            })
-            .then(() => {
+              .executeScript({
+                target: { tabId: tab.id },
+                func: commandFxn,
+              })
+              .then(() => {
                 chrome.storage.local.get([ChromeData.scriptSuccess], (res) => {
                   if (res.scriptSuccess) {
                     resolve({ data: true });
@@ -203,7 +210,9 @@ const SpotifyPlayer: FC = () => {
                   }
                 });
               })
-              .catch(() => {reject({ data: false })});
+              .catch(() => {
+                reject({ data: false });
+              });
           }
         });
       });
@@ -244,10 +253,10 @@ const SpotifyPlayer: FC = () => {
           setTrackType(res.data.type);
         } else if (res.status === Status.FAILURE) {
           // Case: User did not complete webpage requirement prompt
-          console.log(res.message);
+          console.log(res.error.message);
           setPlayerStatus(PlayerStatus.REQUIRE_WEBPAGE);
         } else if (res.status === Status.ERROR) {
-          console.log(res.message);
+          console.log(res.error.message);
           setPlayerStatus(PlayerStatus.ERROR);
         } else {
           // Note: Automatic signout when unknown status received
@@ -267,13 +276,15 @@ const SpotifyPlayer: FC = () => {
         // Case: User is non-premium user
         trackInjection(injectTrackPlayPause)
           .then((response: any) => {
-            if (response.data === true) { 
-              setIsPlaying(false)
+            if (response.data === true) {
+              setIsPlaying(false);
             } else {
-              console.log("Failure when pausing track.")
+              console.log("Failure when pausing track.");
             }
           })
           .catch(() => console.log("Failure when pausing track."));
+      } else if (res.status === Status.ERROR) {
+        console.log(res.error.message);
       } else {
         console.log("Unknown error when pausing track.");
       }
@@ -290,12 +301,14 @@ const SpotifyPlayer: FC = () => {
         trackInjection(injectTrackPlayPause)
           .then((response: any) => {
             if (response.data === true) {
-              setIsPlaying(true)
+              setIsPlaying(true);
             } else {
-              console.log("Failure when playing track.")
+              console.log("Failure when playing track.");
             }
           })
           .catch(() => console.log("Failure when playing track."));
+      } else if (res.status === Status.ERROR) {
+        console.log(res.error.message);
       } else {
         console.log("Unknown error when playing track.");
       }
@@ -307,19 +320,21 @@ const SpotifyPlayer: FC = () => {
     chrome.runtime.sendMessage({ message: PlayerActions.NEXT }, async (res) => {
       if (res.status === Status.SUCCESS) {
         // Update track information state
-        getTrack(); 
+        getTrack();
       } else if (res.status === Status.FAILURE) {
         // Case: User is non-premium user
         await trackInjection(injectTrackNext)
-          .then((response: any) => {
-            if (response.data === true) {
-              // Need to account for api call lag time
-              setTimeout(() => getTrack(), 200);
+        .then(async (response: any) => {
+          if (response.data === true) {
+            // Need to account for api call lag time
+              await new Promise(() => setTimeout(getTrack, 250));
             } else {
-              console.log("Failure when getting next track.")
+              console.log("Failure when getting next track.");
             }
           })
           .catch(() => console.log("Failure when getting next track."));
+      } else if (res.status === Status.ERROR) {
+        console.log(res.error.message);
       } else {
         console.log("Unknown error when getting next track.");
       }
@@ -336,25 +351,22 @@ const SpotifyPlayer: FC = () => {
         { message: PlayerActions.PREVIOUS },
         async (res) => {
           if (res.status === Status.SUCCESS) {
-            // Get updated track information 
+            // Get updated track information
             getTrack();
           } else if (res.status === Status.FAILURE) {
-            // Case: User is non-premium user 
+            // Case: User is non-premium user
             await trackInjection(injectTrackPrevious)
-              .then((res: any) => {
-              // Need to account for api call lag time
+              .then(async (res: any) => {
+                // Need to account for api call lag time
                 if (res.data === true) {
-                  setTimeout(() => {
-                    getTrack();
-                  }, 250);
+                  await new Promise(() => setTimeout(getTrack, 250));
                 } else {
-                  console.log("Failure when getting previous track.")
+                  console.log("Failure when getting previous track.");
                 }
               })
               .catch(() => console.log("Failure when getting previous track."));
           } else if (res.status === Status.ERROR) {
-            // Note: Need to account for error case
-            console.log(res.error.message)
+            console.log(res.error.message);
           } else {
             console.log("Unknown error when getting previous track.");
           }
@@ -370,9 +382,8 @@ const SpotifyPlayer: FC = () => {
       (res) => {
         if (res.status === Status.SUCCESS) {
           setTrackSaved(true);
-        } else if (res.status === Status.FAILURE) {
-          // Note: Saving track api is for premium and non-premium users
-          console.log(res.message);
+        } else if (res.status === Status.ERROR) {
+          console.log(res.error.message);
         } else {
           console.log("Unknown error when saving track.");
         }
@@ -391,9 +402,8 @@ const SpotifyPlayer: FC = () => {
       (res) => {
         if (res.status === Status.SUCCESS) {
           setTrackSaved(false);
-        } else if (res.status === Status.FAILURE) {
-          // Note: Removing track api is for premium and non-premium users
-          console.log(res.message);
+        } else if (res.status === Status.ERROR) {
+          console.log(res.error.message);
         } else {
           console.log("Unknown error when removing user track.");
         }
@@ -415,23 +425,28 @@ const SpotifyPlayer: FC = () => {
             setVolumeCached(volume);
           }
         } else if (res.status === Status.FAILURE) {
-          if (typeof volumePercent === "number" && !Number.isNaN(volumePercent)) {
+          if (
+            typeof volumePercent === "number" &&
+            !Number.isNaN(volumePercent)
+          ) {
             // Case: User is non-premium user
             chrome.storage.local.set({ volume: volumePercent });
             await trackInjection(injectChangeVolume)
-            .then((res: any) => {
-              if (res.data === true) {
-                if (volume !== 0) {
-                  setVolumeCached(volume);
+              .then((res: any) => {
+                if (res.data === true) {
+                  if (volume !== 0) {
+                    setVolumeCached(volume);
+                  }
+                  // Note: need to set volume since api call is premium action
+                  setVolume(volumePercent);
+                } else {
+                  console.log("Failure when setting track volume.");
                 }
-                // Note: need to set volume since api call is premium action
-                setVolume(volumePercent);
-              } else {
-                console.log("Failure when setting track volume.")
-              }
-            })
-            .catch(() => console.log("Failure when setting track volume."));
+              })
+              .catch(() => console.log("Failure when setting track volume."));
           }
+        } else if (res.status === Status.ERROR) {
+          console.log(res.error.message);
         } else {
           console.log("Unknown error when setting track volume.");
         }
@@ -457,20 +472,22 @@ const SpotifyPlayer: FC = () => {
           if (typeof percent === "number" && !Number.isNaN(percent)) {
             chrome.storage.local.set({ percent });
             await trackInjection(injectSeekTrack)
-            .then((res: any) => {
-              if (res.data === true) {
-                setProgressMs(positionMs);
-                const updatedThumbPos = getThumbPosition(
-                  positionMs,
-                  durationMs
+              .then((res: any) => {
+                if (res.data === true) {
+                  setProgressMs(positionMs);
+                  const updatedThumbPos = getThumbPosition(
+                    positionMs,
+                    durationMs
                   );
                   setThumbPosition(updatedThumbPos);
                 } else {
-                  console.log("Failure when seeking track.")
+                  console.log("Failure when seeking track.");
                 }
               })
               .catch(() => console.log("Failure when seeking track."));
-            }
+          }
+        } else if (res.status === Status.ERROR) {
+          console.log(res.error.message);
         } else {
           console.log("Unknown error when seeking track volume.");
         }
