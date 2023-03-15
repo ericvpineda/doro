@@ -31,7 +31,18 @@ describe("Test Profile Component", () => {
     };
   });
 
-  it("getting user profile returns success", () => {
+  it("getting user profile with user that has profile picture, returns success", () => {
+    global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
+      callback({ status: Status.SUCCESS, data: { profileUrl: "https://images.unsplash.com/photo-1457449940276-e8deed18bfff?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80" } });
+    });
+    mockFxn = jest.fn();
+    const logSpy = jest.spyOn(console, "log");
+    render(<Profile signOut={mockFxn}></Profile>);
+
+    expect(logSpy).toBeCalledTimes(0);
+  });
+  
+  it("getting user profile with user that has no profile picture, returns success", () => {
     global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
       callback({ status: Status.SUCCESS, data: { profileUrl: "" } });
     });
@@ -41,6 +52,7 @@ describe("Test Profile Component", () => {
 
     expect(logSpy).toBeCalledTimes(0);
   });
+
   it("getting user profile returns failure", () => {
     const message = "Failure when getting user profile."
     global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
@@ -86,5 +98,21 @@ describe("Test Profile Component", () => {
       render(<Profile signOut={mockFxn}></Profile>);
   
       expect(logSpy).toHaveBeenCalledWith(message);
+  });
+
+  it("user successfully gets profile and signs out successfully", async () => {
+    global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
+      callback({ status: Status.SUCCESS, data: { profileUrl: "" } });
+    });
+    mockFxn = jest.fn();
+    render(<Profile signOut={mockFxn}></Profile>);
+
+    const blankProfilePic = screen.getByTestId("profile-pic-blank");
+    await user.click(blankProfilePic)
+    
+    const signOutBtn = screen.getByText("Sign out");
+    await user.click(signOutBtn)
+
+    expect(mockFxn).toBeCalledTimes(1);
   });
 });

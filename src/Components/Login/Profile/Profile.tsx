@@ -45,9 +45,9 @@ const Profile: FC<Props> = (props) => {
           aria-expanded="false"
         >
           {profileUrl.length === 0 ? (
-            <PersonCircle className="image-default"></PersonCircle>
+            <PersonCircle data-testid="profile-pic-blank" className="image-default"></PersonCircle>
           ) : (
-            <img src={profileUrl} className="image" />
+            <img data-testid="profile-pic-filled" src={profileUrl} className="image" />
           )}
         </button>
         <ul className="dropdown-menu dropdown-menu-dark">
