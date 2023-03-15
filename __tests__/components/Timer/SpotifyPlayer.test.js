@@ -18,6 +18,7 @@ import userEvent from "@testing-library/user-event";
 
 // Tests for SpotifyPlayer component
 describe("Test SpotifyPlayer component", () => {
+
   let mockFxn, user, logSpy;
   beforeEach(() => {
     mockFxn = jest.fn();
@@ -121,7 +122,7 @@ describe("Test SpotifyPlayer component", () => {
     );
   });
 
-  // ----- PAUSE PLAYER TESTS -----
+  // ----- PAUSE TRACK TESTS -----
 
   it("player is playing and user PAUSES track, returns success", async () => {
     global.chrome.runtime.sendMessage
@@ -301,7 +302,7 @@ describe("Test SpotifyPlayer component", () => {
     expect(logSpy).toHaveBeenCalledWith("Unknown error when pausing track.");
   });
 
-  // ----- PLAY PLAYER TESTS -----
+  // ----- PLAY TRACK TESTS -----
 
   it("player is paused and user PLAYS track, returns success", async () => {
     global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
@@ -474,7 +475,7 @@ describe("Test SpotifyPlayer component", () => {
     expect(logSpy).toHaveBeenCalledWith("Unknown error when playing track.");
   });
 
-  // ----- NEXT PLAYER TESTS -----
+  // ----- NEXT TRACK TESTS -----
 
   it("player is playing and user plays NEXT track, returns success", async () => {
     global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {

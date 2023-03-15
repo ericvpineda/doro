@@ -12,6 +12,7 @@ import DescriptContext from "../../../src/hooks/DescriptContext";
 //  - set default description
 
 describe("Test FocusTest component", () => {
+  
   beforeEach(() => {
     // Stub chrome api
     global.chrome.storage.data = {};

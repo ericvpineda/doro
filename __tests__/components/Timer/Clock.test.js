@@ -16,7 +16,6 @@ import { chrome } from "jest-chrome";
 //  - Not executing
 //      - no input in storage -- d
 //      - has input in storage & shows correct values, shows buttons -- d
-// - Note: line 100 in clock.tsx not tested since uses chrome.storage.onChange.addListener
 
 describe("Test Clock component", () => {
   let user;
