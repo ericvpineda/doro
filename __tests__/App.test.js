@@ -72,4 +72,28 @@ describe("Test App component", () => {
     let clearBtn = screen.getByTestId("clear-btn");
     await user.click(clearBtn);
   });
+
+  it("timer currently running and user opens up popup extension", () => {
+    // Prevent Time component to showing error message
+    global.chrome.storage.local.set({
+        hours: 0,
+        minutes: 0,
+        seconds: 1,
+        setTime: {
+            hours: 1,
+            minutes: 1
+        },
+        isRunning: false,
+        isExecutingRequest: true,
+        isShowing: true,
+        description: "Working..."
+    })
+
+    render(<App />);
+
+    const topic = screen.getByText("Task:")
+    const descriptText = screen.getByText("Working...");
+    expect(topic).toBeVisible()
+    expect(descriptText).toBeVisible();
+  })
 });
