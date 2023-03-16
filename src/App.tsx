@@ -11,7 +11,7 @@ const App: FC = () => {
     <Fragment>
       <DescriptContextProvider isShowing={false}>
         {!showTimer ?
-          (<UserInput setShowTimerHandler={setShowTimer}></UserInput>) :
+          (<UserInput setShowTimerHandler={setShowTimer}/>) :
           (<Timer setShowTimerHandler={setShowTimer}/>)}
       </DescriptContextProvider>
     </Fragment>
