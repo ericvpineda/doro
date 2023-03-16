@@ -96,4 +96,9 @@ describe("Test App component", () => {
     expect(topic).toBeVisible()
     expect(descriptText).toBeVisible();
   })
+
+  test.todo("valid time input shows timer clock gui component")
+  test.todo("clicking settings button changes page to userInput")
+  test.todo("click back button in userInput changes page to clock gui page")
+  test.todo("input valid description shows in clock gui page")
 });
