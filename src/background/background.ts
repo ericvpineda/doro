@@ -57,12 +57,13 @@ const requestAccessToken = async (client: any) => {
   const headers = {
     "Content-Type": "application/x-www-form-urlencoded",
   };
+
   // Post request to get access tokenx
   return await fetch(url.href, {
     method: "POST",
     headers,
     body: params.toString(),
-  });
+  })
 };
 
 // Request to get refresh token
@@ -118,7 +119,7 @@ const setRefreshTokenTimer = (data: any) => {
 };
 
 // Launch user auth flow
-const userSignIn = async (params: any) => {
+const signIn = async (params: any) => {
   if (params.signedIn === undefined || !params.signedIn) {
     const [challenge, verifier] = params.data.challenge;
     client.challenge = challenge;
@@ -160,8 +161,8 @@ const userSignIn = async (params: any) => {
           client.authCode = url.searchParams.get("code")!;
           client.verifier = verifier;
           requestAccessToken(client)
-            .then((res) => res.json())
-            .then((data) => {
+            .then(res => res.json())
+            .then(data => {
               setAccessTokenHandler(data);
               setRefreshTokenTimer(data);
               resolve({
@@ -179,6 +180,7 @@ const userSignIn = async (params: any) => {
         }
       );
     });
+    
   } else {
     return new Promise((resolve, reject) => {
       return resolve({
@@ -390,6 +392,7 @@ const trackCommand = async (
 chrome.runtime.onMessage.addListener((req, sender, res) => {
   chrome.storage.local.get(["accessToken", "signedIn"], (result: any) => {
     let query: any;
+    let ret: any;
     switch (req.message) {
       case PlayerActions.PLAY:
         query = { additional_types: "episode" };
@@ -453,7 +456,7 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
         break;
       case PlayerActions.SIGNIN:
         result.data = req.data;
-        userSignIn(result).then((response) => res(response));
+        signIn(result).then((response) => res(response));
         break;
       case PlayerActions.GET_PROFILE:
         getUserProfile(result).then((response) => res(response));

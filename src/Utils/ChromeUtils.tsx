@@ -10,9 +10,11 @@ const ChromeData = {
     showPlayer: "showPlayer",
     description : "description",
     isExecutingRequest : "isExecutingRequest", 
-    expiresIn: "expiresIn",
     scriptSuccess: "scriptSuccess",
     isShowing: "isShowing",
+    refreshToken: "refreshToken",
+    accessToken: "accessToken",
+    expiresIn: "expiresIn",
 } 
 
 export {ChromeData};

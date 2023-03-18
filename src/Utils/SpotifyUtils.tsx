@@ -12,7 +12,8 @@ enum PlayerActions {
   SEEK_POSITION,
   SIGNIN,
   SIGNOUT,
-  PLAYBACK_STATE
+  PLAYBACK_STATE,
+  TESTING // Used for testing  
 }
 
 enum Status {
