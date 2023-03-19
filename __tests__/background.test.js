@@ -1,7 +1,7 @@
 import React from "react";
 import { waitFor, act } from "@testing-library/react";
 import { chrome } from "jest-chrome";
-import { PlayerActions, Status } from "../src/Utils/SpotifyUtils";
+import { PlayerActions } from "../src/Utils/SpotifyUtils";
 import { ChromeData } from "../src/Utils/ChromeUtils";
 import { generateChallenge, random } from "../src/Utils/AuthUtils";
 import "@testing-library/jest-dom";
@@ -12,13 +12,15 @@ import "@testing-library/jest-dom";
 //  - get currently playing
 //  - sign in, sign out
 // - clock alarm function
-// - Note: need to mock spotify API calls to prevent multiple calls to API
+// - Note:
+//  - need to mock spotify API calls to prevent multiple calls to API
+//  - unable to get correct jest mock calls in Proimise then() statements 
+//   - solution: break up mock for chrome listener and user command
 
 describe("Test background script", () => {
-  let mockFxn, logSpy, mockRes;
+  let mockFxn, logSpy;
   beforeEach(() => {
     mockFxn = jest.fn();
-    mockRes = jest.fn();
     logSpy = jest.spyOn(console, "log");
 
     // Stub chrome api
@@ -44,11 +46,13 @@ describe("Test background script", () => {
   afterEach(() => {
     // jest.runOnlyPendingTimers()
     // jest.useRealTimers();
+    jest.resetModules(); // Reset module imports
     jest.clearAllMocks();
   });
 
   // ----- SIGNIN TESTS -----
-  it("user sends request to sign in with valid credientials, returns success", async () => {
+  it("user sends request to sign in with valid credientials, chrome listener receives correct player action", async () => {
+    const mockRes = jest.fn()
     const stubState = encodeURIComponent(random(43));
     const stubReq = {
       message: PlayerActions.SIGNIN,
@@ -73,6 +77,43 @@ describe("Test background script", () => {
     stubQueryUrl.searchParams.append("state", stubState);
 
     // Mock launchWebAuthFlow
+    global.chrome.identity.launchWebAuthFlow = jest.fn();
+
+    // Dynamic import of background script
+    require("../src/background/background");
+
+    await waitFor(() => {
+      expect(chrome.identity.launchWebAuthFlow).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("user sends request to sign in with valid credientials, returns success", async () => {
+    const mockRes = jest.fn()
+    const stubState = encodeURIComponent(random(43));
+    const stubReq = {
+      message: PlayerActions.SIGNIN,
+      data: {
+        state: stubState,
+        challenge: generateChallenge(),
+      },
+    };
+
+    global.chrome.runtime.onMessage = {
+      addListener: jest.fn((callback) => {
+        callback(stubReq, "sender", mockRes);
+      }),
+    };
+
+    // Stub callback response data
+    const stubQueryUrl = new URL("https://my-domain.com/callback?");
+    stubQueryUrl.searchParams.append(
+      "code",
+      "gMGgmDs2YHPmPLaAJCUrHVqqaJPmHEX4QVQibeZViG6AMXta69"
+    );
+    stubQueryUrl.searchParams.append("state", stubState);
+
+    // Mock launchWebAuthFlow
+    // global.chrome.identity.launchWebAuthFlow = jest.fn();
     global.chrome.identity.launchWebAuthFlow.mockImplementation(
       (obj, callback) => {
         callback(stubQueryUrl);
@@ -100,18 +141,9 @@ describe("Test background script", () => {
 
     global.setInterval = jest.fn();
 
-    act(() => {
-      // Dynamic import of background script
-      require("../src/background/background");
-    })
-
-    await waitFor(() => {
-      expect(setInterval).toHaveBeenCalledTimes(1);
-      // expect(logSpy).toHaveBeenCalledWith("DEBUG: response { status: 1, error: '' }");
-      expect(mockRes).toHaveBeenCalledWith({
-        status: Status.FAILURE,
-      });
-    });
+    // Dynamic import of background script
+    const signIn = require("../src/background/background").signIn;
+    await expect(signIn(stubReq)).resolves.toStrictEqual({"status": 1, "error": ""})
   });
 
   test.todo(
@@ -147,10 +179,12 @@ describe("Test background script", () => {
       }),
     };
 
-    // Dynamic import of background script
-    require("../src/background/background");
-
     let result;
+
+    // Dynamic import of background script
+    await require("../src/background/background");
+
+    // Get result values from chrome storage
     chrome.storage.local.get(
       [
         ChromeData.signedIn,
@@ -170,9 +204,9 @@ describe("Test background script", () => {
       }
     );
 
+    // Wait for async get() call from chrome storage
     await waitFor(() => {
-      expect(result.signedIn).toBe(true);
-      console.log("DEBUG: result.refreshtoken", result.expire)
+      expect(result.signedIn).toBe(false);
       expect(result.refreshToken).toBe("");
       expect(result.expiresIn).toBe("");
       expect(result.accessToken).toBe("");

@@ -1,4 +1,6 @@
 import { PlayerActions, Status, SpotifyScope } from "../Utils/SpotifyUtils";
+// import { PlayerActions, Status, SpotifyScope } from "../Utils/SpotifyUtils";
+// import { PlayerActions, Status, SpotifyScope } from "../Utils/SpotifyUtils";
 
 // REMOVE: Used to check if background script runs in console
 // console.log("DEBUG: Running background script...");
@@ -120,7 +122,7 @@ const setRefreshTokenTimer = (data: any) => {
 
 // Launch user auth flow
 const signIn = async (params: any) => {
-  if (params.signedIn === undefined || !params.signedIn) {
+  if (params && !params.signedIn) {
     const [challenge, verifier] = params.data.challenge;
     client.challenge = challenge;
     client.state = params.data.state;
@@ -390,9 +392,8 @@ const trackCommand = async (
 
 // Listen for spotify playback actions events
 chrome.runtime.onMessage.addListener((req, sender, res) => {
-  chrome.storage.local.get(["accessToken", "signedIn"], (result: any) => {
+  chrome.storage.local.get(["accessToken", "signedIn"], async (result: any) => {
     let query: any;
-    let ret: any;
     switch (req.message) {
       case PlayerActions.PLAY:
         query = { additional_types: "episode" };
@@ -527,3 +528,6 @@ chrome.alarms.onAlarm.addListener((alarm) => {
     }
   );
 });
+
+// Note: Used for testing
+export {signIn}

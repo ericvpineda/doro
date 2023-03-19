@@ -1,5 +1,5 @@
 
-enum PlayerActions {
+const enum PlayerActions {
   PAUSE = 0,
   PLAY,
   NEXT,
@@ -16,20 +16,21 @@ enum PlayerActions {
   TESTING // Used for testing  
 }
 
-enum Status {
+const enum Status {
   NOT_SET = 0,
   SUCCESS,
   FAILURE,
   ERROR,
-  TESTING // Used for testing only 
+  TESTING // Used for testing
 }
 
-enum PlayerStatus {
+const enum PlayerStatus {
   LOADING = 0,
   SUCCESS,
   ERROR,
   REQUIRE_WEBPAGE,
-  AD_PLAYING
+  AD_PLAYING,
+  TESTING // Used for testing
 }
 
 // Scope information: https://developer.spotify.com/documentation/general/guides/authorization/scopes/
