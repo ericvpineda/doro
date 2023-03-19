@@ -1,7 +1,7 @@
 import React from "react";
 import { waitFor, act } from "@testing-library/react";
-import { chrome } from "jest-chrome";
-import { PlayerActions } from "../src/Utils/SpotifyUtils";
+// import { chrome } from "jest-chrome";
+import { PlayerActions, Status } from "../src/Utils/SpotifyUtils";
 import { ChromeData } from "../src/Utils/ChromeUtils";
 import { generateChallenge, random } from "../src/Utils/AuthUtils";
 import "@testing-library/jest-dom";
@@ -113,7 +113,6 @@ describe("Test background script", () => {
     stubQueryUrl.searchParams.append("state", stubState);
 
     // Mock launchWebAuthFlow
-    // global.chrome.identity.launchWebAuthFlow = jest.fn();
     global.chrome.identity.launchWebAuthFlow.mockImplementation(
       (obj, callback) => {
         callback(stubQueryUrl);
@@ -139,28 +138,251 @@ describe("Test background script", () => {
         )
     );
 
-    global.setInterval = jest.fn();
+    // Dynamic import of background script
+    const signIn = require("../src/background/background").signIn;
+    await expect(signIn(stubReq)).resolves.toStrictEqual({"status": Status.SUCCESS, "error": ""})
+  });
+
+  it("user sends request to sign, chrome runtime error occurs, returns error", async () => {
+    // Stub user request to signin
+    const stubState = encodeURIComponent(random(43));
+    const stubReq = {
+      message: PlayerActions.SIGNIN,
+      data: {
+        state: stubState,
+        challenge: generateChallenge(),
+      },
+    };
+    
+    // Mock launchWebAuthFlow when user signs in  
+    const mockRes = jest.fn()
+    global.chrome.runtime.onMessage = {
+      addListener: jest.fn((callback) => {
+        callback(stubReq, "sender", mockRes);
+      }),
+    };
+
+    // Stub Chrome runtime error when user calls launchWebAuthFlow
+    const message = "User did not approve access."
+    global.chrome.runtime.lastError = { message }
+
+    // Stub callback response data
+    const stubQueryUrl = new URL("https://my-domain.com/callback?");
+    stubQueryUrl.searchParams.append(
+      "code",
+      "gMGgmDs2YHPmPLaAJCUrHVqqaJPmHEX4QVQibeZViG6AMXta69"
+    );
+    stubQueryUrl.searchParams.append("state", stubState);
+
+    // Mock launchWebAuthFlow functionality
+    global.chrome.identity.launchWebAuthFlow.mockImplementation(
+      (obj, callback) => {
+        callback(stubQueryUrl);
+      }
+    );
 
     // Dynamic import of background script
     const signIn = require("../src/background/background").signIn;
-    await expect(signIn(stubReq)).resolves.toStrictEqual({"status": 1, "error": ""})
+    await expect(signIn(stubReq)).resolves.toStrictEqual({"status": Status.ERROR, "error": { message }})
+
+    // Used to set chrome runtime lastError as undefined
+    delete global.chrome.runtime.lastError;
   });
 
-  test.todo(
-    "user sends request to sign, chromeruntime error occurs, returns error"
-  );
-  test.todo(
-    "user sends request to sign, spotify API returns null response, returns error"
-  );
-  test.todo(
-    "user sends request to sign, spotify API returns response with error param, returns error"
-  );
-  test.todo(
-    "user sends request to sign, request access token call throws error, returns error"
-  );
-  test.todo(
-    "user sends request to sign, but user already signed in, returns error"
-  );
+  it("user sends request to sign, spotify API returns null response, returns error", async () => {
+    // Stub user request to signin
+    const stubState = encodeURIComponent(random(43));
+    const stubReq = {
+      message: PlayerActions.SIGNIN,
+      data: {
+        state: stubState,
+        challenge: generateChallenge(),
+      },
+    };
+    
+    // Mock launchWebAuthFlow functionality 
+    const mockRes = jest.fn()
+    global.chrome.runtime.onMessage = {
+      addListener: jest.fn((callback) => {
+        callback(stubReq, "sender", mockRes);
+      }),
+    };
+
+    // Stub callback response data
+    const stubQueryUrl = null;
+
+    // Mock launchWebAuthFlow
+    global.chrome.identity.launchWebAuthFlow.mockImplementation(
+      (obj, callback) => {
+        callback(stubQueryUrl);
+      }
+    );
+
+    // Dynamic import of background script
+    const signIn = require("../src/background/background").signIn;
+    await expect(signIn(stubReq)).resolves.toStrictEqual({"status": Status.ERROR, "error": {
+      message: "User access denied."
+    }})
+  });
+
+  it("user sends request to sign, spotify API returns response with error param, returns error", async () => {
+    // Stub user request to sign in 
+    const stubState = encodeURIComponent(random(43));
+    const stubReq = {
+      message: PlayerActions.SIGNIN,
+      data: {
+        state: stubState,
+        challenge: generateChallenge(),
+      },
+    };
+    
+    // Mock chrome addlistener call
+    const mockRes = jest.fn()
+    global.chrome.runtime.onMessage = {
+      addListener: jest.fn((callback) => {
+        callback(stubReq, "sender", mockRes);
+      }),
+    };
+
+    // Stub callback response data
+    const stubQueryUrl = new URL("https://my-domain.com/callback?");
+    stubQueryUrl.searchParams.append(
+      "error",
+      "gMGgmDs2YHPmPLaAJCUrHVqqaJPmHEX4QVQibeZViG6AMXta69"
+    );
+    stubQueryUrl.searchParams.append("state", stubState);
+
+    // Mock launchWebAuthFlow
+    global.chrome.identity.launchWebAuthFlow.mockImplementation(
+      (obj, callback) => {
+        callback(stubQueryUrl);
+      }
+    );
+
+    // Dynamic import of background script
+    const signIn = require("../src/background/background").signIn;
+    await expect(signIn(stubReq)).resolves.toStrictEqual({"status": Status.ERROR, "error": {
+      message: "User access denied."
+    }})
+  });
+
+  it("user sends request to sign, spotify API returns response with non-matching state param, returns error", async () => {
+    // Stub user request to sign in 
+    const stubState = encodeURIComponent(random(43));
+    const stubReq = {
+      message: PlayerActions.SIGNIN,
+      data: {
+        state: stubState,
+        challenge: generateChallenge(),
+      },
+    };
+    
+    // Mock chrome addlistener call
+    const mockRes = jest.fn()
+    global.chrome.runtime.onMessage = {
+      addListener: jest.fn((callback) => {
+        callback(stubReq, "sender", mockRes);
+      }),
+    };
+
+    // Stub callback response data
+    const stubQueryUrl = new URL("https://my-domain.com/callback?");
+    stubQueryUrl.searchParams.append(
+      "error",
+      "gMGgmDs2YHPmPLaAJCUrHVqqaJPmHEX4QVQibeZViG6AMXta69"
+    );
+    stubQueryUrl.searchParams.append("state", "non-matching state");
+
+    // Mock launchWebAuthFlow
+    global.chrome.identity.launchWebAuthFlow.mockImplementation(
+      (obj, callback) => {
+        callback(stubQueryUrl);
+      }
+    );
+
+    // Dynamic import of background script
+    const signIn = require("../src/background/background").signIn;
+    await expect(signIn(stubReq)).resolves.toStrictEqual({"status": Status.ERROR, "error": {
+      message: "User access denied."
+    }})
+  });
+
+  it("user sends request to sign, requesting access token call throws error, returns error", async () => {
+    // Stub user sign in
+    const stubState = encodeURIComponent(random(43));
+    const stubReq = {
+      message: PlayerActions.SIGNIN,
+      data: {
+        state: stubState,
+        challenge: generateChallenge(),
+      },
+    };
+    
+    // Mock user addlistener functionality 
+    const mockRes = jest.fn()
+    global.chrome.runtime.onMessage = {
+      addListener: jest.fn((callback) => {
+        callback(stubReq, "sender", mockRes);
+      }),
+    };
+
+    // Stub callback response data
+    const stubQueryUrl = new URL("https://my-domain.com/callback?");
+    stubQueryUrl.searchParams.append(
+      "code",
+      "gMGgmDs2YHPmPLaAJCUrHVqqaJPmHEX4QVQibeZViG6AMXta69"
+    );
+    stubQueryUrl.searchParams.append("state", stubState);
+
+    // Mock launchWebAuthFlow
+    global.chrome.identity.launchWebAuthFlow.mockImplementation(
+      (obj, callback) => {
+        callback(stubQueryUrl);
+      }
+    );
+
+    // Mock fetch request to Spotify API
+    const message = "Error fetching Spotify API";
+    global.fetch = jest.fn(
+      (url, obj) =>
+        new Promise((resolve, reject) =>
+          reject({message})
+        )
+    );
+
+    // Dynamic import of background script
+    const signIn = require("../src/background/background").signIn;
+    await expect(signIn(stubReq)).resolves.toStrictEqual({"status": Status.ERROR, "error": {
+      message
+    }})
+  });
+
+  it("user sends request to sign, but user already signed in, returns error", async () => {
+    // Stub user request
+    const stubState = encodeURIComponent(random(43));
+    const stubReq = {
+      message: PlayerActions.SIGNIN,
+      data: {
+        state: stubState,
+        challenge: generateChallenge(),
+      },
+      signedIn: true
+    };
+    
+    // Mock addListener functionality 
+    const mockRes = jest.fn()
+    global.chrome.runtime.onMessage = {
+      addListener: jest.fn((callback) => {
+        callback(stubReq, "sender", mockRes);
+      }),
+    };
+
+    // Dynamic import of background script
+    const signIn = require("../src/background/background").signIn;
+    await expect(signIn(stubReq)).resolves.toStrictEqual({"status": Status.FAILURE, "error": {
+      message: "User already logged in."
+    }})
+  });
 
   // ----- SIGNOUT TESTS -----
   it("user sends request to sign out, chrome storage is cleared", async () => {

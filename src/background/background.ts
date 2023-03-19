@@ -5,7 +5,6 @@ import { PlayerActions, Status, SpotifyScope } from "../Utils/SpotifyUtils";
 // REMOVE: Used to check if background script runs in console
 // console.log("DEBUG: Running background script...");
 
-
 // ----- User Authentication functions and objects -----
 
 // Spotify scopes
@@ -65,7 +64,7 @@ const requestAccessToken = async (client: any) => {
     method: "POST",
     headers,
     body: params.toString(),
-  })
+  });
 };
 
 // Request to get refresh token
@@ -135,7 +134,9 @@ const signIn = async (params: any) => {
           if (chrome.runtime.lastError) {
             resolve({
               status: Status.ERROR,
-              message: chrome.runtime.lastError.message!,
+              error: {
+                message: chrome.runtime.lastError.message,
+              },
             });
             return;
           }
@@ -143,7 +144,7 @@ const signIn = async (params: any) => {
           if (res === null || res === undefined) {
             resolve({
               status: Status.ERROR,
-              message: "User access denied.",
+              error: { message: "User access denied." },
             });
             return;
           }
@@ -155,7 +156,7 @@ const signIn = async (params: any) => {
           ) {
             resolve({
               status: Status.ERROR,
-              message: "User access denied.",
+              error: {message: "User access denied."},
             });
             return;
           }
@@ -163,8 +164,8 @@ const signIn = async (params: any) => {
           client.authCode = url.searchParams.get("code")!;
           client.verifier = verifier;
           requestAccessToken(client)
-            .then(res => res.json())
-            .then(data => {
+            .then((res) => res.json())
+            .then((data) => {
               setAccessTokenHandler(data);
               setRefreshTokenTimer(data);
               resolve({
@@ -173,21 +174,19 @@ const signIn = async (params: any) => {
               });
             })
             .catch((err) => {
-              signOut();
               return resolve({
                 status: Status.ERROR,
-                message: err.message,
+                error: {message: err.message},
               });
             });
         }
       );
     });
-    
   } else {
     return new Promise((resolve, reject) => {
       return resolve({
         status: Status.FAILURE,
-        message: "User already logged in.",
+        error: {message: "User already logged in."},
       });
     });
   }
@@ -369,14 +368,14 @@ const trackCommand = async (
   path = path + "?" + new URLSearchParams(query).toString();
   await request(method, path, params.accessToken)
     .then((res) => {
-      // Note: Will return 204 for track command success 
+      // Note: Will return 204 for track command success
       if (res.status === 200 || res.status === 204) {
         response = { status: Status.SUCCESS };
       } else if (res.status === 403) {
         // Note: User is does not have premium account error
         response = { status: Status.FAILURE };
       } else {
-        throw {status: Status.ERROR}
+        throw { status: Status.ERROR };
       }
     })
     .catch((err) => {
@@ -530,4 +529,4 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 });
 
 // Note: Used for testing
-export {signIn}
+export { signIn };
