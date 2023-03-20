@@ -120,6 +120,7 @@ const setRefreshTokenTimer = (data: any) => {
 };
 
 // Launch user auth flow
+// Note: Need to return promises to wait for launchWebAuthFlow completion
 const signIn = async (params: any) => {
   if (params && !params.signedIn) {
     const [challenge, verifier] = params.data.challenge;
@@ -156,7 +157,7 @@ const signIn = async (params: any) => {
           ) {
             resolve({
               status: Status.ERROR,
-              error: {message: "User access denied."},
+              error: { message: "User access denied." },
             });
             return;
           }
@@ -170,13 +171,12 @@ const signIn = async (params: any) => {
               setRefreshTokenTimer(data);
               resolve({
                 status: Status.SUCCESS,
-                error: "",
               });
             })
             .catch((err) => {
               return resolve({
                 status: Status.ERROR,
-                error: {message: err.message},
+                error: { message: err.message },
               });
             });
         }
@@ -186,7 +186,7 @@ const signIn = async (params: any) => {
     return new Promise((resolve, reject) => {
       return resolve({
         status: Status.FAILURE,
-        error: {message: "User already logged in."},
+        error: { message: "User already logged in." },
       });
     });
   }
@@ -286,7 +286,7 @@ const getCurrentlyPlaying = async (params: any) => {
           isSaved: false,
           durationMs: data.item.duration_ms,
           progressMs: data.progress_ms,
-          type: "tracks",
+          type: "tracks", // Note: Different naming used for future spotify queries
         };
         // Case: Currently playing item is episode (audio and/or video)
       } else if (data.currently_playing_type === "episode") {
@@ -302,6 +302,7 @@ const getCurrentlyPlaying = async (params: any) => {
           durationMs: data.item.duration_ms,
           progressMs: data.progress_ms,
           // Note: Current types are ["episode", "mixed", "Ad"]
+          // - Different naming used for future spotify queries
           type: data.item.type === "episode" ? "episodes" : "audiobooks",
         };
       } else if (data.currently_playing_type === "ad") {
@@ -529,4 +530,4 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 });
 
 // Note: Used for testing
-export { signIn };
+export { signIn, getCurrentlyPlaying };
