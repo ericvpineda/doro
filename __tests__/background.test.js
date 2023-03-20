@@ -16,6 +16,8 @@ import "@testing-library/jest-dom";
 //  - need to mock spotify API calls to prevent multiple calls to API
 //  - unable to get correct jest mock calls in Proimise then() statements
 //   - solution: break up mock for chrome listener and user command
+// - FIX:
+//  - error/failure messages to match component tests
 
 describe("Test background script", () => {
   const refresh_token_stub =
@@ -60,7 +62,7 @@ describe("Test background script", () => {
   // ----- SIGNIN TESTS -----
 
   // Note: Cannot simply check mockRes call since return value relies launchWebAuthFlow
-  it("user sends request to sign in with valid credientials, chrome listener receives correct player action", async () => {
+  it("user sends request to sign in with valid credientials, chrome listener returns correct response", async () => {
     // Stub user request
     const stubState = encodeURIComponent(random(43));
     const stubReq = {
@@ -500,9 +502,130 @@ describe("Test background script", () => {
     });
   });
 
+  // ----- GET PROFILE TESTS -----
+  it("user sends request to get profile, chrome listener returns correct response", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.GET_PROFILE,
+    };
+
+    // Mock chrome listener functionality
+    const mockRes = jest.fn();
+    global.chrome.runtime.onMessage = {
+      addListener: jest.fn((callback) => {
+        callback(stubReq, "sender", mockRes);
+      }),
+    };
+
+    // Dynamic import of background script
+    require(backgroundScriptPath);
+
+    await waitFor(() => {
+      expect(mockRes).toHaveBeenCalledTimes(1);
+    });
+  })
+
+  it("user sends request to get profile, returns success", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.GET_PROFILE,
+      accessToken: access_token_stub,
+      refreshToken: refresh_token_stub,
+      expiresIn: expires_in_stub,
+    };
+
+    // Mock fetch request to Spotify API
+    const sampleProfileUrl = "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=580&q=80"
+    global.fetch = jest.fn().mockImplementation(
+      (url, obj) =>
+        new Promise((resolve, reject) =>
+          resolve({
+            status: 200, // Stub success status
+            json: () => new Promise((resolve, reject) => {
+              resolve({
+                images: [
+                  {url: sampleProfileUrl}
+                ]
+              })
+            })
+          })
+        )
+    );
+
+    const getUserProfile = require(backgroundScriptPath).getUserProfile;
+    await expect(
+      getUserProfile(stubReq)
+    ).resolves.toStrictEqual({
+      status: Status.SUCCESS,
+      data: {
+        profileUrl: sampleProfileUrl
+      }
+    });
+  })
+
+  it("user sends request to get profile, bad OAuth request, returns failure", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.GET_PROFILE,
+      accessToken: access_token_stub,
+      refreshToken: refresh_token_stub,
+      expiresIn: expires_in_stub,
+    };
+
+    // Mock fetch request to Spotify API
+    global.fetch = jest.fn().mockImplementation(
+      (url, obj) =>
+        new Promise((resolve, reject) =>
+          resolve({
+            status: 403, // Stub failure status
+          })
+        )
+    );
+
+    const getUserProfile = require(backgroundScriptPath).getUserProfile;
+    await expect(
+      getUserProfile(stubReq)
+    ).resolves.toStrictEqual({
+      status: Status.FAILURE,
+      error: {
+        message: "Error occured when getting user profile."
+      }
+    });
+  })
+
+  it("user sends request to get profile, recieves unknown status, returns error", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.GET_PROFILE,
+      accessToken: access_token_stub,
+      refreshToken: refresh_token_stub,
+      expiresIn: expires_in_stub,
+    };
+
+    // Mock fetch request to Spotify API
+    global.fetch = jest.fn().mockImplementation(
+      (url, obj) =>
+        new Promise((resolve, reject) =>
+          resolve({
+            status: 401, // Stub error status
+          })
+        )
+    );
+
+    const getUserProfile = require(backgroundScriptPath).getUserProfile;
+    await expect(
+      getUserProfile(stubReq)
+    ).resolves.toStrictEqual({
+      status: Status.ERROR,
+      error: {
+        message: "Error occured when getting user profile."
+      }
+    });
+  })
+
   // ----- GET CURRENTLY PLAYING TESTS -----
-  
-  it("user sends request to get currently playing track, chrome listener recieves correct response", async () => {
+
+  it("user sends request to get currently playing track, chrome listener returns correct response", async () => {
     // Stub user request
     const stubReq = {
       message: PlayerActions.GET_CURRENTLY_PLAYING,
@@ -955,7 +1078,7 @@ describe("Test background script", () => {
       (url, obj) =>
         new Promise((resolve, reject) =>
           resolve({
-            status: 401, // Stub success status
+            status: 401, // Stub error status
           })
         )
     );
@@ -970,26 +1093,963 @@ describe("Test background script", () => {
   });
 
   // ----- TRACK COMMAND TESTS -----
-  test.todo("user sends request to play track, returns success");
-  test.todo(
-    "user sends request to play track, but user is not spotify premium member, returns failure"
-  );
-  test.todo(
-    "user sends request to play track, but spotify API returns unknown status, returns error"
-  );
-  test.todo("user sends request to pause track, returns success");
-  test.todo("user sends request to get next track, returns success");
-  test.todo("user sends request to get previous track, returns success");
-  test.todo("user sends request to save track, returns success");
-  test.todo("user sends request to remove track, returns success");
-  test.todo("user sends request to set volume, returns success");
-  test.todo("user sends request to seek track position, returns success");
+
+  // PLAY TRACK tests
+  it("user sends request to play track, chrome listener returns correct response", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.PLAY,
+    };
+
+    // Mock chrome listener functionality
+    const mockRes = jest.fn();
+    global.chrome.runtime.onMessage = {
+      addListener: jest.fn((callback) => {
+        callback(stubReq, "sender", mockRes);
+      }),
+    };
+
+    // Dynamic import of background script
+    require(backgroundScriptPath);
+
+    await waitFor(() => {
+      expect(mockRes).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("user sends request to play track, returns success", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.PLAY,
+      accessToken: access_token_stub,
+      refreshToken: refresh_token_stub,
+      expiresIn: expires_in_stub,
+    };
+
+    // Mock fetch request to Spotify API
+    global.fetch = jest.fn().mockImplementation(
+      (url, obj) =>
+        new Promise((resolve, reject) =>
+          resolve({
+            status: 204, // Stub success status
+          })
+        )
+    );
+
+    const trackCommand = require(backgroundScriptPath).trackCommand;
+    const query = { additional_types: "episode" };
+    await expect(
+      trackCommand(stubReq, "PUT", "/player/play", query)
+    ).resolves.toStrictEqual({
+      status: Status.SUCCESS,
+    });
+  });
+
+  it("user sends request to play track, but user is not spotify premium member, returns failure", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.PLAY,
+      accessToken: access_token_stub,
+      refreshToken: refresh_token_stub,
+      expiresIn: expires_in_stub,
+    };
+
+    // Mock fetch request to Spotify API
+    global.fetch = jest.fn().mockImplementation(
+      (url, obj) =>
+        new Promise((resolve, reject) =>
+          resolve({
+            status: 403, // Stub failure status
+          })
+        )
+    );
+
+    const trackCommand = require(backgroundScriptPath).trackCommand;
+    const query = { additional_types: "episode" };
+    await expect(
+      trackCommand(stubReq, "PUT", "/player/play", query)
+    ).resolves.toStrictEqual({
+      status: Status.FAILURE,
+    });
+  });
+
+  it("user sends request to play track, but spotify API returns unknown status, returns error", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.PLAY,
+      accessToken: access_token_stub,
+      refreshToken: refresh_token_stub,
+      expiresIn: expires_in_stub,
+    };
+
+    // Mock fetch request to Spotify API
+    global.fetch = jest.fn().mockImplementation(
+      (url, obj) =>
+        new Promise((resolve, reject) =>
+          resolve({
+            status: 401, // Stub error status
+          })
+        )
+    );
+
+    const trackCommand = require(backgroundScriptPath).trackCommand;
+    const query = { additional_types: "episode" };
+    await expect(
+      trackCommand(stubReq, "PUT", "/player/play", query)
+    ).resolves.toStrictEqual({
+      status: Status.ERROR,
+      error: {
+        message: "Error when completing track command.",
+      },
+    });
+  });
+
+  // PAUSE TRACK tests
+  it("user sends request to pause track, chrome listener returns correct response", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.PAUSE,
+    };
+
+    // Mock chrome listener functionality
+    const mockRes = jest.fn();
+    global.chrome.runtime.onMessage = {
+      addListener: jest.fn((callback) => {
+        callback(stubReq, "sender", mockRes);
+      }),
+    };
+
+    // Dynamic import of background script
+    require(backgroundScriptPath);
+
+    await waitFor(() => {
+      expect(mockRes).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("user sends request to pause track, returns success", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.PAUSE,
+      accessToken: access_token_stub,
+      refreshToken: refresh_token_stub,
+      expiresIn: expires_in_stub,
+    };
+
+    // Mock fetch request to Spotify API
+    global.fetch = jest.fn().mockImplementation(
+      (url, obj) =>
+        new Promise((resolve, reject) =>
+          resolve({
+            status: 204, // Stub success status
+          })
+        )
+    );
+
+    const trackCommand = require(backgroundScriptPath).trackCommand;
+    const query = { additional_types: "episode" };
+    await expect(
+      trackCommand(stubReq, "PUT", "/player/pause", query)
+    ).resolves.toStrictEqual({
+      status: Status.SUCCESS,
+    });
+  });
+
+  it("user sends request to pause track, but user is not spotify premium member, returns failure", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.PAUSE,
+      accessToken: access_token_stub,
+      refreshToken: refresh_token_stub,
+      expiresIn: expires_in_stub,
+    };
+
+    // Mock fetch request to Spotify API
+    global.fetch = jest.fn().mockImplementation(
+      (url, obj) =>
+        new Promise((resolve, reject) =>
+          resolve({
+            status: 403, // Stub failure status
+          })
+        )
+    );
+
+    const trackCommand = require(backgroundScriptPath).trackCommand;
+    const query = { additional_types: "episode" };
+    await expect(
+      trackCommand(stubReq, "PUT", "/player/pause", query)
+    ).resolves.toStrictEqual({
+      status: Status.FAILURE,
+    });
+  });
+
+  it("user sends request to pause track, but spotify API returns unknown status, returns error", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.PAUSE,
+      accessToken: access_token_stub,
+      refreshToken: refresh_token_stub,
+      expiresIn: expires_in_stub,
+    };
+
+    // Mock fetch request to Spotify API
+    global.fetch = jest.fn().mockImplementation(
+      (url, obj) =>
+        new Promise((resolve, reject) =>
+          resolve({
+            status: 401, // Stub error status
+          })
+        )
+    );
+
+    const trackCommand = require(backgroundScriptPath).trackCommand;
+    const query = { additional_types: "episode" };
+    await expect(
+      trackCommand(stubReq, "PUT", "/player/pause", query)
+    ).resolves.toStrictEqual({
+      status: Status.ERROR,
+      error: {
+        message: "Error when completing track command.",
+      },
+    });
+  });
+
+  // NEXT TRACK tests
+  it("user sends request to get next track, chrome listener returns correct response", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.NEXT,
+    };
+
+    // Mock chrome listener functionality
+    const mockRes = jest.fn();
+    global.chrome.runtime.onMessage = {
+      addListener: jest.fn((callback) => {
+        callback(stubReq, "sender", mockRes);
+      }),
+    };
+
+    // Dynamic import of background script
+    require(backgroundScriptPath);
+
+    await waitFor(() => {
+      expect(mockRes).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("user sends request to get next track, returns success", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.NEXT,
+      accessToken: access_token_stub,
+      refreshToken: refresh_token_stub,
+      expiresIn: expires_in_stub,
+    };
+
+    // Mock fetch request to Spotify API
+    global.fetch = jest.fn().mockImplementation(
+      (url, obj) =>
+        new Promise((resolve, reject) =>
+          resolve({
+            status: 204, // Stub success status
+          })
+        )
+    );
+
+    const trackCommand = require(backgroundScriptPath).trackCommand;
+    const query = { additional_types: "episode" };
+    await expect(
+      trackCommand(stubReq, "POST", "/player/next", query)
+    ).resolves.toStrictEqual({
+      status: Status.SUCCESS,
+    });
+  });
+
+  it("user sends request to get next track, but user is not spotify premium member, returns failure", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.NEXT,
+      accessToken: access_token_stub,
+      refreshToken: refresh_token_stub,
+      expiresIn: expires_in_stub,
+    };
+
+    // Mock fetch request to Spotify API
+    global.fetch = jest.fn().mockImplementation(
+      (url, obj) =>
+        new Promise((resolve, reject) =>
+          resolve({
+            status: 403, // Stub failure status
+          })
+        )
+    );
+
+    const trackCommand = require(backgroundScriptPath).trackCommand;
+    const query = { additional_types: "episode" };
+    await expect(
+      trackCommand(stubReq, "POST", "/player/next", query)
+    ).resolves.toStrictEqual({
+      status: Status.FAILURE,
+    });
+  });
+
+  it("user sends request to get next track, but spotify API returns unknown status, returns error", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.NEXT,
+      accessToken: access_token_stub,
+      refreshToken: refresh_token_stub,
+      expiresIn: expires_in_stub,
+    };
+
+    // Mock fetch request to Spotify API
+    global.fetch = jest.fn().mockImplementation(
+      (url, obj) =>
+        new Promise((resolve, reject) =>
+          resolve({
+            status: 401, // Stub error status
+          })
+        )
+    );
+
+    const trackCommand = require(backgroundScriptPath).trackCommand;
+    const query = { additional_types: "episode" };
+    await expect(
+      trackCommand(stubReq, "POST", "/player/next", query)
+    ).resolves.toStrictEqual({
+      status: Status.ERROR,
+      error: {
+        message: "Error when completing track command.",
+      },
+    });
+  });
+
+  // PREVIOUS TRACK tests
+  it("user sends request to get previous track, chrome listener returns correct response", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.PREVIOUS,
+    };
+
+    // Mock chrome listener functionality
+    const mockRes = jest.fn();
+    global.chrome.runtime.onMessage = {
+      addListener: jest.fn((callback) => {
+        callback(stubReq, "sender", mockRes);
+      }),
+    };
+
+    // Dynamic import of background script
+    require(backgroundScriptPath);
+
+    await waitFor(() => {
+      expect(mockRes).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("user sends request to get previous track, returns success", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.PREVIOUS,
+      accessToken: access_token_stub,
+      refreshToken: refresh_token_stub,
+      expiresIn: expires_in_stub,
+    };
+
+    // Mock fetch request to Spotify API
+    global.fetch = jest.fn().mockImplementation(
+      (url, obj) =>
+        new Promise((resolve, reject) =>
+          resolve({
+            status: 204, // Stub success status
+          })
+        )
+    );
+
+    const trackCommand = require(backgroundScriptPath).trackCommand;
+    const query = { additional_types: "episode" };
+    await expect(
+      trackCommand(stubReq, "POST", "/player/previous", query)
+    ).resolves.toStrictEqual({
+      status: Status.SUCCESS,
+    });
+  });
+
+  it("user sends request to get previous track, but user is not spotify premium member, returns failure", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.PREVIOUS,
+      accessToken: access_token_stub,
+      refreshToken: refresh_token_stub,
+      expiresIn: expires_in_stub,
+    };
+
+    // Mock fetch request to Spotify API
+    global.fetch = jest.fn().mockImplementation(
+      (url, obj) =>
+        new Promise((resolve, reject) =>
+          resolve({
+            status: 403, // Stub failure status
+          })
+        )
+    );
+
+    const trackCommand = require(backgroundScriptPath).trackCommand;
+    const query = { additional_types: "episode" };
+    await expect(
+      trackCommand(stubReq, "POST", "/player/previous", query)
+    ).resolves.toStrictEqual({
+      status: Status.FAILURE,
+    });
+  });
+
+  it("user sends request to get previous track, but spotify API returns unknown status, returns error", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.PREVIOUS,
+      accessToken: access_token_stub,
+      refreshToken: refresh_token_stub,
+      expiresIn: expires_in_stub,
+    };
+
+    // Mock fetch request to Spotify API
+    global.fetch = jest.fn().mockImplementation(
+      (url, obj) =>
+        new Promise((resolve, reject) =>
+          resolve({
+            status: 401, // Stub error status
+          })
+        )
+    );
+
+    const trackCommand = require(backgroundScriptPath).trackCommand;
+    const query = { additional_types: "episode" };
+    await expect(
+      trackCommand(stubReq, "POST", "/player/previous", query)
+    ).resolves.toStrictEqual({
+      status: Status.ERROR,
+      error: {
+        message: "Error when completing track command.",
+      },
+    });
+  });
+
+  // SAVE TRACK tests
+  it("user sends request to save track, chrome listener returns correct response", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.SAVE_TRACK,
+    };
+
+    // Mock chrome listener functionality
+    const mockRes = jest.fn();
+    global.chrome.runtime.onMessage = {
+      addListener: jest.fn((callback) => {
+        callback(stubReq, "sender", mockRes);
+      }),
+    };
+
+    // Dynamic import of background script
+    require(backgroundScriptPath);
+
+    await waitFor(() => {
+      expect(mockRes).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("user sends request to save track, returns success", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.SAVE_TRACK,
+      accessToken: access_token_stub,
+      refreshToken: refresh_token_stub,
+      expiresIn: expires_in_stub,
+    };
+
+    // Mock fetch request to Spotify API
+    global.fetch = jest.fn().mockImplementation(
+      (url, obj) =>
+        new Promise((resolve, reject) =>
+          resolve({
+            status: 204, // Stub success status
+          })
+        )
+    );
+
+
+    const stubQueryPath = {
+      id: "track-id-stub",
+      type: "tracks"
+    }
+    const trackCommand = require(backgroundScriptPath).trackCommand;
+    const query = { ids: stubQueryPath.id, additional_types: "episode" };
+
+    await expect(
+      trackCommand(stubReq, "PUT", "/" + stubQueryPath.type, query)
+    ).resolves.toStrictEqual({
+      status: Status.SUCCESS,
+    });
+  });
+
+  it("user sends request to save track, but user is not spotify premium member, returns failure", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.SAVE_TRACK,
+      accessToken: access_token_stub,
+      refreshToken: refresh_token_stub,
+      expiresIn: expires_in_stub,
+    };
+
+    // Mock fetch request to Spotify API
+    global.fetch = jest.fn().mockImplementation(
+      (url, obj) =>
+        new Promise((resolve, reject) =>
+          resolve({
+            status: 403, // Stub failure status
+          })
+        )
+    );
+
+    const stubQueryPath = {
+      id: "track-id-stub",
+      type: "tracks"
+    }
+    const trackCommand = require(backgroundScriptPath).trackCommand;
+    const query = { ids: stubQueryPath.id, additional_types: "episode" };
+
+    await expect(
+      trackCommand(stubReq, "PUT", "/" + stubQueryPath.type, query)
+    ).resolves.toStrictEqual({
+      status: Status.FAILURE,
+    });
+  });
+
+  it("user sends request to save track, but spotify API returns unknown status, returns error", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.SAVE_TRACK,
+      accessToken: access_token_stub,
+      refreshToken: refresh_token_stub,
+      expiresIn: expires_in_stub,
+    };
+
+    // Mock fetch request to Spotify API
+    global.fetch = jest.fn().mockImplementation(
+      (url, obj) =>
+        new Promise((resolve, reject) =>
+          resolve({
+            status: 401, // Stub error status
+          })
+        )
+    );
+
+    const stubQueryPath = {
+      id: "track-id-stub",
+      type: "tracks"
+    }
+    const trackCommand = require(backgroundScriptPath).trackCommand;
+    const query = { ids: stubQueryPath.id, additional_types: "episode"}
+    await expect(
+      trackCommand(stubReq, "PUT", "/" + stubQueryPath.type, query)
+    ).resolves.toStrictEqual({
+      status: Status.ERROR,
+      error: {
+        message: "Error when completing track command.",
+      },
+    });
+  });
+
+  // REMOVE TRACK tests
+  it("user sends request to remove track, chrome listener returns correct response", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.REMOVE_SAVED_TRACK,
+    };
+
+    // Mock chrome listener functionality
+    const mockRes = jest.fn();
+    global.chrome.runtime.onMessage = {
+      addListener: jest.fn((callback) => {
+        callback(stubReq, "sender", mockRes);
+      }),
+    };
+
+    // Dynamic import of background script
+    require(backgroundScriptPath);
+
+    await waitFor(() => {
+      expect(mockRes).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("user sends request to remove track, returns success", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.REMOVE_SAVED_TRACK,
+      accessToken: access_token_stub,
+      refreshToken: refresh_token_stub,
+      expiresIn: expires_in_stub,
+    };
+
+    // Mock fetch request to Spotify API
+    global.fetch = jest.fn().mockImplementation(
+      (url, obj) =>
+        new Promise((resolve, reject) =>
+          resolve({
+            status: 204, // Stub success status
+          })
+        )
+    );
+
+    const stubQueryPath = {
+      id: "track-id-stub",
+      type: "tracks"
+    }
+    const trackCommand = require(backgroundScriptPath).trackCommand;
+    const query = { ids: stubQueryPath.id, additional_types: "episode" };
+
+    await expect(
+      trackCommand(stubReq, "DELETE", "/" + stubQueryPath.type, query)
+    ).resolves.toStrictEqual({
+      status: Status.SUCCESS,
+    });
+  });
+
+  it("user sends request to remove track, but user is not spotify premium member, returns failure", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.REMOVE_SAVED_TRACK,
+      accessToken: access_token_stub,
+      refreshToken: refresh_token_stub,
+      expiresIn: expires_in_stub,
+    };
+
+    // Mock fetch request to Spotify API
+    global.fetch = jest.fn().mockImplementation(
+      (url, obj) =>
+        new Promise((resolve, reject) =>
+          resolve({
+            status: 403, // Stub failure status
+          })
+        )
+    );
+
+    const stubQueryPath = {
+      id: "track-id-stub",
+      type: "tracks"
+    }
+    const trackCommand = require(backgroundScriptPath).trackCommand;
+    const query = { ids: stubQueryPath.id, additional_types: "episode" };
+
+    await expect(
+      trackCommand(stubReq, "DELETE", "/" + stubQueryPath.type, query)
+    ).resolves.toStrictEqual({
+      status: Status.FAILURE,
+    });
+  });
+
+  it("user sends request to remove track, but spotify API returns unknown status, returns error", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.REMOVE_SAVED_TRACK,
+      accessToken: access_token_stub,
+      refreshToken: refresh_token_stub,
+      expiresIn: expires_in_stub,
+    };
+
+    // Mock fetch request to Spotify API
+    global.fetch = jest.fn().mockImplementation(
+      (url, obj) =>
+        new Promise((resolve, reject) =>
+          resolve({
+            status: 401, // Stub error status
+          })
+        )
+    );
+
+    const stubQueryPath = {
+      id: "track-id-stub",
+      type: "tracks"
+    }
+    const trackCommand = require(backgroundScriptPath).trackCommand;
+    const query = { ids: stubQueryPath.id, additional_types: "episode"}
+    await expect(
+      trackCommand(stubReq, "DELETE", "/" + stubQueryPath.type, query)
+    ).resolves.toStrictEqual({
+      status: Status.ERROR,
+      error: {
+        message: "Error when completing track command.",
+      },
+    });
+  });
+
+  // SET VOLUME tests
+  it("user sends request to set volume, chrome listener returns correct response", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.SET_VOLUME,
+      query: { volumePercent: "100", deviceId: "" },
+    };
+
+    // Mock chrome listener functionality
+    const mockRes = jest.fn();
+    global.chrome.runtime.onMessage = {
+      addListener: jest.fn((callback) => {
+        callback(stubReq, "sender", mockRes);
+      }),
+    };
+
+    // Dynamic import of background script
+    require(backgroundScriptPath);
+
+    await waitFor(() => {
+      expect(mockRes).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("user sends request to set volume, returns success", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.SET_VOLUME,
+      accessToken: access_token_stub,
+      refreshToken: refresh_token_stub,
+      expiresIn: expires_in_stub,
+    };
+
+    // Mock fetch request to Spotify API
+    global.fetch = jest.fn().mockImplementation(
+      (url, obj) =>
+        new Promise((resolve, reject) =>
+          resolve({
+            status: 204, // Stub success status
+          })
+        )
+    );
+
+    const stubQueryPath = {
+      volumePercent: "100",
+      deviceId: "deviceId-stub"
+    }
+    const trackCommand = require(backgroundScriptPath).trackCommand;
+    const query = { ids: stubQueryPath.id, additional_types: "episode" };
+
+    await expect(
+      trackCommand(stubReq, "PUT", "/player/volume", query)
+    ).resolves.toStrictEqual({
+      status: Status.SUCCESS,
+    });
+  });
+  
+  it("user sends request to set volume, but user is not spotify premium member, returns failure", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.SET_VOLUME,
+      accessToken: access_token_stub,
+      refreshToken: refresh_token_stub,
+      expiresIn: expires_in_stub,
+    };
+
+    // Mock fetch request to Spotify API
+    global.fetch = jest.fn().mockImplementation(
+      (url, obj) =>
+        new Promise((resolve, reject) =>
+          resolve({
+            status: 403, // Stub failure status
+          })
+        )
+    );
+
+    const stubQueryPath = {
+      volumePercent: "100",
+      deviceId: "deviceId-stub"
+    }
+    const trackCommand = require(backgroundScriptPath).trackCommand;
+    const query = { ids: stubQueryPath.id, additional_types: "episode" };
+
+    await expect(
+      trackCommand(stubReq, "PUT", "/player/volume", query)
+    ).resolves.toStrictEqual({
+      status: Status.FAILURE,
+    });
+  });
+
+  it("user sends request to set volume, but spotify API returns unknown status, returns error", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.SET_VOLUME,
+      accessToken: access_token_stub,
+      refreshToken: refresh_token_stub,
+      expiresIn: expires_in_stub,
+    };
+
+    // Mock fetch request to Spotify API
+    global.fetch = jest.fn().mockImplementation(
+      (url, obj) =>
+        new Promise((resolve, reject) =>
+          resolve({
+            status: 401, // Stub error status
+          })
+        )
+    );
+
+    const stubQueryPath = {
+      volumePercent: "100",
+      deviceId: "deviceId-stub"
+    }
+    const trackCommand = require(backgroundScriptPath).trackCommand;
+    const query = { ids: stubQueryPath.id, additional_types: "episode" };
+
+    await expect(
+      trackCommand(stubReq, "PUT", "/player/volume", query)
+    ).resolves.toStrictEqual({
+      status: Status.ERROR,
+      error: {
+        message: "Error when completing track command.",
+      },
+    });
+  });
+
+  // SET TRACK POSITION tests
+  it("user sends request to seek track position, chrome listener returns correct response", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.SEEK_POSITION,
+      query: { positionMs: "0", deviceId: "" },
+    };
+
+    // Mock chrome listener functionality
+    const mockRes = jest.fn();
+    global.chrome.runtime.onMessage = {
+      addListener: jest.fn((callback) => {
+        callback(stubReq, "sender", mockRes);
+      }),
+    };
+
+    // Dynamic import of background script
+    require(backgroundScriptPath);
+
+    await waitFor(() => {
+      expect(mockRes).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("user sends request to seek track position, returns success", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.SEEK_POSITION,
+      accessToken: access_token_stub,
+      refreshToken: refresh_token_stub,
+      expiresIn: expires_in_stub,
+    };
+
+    // Mock fetch request to Spotify API
+    global.fetch = jest.fn().mockImplementation(
+      (url, obj) =>
+        new Promise((resolve, reject) =>
+          resolve({
+            status: 204, // Stub success status
+          })
+        )
+    );
+
+    const stubQueryPath = {
+      positionMs: "0",
+      deviceId: "deviceId-stub"
+    }
+    const trackCommand = require(backgroundScriptPath).trackCommand;
+    const query = { ids: stubQueryPath.id, additional_types: "episode" };
+
+    await expect(
+      trackCommand(stubReq, "PUT", "/player/seek", query)
+    ).resolves.toStrictEqual({
+      status: Status.SUCCESS,
+    });
+  });
+  
+  it("user sends request to seek track, but user is not spotify premium member, returns failure", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.SEEK_POSITION,
+      accessToken: access_token_stub,
+      refreshToken: refresh_token_stub,
+      expiresIn: expires_in_stub,
+    };
+
+    // Mock fetch request to Spotify API
+    global.fetch = jest.fn().mockImplementation(
+      (url, obj) =>
+        new Promise((resolve, reject) =>
+          resolve({
+            status: 403, // Stub failure status
+          })
+        )
+    );
+
+    const stubQueryPath = {
+      positionMs: "0",
+      deviceId: "deviceId-stub"
+    }
+    const trackCommand = require(backgroundScriptPath).trackCommand;
+    const query = { ids: stubQueryPath.id, additional_types: "episode" };
+
+    await expect(
+      trackCommand(stubReq, "PUT", "/player/seek", query)
+    ).resolves.toStrictEqual({
+      status: Status.FAILURE,
+    });
+  });
+
+  it("user sends request to seek track, but spotify API returns unknown status, returns error", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.SEEK_POSITION,
+      accessToken: access_token_stub,
+      refreshToken: refresh_token_stub,
+      expiresIn: expires_in_stub,
+    };
+
+    // Mock fetch request to Spotify API
+    global.fetch = jest.fn().mockImplementation(
+      (url, obj) =>
+        new Promise((resolve, reject) =>
+          resolve({
+            status: 401, // Stub error status
+          })
+        )
+    );
+
+    const stubQueryPath = {
+      positionMs: "0",
+      deviceId: "deviceId-stub"
+    }
+    const trackCommand = require(backgroundScriptPath).trackCommand;
+    const query = { ids: stubQueryPath.id, additional_types: "episode" };
+
+    await expect(
+      trackCommand(stubReq, "PUT", "/player/seek", query)
+    ).resolves.toStrictEqual({
+      status: Status.ERROR,
+      error: {
+        message: "Error when completing track command.",
+      },
+    });
+  });
 
   // ----- ALARM TESTS -----
-  test.todo("alarm interval is set to seconds");
-  test.todo(
-    "timer is not running and user send request to start timer, does not modify timer"
-  );
+  it("alarm interval is set to seconds", () => {
+
+    // Mock chrome alarm
+    global.chrome.alarms = {
+      create: jest.fn((obj) => {}),
+      onAlarm: {addListener: jest.fn()}
+    }
+
+    // Dynamic import of background script
+    require(backgroundScriptPath)
+    expect(global.chrome.alarms.create).toBeCalledWith({periodInMinutes: 1 / 60})
+  });
+
+  test.todo("timer is not running and user send request to start timer, does not modify timer");
   test.todo("timer counts down from 1 hours to only minutes and seconds");
   test.todo("timer counts down from 1 minute to only seconds");
   test.todo("timer is done and sends timer done notification to user");

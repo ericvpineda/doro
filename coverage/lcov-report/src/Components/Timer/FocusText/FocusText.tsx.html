@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">8.33% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>12/12</span>
+                <span class='fraction'>1/12</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>6/6</span>
+                <span class='fraction'>0/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>3/3</span>
+                <span class='fraction'>0/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">8.33% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>12/12</span>
+                <span class='fraction'>1/12</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -110,28 +110,28 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">22x</span>
-<span class="cline-any cline-yes">22x</span>
-<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">22x</span>
-<span class="cline-any cline-yes">14x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">14x</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -150,21 +150,21 @@ import styles from "./FocusText.module.css";
 import DescriptContext from "../../../hooks/DescriptContext";
 import {ChromeData} from "../../../Utils/ChromeUtils";
 &nbsp;
-const FocusText: FC = () =&gt; {
-  const [description, setDescription] = useState("");
-  const [isExecutingRequest, setIsExecutingRequest] = useState(false);
-  const ctx = useContext(DescriptContext); // Rerender when clear button submit (clock component)
+const FocusText: FC = <span class="fstat-no" title="function not covered" >()</span> =&gt; {
+  const [description, setDescription] = <span class="cstat-no" title="statement not covered" >useState("");</span>
+  const [isExecutingRequest, setIsExecutingRequest] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
+  const ctx = <span class="cstat-no" title="statement not covered" >useContext(DescriptContext);</span> // Rerender when clear button submit (clock component)
 &nbsp;
-  useEffect(() =&gt; {
-    chrome.storage.local.get(
+<span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    chrome.storage.local.get(</span>
       [ChromeData.description, ChromeData.isExecutingRequest],
-      (res) =&gt; {
-        if (res.isExecutingRequest === true) {
-          setDescription(res.description);
-          setIsExecutingRequest(true);
+<span class="fstat-no" title="function not covered" >      (r</span>es) =&gt; {
+<span class="cstat-no" title="statement not covered" >        if (res.isExecutingRequest === true) {</span>
+<span class="cstat-no" title="statement not covered" >          setDescription(res.description);</span>
+<span class="cstat-no" title="statement not covered" >          setIsExecutingRequest(true);</span>
         } else {
-          setDescription("");
-          setIsExecutingRequest(false);
+<span class="cstat-no" title="statement not covered" >          setDescription("");</span>
+<span class="cstat-no" title="statement not covered" >          setIsExecutingRequest(false);</span>
         }
       }
     );
@@ -172,7 +172,7 @@ const FocusText: FC = () =&gt; {
 &nbsp;
   // Note: Updating isExecutingRequest when popup open will not update in component
   // - Need ctx.isShowing to create manual update
-  return (
+<span class="cstat-no" title="statement not covered" >  return (</span>
     &lt;Fragment&gt;
       {isExecutingRequest &amp;&amp; ctx.isShowing? (
         &lt;footer className={styles.focusBox} data-testid="focus-text-active"&gt;
@@ -193,7 +193,7 @@ export default FocusText;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2023-03-16T00:52:50.908Z
+                at 2023-03-20T21:28:54.176Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

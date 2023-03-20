@@ -212,9 +212,11 @@ const getUserProfile = async (params: any) => {
       if (res.status === 200) {
         return res.json();
       } else if (res.status === 403) {
-        throw { status: Status.FAILURE, message: "Bad OAuth request." };
-      } else {
+        // Note: Bad OAuth request
         throw { status: Status.FAILURE };
+      } else {
+        // Note: Unknown status received, but succeed request since signed in
+        throw { status: Status.ERROR };
       }
     })
     .then((data) => {
@@ -530,4 +532,4 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 });
 
 // Note: Used for testing
-export { signIn, getCurrentlyPlaying };
+export { signIn, getCurrentlyPlaying, getUserProfile, trackCommand };

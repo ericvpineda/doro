@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">5.55% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>18/18</span>
+                <span class='fraction'>1/18</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>0/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>5/5</span>
+                <span class='fraction'>0/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">5.55% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>18/18</span>
+                <span class='fraction'>1/18</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -145,40 +145,40 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">22x</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">22x</span>
-<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">22x</span>
-<span class="cline-any cline-yes">11x</span>
-<span class="cline-any cline-yes">11x</span>
-<span class="cline-any cline-yes">11x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">11x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -211,41 +211,41 @@ interface Props {
 }
 &nbsp;
 // Description component for user input
-const Description: FC&lt;Props&gt; = (props): JSX.Element =&gt; {
-  const defaultMsg = props.defaultMsg;
+const Description: FC&lt;Props&gt; = <span class="fstat-no" title="function not covered" >(p</span>rops): JSX.Element =&gt; {
+  const defaultMsg = <span class="cstat-no" title="statement not covered" >props.defaultMsg;</span>
 &nbsp;
   // Note: Invariant that description can never be empty
-  const setDescriptHandler = (event: ChangeEvent&lt;HTMLTextAreaElement&gt;) =&gt; {
-    const description = event.target.value;
-    if (description.length &gt; 30) {
-      props.setErrorMessage("Focus plan character limit is 0-30.");
+  const setDescriptHandler = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(e</span>vent: ChangeEvent&lt;HTMLTextAreaElement&gt;) =&gt; {</span>
+    const description = <span class="cstat-no" title="statement not covered" >event.target.value;</span>
+<span class="cstat-no" title="statement not covered" >    if (description.length &gt; 30) {</span>
+<span class="cstat-no" title="statement not covered" >      props.setErrorMessage("Focus plan character limit is 0-30.");</span>
     } else {
-      props.setErrorMessage("");
-      props.setDescription(description.length &gt; 0 ? description : defaultMsg);
+<span class="cstat-no" title="statement not covered" >      props.setErrorMessage("");</span>
+<span class="cstat-no" title="statement not covered" >      props.setDescription(description.length &gt; 0 ? description : defaultMsg);</span>
     }
   };
 &nbsp;
   // Used to limit description input call rate
-  const debounceChangeHandler = useMemo(
-    () =&gt; debounce(setDescriptHandler, 300),
+  const debounceChangeHandler = <span class="cstat-no" title="statement not covered" >useMemo(</span>
+<span class="fstat-no" title="function not covered" >    ()</span> =&gt; <span class="cstat-no" title="statement not covered" >debounce(setDescriptHandler, 300),</span>
     []
   );
 &nbsp;
 &nbsp;
   // Get and set cache of user description
-  useEffect(() =&gt; {
-    const descriptionElem = document.getElementById("description");
-    chrome.storage.local.get([ChromeData.description], (res) =&gt; {
-      const descriptionCache = res.description;
+<span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
+    const descriptionElem = <span class="cstat-no" title="statement not covered" >document.getElementById("description");</span>
+<span class="cstat-no" title="statement not covered" >    chrome.storage.local.get([ChromeData.description], <span class="fstat-no" title="function not covered" >(r</span>es) =&gt; {</span>
+      const descriptionCache = <span class="cstat-no" title="statement not covered" >res.description;</span>
       // Set cache description if element rendered and cache data valid
-      if (descriptionElem &amp;&amp; descriptionCache) {
-        descriptionElem.innerHTML = descriptionCache;
-        props.setDescription(descriptionCache);
+<span class="cstat-no" title="statement not covered" >      if (descriptionElem &amp;&amp; descriptionCache) {</span>
+<span class="cstat-no" title="statement not covered" >        descriptionElem.innerHTML = descriptionCache;</span>
+<span class="cstat-no" title="statement not covered" >        props.setDescription(descriptionCache);</span>
       }
     });
   }, []);
 &nbsp;
-  return (
+<span class="cstat-no" title="statement not covered" >  return (</span>
     &lt;div className="row text-nowrap"&gt;
       &lt;div className="col-3"&gt;
         &lt;label className="form-label" htmlFor="description"&gt;Focus plan?&lt;/label&gt;
@@ -271,7 +271,7 @@ export default Description;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2023-03-16T00:52:50.908Z
+                at 2023-03-20T21:28:54.176Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

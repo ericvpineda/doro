@@ -53,7 +53,7 @@ describe("Test Profile Component", () => {
     expect(logSpy).toBeCalledTimes(0);
   });
 
-  it("getting user profile returns failure", () => {
+  it("getting user profile, returns failure", () => {
     const message = "Failure when getting user profile."
     global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
       callback({
@@ -69,7 +69,7 @@ describe("Test Profile Component", () => {
     expect(logSpy).toHaveBeenCalledWith(message);
   });
 
-  it("getting user profile returns error", () => {
+  it("getting user profile, returns error", () => {
     const message = "Error occured when getting user profile.";
     global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
         callback({
@@ -84,7 +84,8 @@ describe("Test Profile Component", () => {
   
       expect(logSpy).toHaveBeenCalledWith(message);
   });
-  it("getting user profile returns unknown error", () => {
+
+  it("getting user profile, returns unknown error", () => {
     const message = "Unknown error occured when getting profile url.";
     global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
         callback({
@@ -100,7 +101,7 @@ describe("Test Profile Component", () => {
       expect(logSpy).toHaveBeenCalledWith(message);
   });
 
-  it("user successfully gets profile and signs out successfully", async () => {
+  it("user successfully gets profile, signs user out successfully", async () => {
     global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
       callback({ status: Status.SUCCESS, data: { profileUrl: "" } });
     });
