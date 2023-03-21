@@ -1,6 +1,4 @@
-import React from "react";
-import { waitFor, act } from "@testing-library/react";
-// import { chrome } from "jest-chrome";
+import { waitFor } from "@testing-library/react";
 import { PlayerActions, Status } from "../src/Utils/SpotifyUtils";
 import { ChromeData } from "../src/Utils/ChromeUtils";
 import { generateChallenge, random } from "../src/Utils/AuthUtils";
@@ -135,21 +133,40 @@ describe("Test background script", () => {
     );
 
     // Mock fetch request to Spotify API
-    global.fetch = jest.fn(
-      (url, obj) =>
+    const updated_refresh_token_stub = "asdfhaweoksadfas"
+    const updated_access_token_stub = "asdflkhasgdosdfDS"
+    global.fetch = jest.fn()
+      .mockImplementationOnce(
+        (url, obj) =>
         new Promise((resolve, reject) =>
           resolve({
             json: () =>
               new Promise((resolve, reject) =>
                 resolve({
-                  refresh_token: refresh_token_stub, // Fake token
-                  expires_in: expires_in_stub, // Default as in spotify documentation
-                  access_token: access_token_stub, // Fake token
+                  id: "stub-client-id",
+                  refreshToken: refresh_token_stub, // Fake token
+                  expiresIn: 0, // Stub to initiate set refresh token timer 
+                  accessToken: access_token_stub, // Fake token
                 })
               ),
           })
         )
-    );
+      ).mockImplementation( // Mock focuses refresh token to occur
+        (url, obj) =>
+        new Promise((resolve, reject) =>
+          resolve({
+            json: () =>
+              new Promise((resolve, reject) =>
+                resolve({
+                  id: "client-id",
+                  refresh_token: updated_refresh_token_stub, // Fake token
+                  expires_in: expires_in_stub, // Stub to initiate set refresh token timer 
+                  access_token: updated_access_token_stub, // Fake token
+                })
+              ),
+          })
+        )
+      )
 
     // Dynamic import of background script
     const signIn = require(backgroundScriptPath).signIn;
@@ -181,9 +198,9 @@ describe("Test background script", () => {
     // Wait for async get() call from chrome storage
     await waitFor(() => {
       expect(result.signedIn).toBe(true);
-      expect(result.refreshToken).toBe(refresh_token_stub);
-      expect(result.expiresIn).toBe(expires_in_stub);
-      expect(result.accessToken).toBe(access_token_stub);
+      expect(result.refreshToken).toBe(updated_refresh_token_stub);
+      expect(result.expiresIn).toBe(expires_in_stub); // Original time should be assigned
+      expect(result.accessToken).toBe(updated_access_token_stub);
       expect(result.endTime).not.toBeNull;
       expect(mockRes).toHaveBeenCalledWith({ status: Status.SUCCESS });
     });
@@ -536,6 +553,44 @@ describe("Test background script", () => {
 
     // Mock fetch request to Spotify API
     const sampleProfileUrl = "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=580&q=80"
+    global.fetch = jest.fn().mockImplementation(
+      (url, obj) =>
+        new Promise((resolve, reject) =>
+          resolve({
+            status: 200, // Stub success status
+            json: () => new Promise((resolve, reject) => {
+              resolve({
+                images: [
+                  {url: sampleProfileUrl}
+                ]
+              })
+            })
+          })
+        )
+    );
+
+    const getUserProfile = require(backgroundScriptPath).getUserProfile;
+    await expect(
+      getUserProfile(stubReq)
+    ).resolves.toStrictEqual({
+      status: Status.SUCCESS,
+      data: {
+        profileUrl: sampleProfileUrl
+      }
+    });
+  })
+  
+  it("user sends request to get empty profile url, returns success", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.GET_PROFILE,
+      accessToken: access_token_stub,
+      refreshToken: refresh_token_stub,
+      expiresIn: expires_in_stub,
+    };
+
+    // Mock fetch request to Spotify API
+    const sampleProfileUrl = ""
     global.fetch = jest.fn().mockImplementation(
       (url, obj) =>
         new Promise((resolve, reject) =>
@@ -2035,6 +2090,33 @@ describe("Test background script", () => {
     });
   });
 
+  it("user requests unknown command, returns error", async () => {
+    // Stub user request
+    const stubReq = {
+      message: PlayerActions.TESTING
+    };
+
+    // Mock chrome listener functionality
+    const mockRes = jest.fn();
+    global.chrome.runtime.onMessage = {
+      addListener: jest.fn((callback) => {
+        callback(stubReq, "sender", mockRes);
+      }),
+    };
+
+    // Dynamic import of background script
+    require(backgroundScriptPath);
+
+    await waitFor(() => {
+      expect(mockRes).toHaveBeenCalledWith({
+        status: Status.ERROR,
+        error: {
+          message: "Unknown error occurred."
+        }
+      });
+    });
+  })
+
   // ----- ALARM TESTS -----
   it("alarm interval is set to seconds", () => {
 
@@ -2049,8 +2131,383 @@ describe("Test background script", () => {
     expect(global.chrome.alarms.create).toBeCalledWith({periodInMinutes: 1 / 60})
   });
 
-  test.todo("timer is not running and user send request to start timer, does not modify timer");
-  test.todo("timer counts down from 1 hours to only minutes and seconds");
-  test.todo("timer counts down from 1 minute to only seconds");
-  test.todo("timer is done and sends timer done notification to user");
+  it("timer is not running and user send request to start timer, does not modify timer", async () => {
+
+    const isRunning = false;
+    const hours = 5;
+    const minutes = 30;
+    const seconds = 23;
+    global.chrome.storage.local.set({
+      isRunning,
+      hours,
+      minutes,
+      seconds
+    })
+    
+    // Mock chrome alarm
+    global.chrome.alarms = {
+      create: jest.fn((obj) => {}),
+      onAlarm: {
+        addListener: (callback) => {
+          callback("test-alarm")
+        }
+      }
+    }
+
+    require(backgroundScriptPath)
+
+    let result;
+    global.chrome.storage.local.get([
+        ChromeData.hours,
+        ChromeData.minutes,
+        ChromeData.seconds,
+        ChromeData.isRunning
+      ], (res) => {
+        result = {
+          hours: res.hours,
+          minutes: res.minutes,
+          seconds: res.seconds,
+          isRunning: res.isRunning
+      }
+    })
+
+
+    await waitFor(() => {
+      expect(result.hours).toBe(hours)
+      expect(result.minutes).toBe(minutes)
+      expect(result.seconds).toBe(seconds)
+      expect(result.isRunning).toBe(isRunning)
+    })
+  });
+
+  it("timer counts down from 1 hours to only minutes and seconds", async () => {
+    
+    const isRunning = true;
+    const hours = 1;
+    const minutes = 0;
+    const seconds = 0;
+    global.chrome.storage.local.set({
+      isRunning,
+      hours,
+      minutes,
+      seconds,
+      setTime: {
+        hours,
+        minutes
+      }
+    })
+    
+    // Mock chrome alarm
+    global.chrome.alarms = {
+      create: jest.fn((obj) => {}),
+      onAlarm: {
+        addListener: (callback) => callback("test-alarm")
+      }
+    }
+
+    require(backgroundScriptPath)
+
+    let result;
+    global.chrome.storage.local.get([
+        ChromeData.hours,
+        ChromeData.minutes,
+        ChromeData.seconds,
+        ChromeData.isRunning
+      ], (res) => {
+        result = {
+          hours: res.hours,
+          minutes: res.minutes,
+          seconds: res.seconds,
+          isRunning: res.isRunning
+      }
+    })
+
+    await waitFor(() => {
+      expect(result.hours).toBe(0)
+      expect(result.minutes).toBe(59)
+      expect(result.seconds).toBe(59)
+      expect(result.isRunning).toBe(isRunning)
+    })
+  });
+    
+  it("timer counts down from 1 minute to only seconds", async () => {
+
+    const isRunning = true;
+    const hours = 0;
+    const minutes = 1;
+    const seconds = 0;
+    global.chrome.storage.local.set({
+      isRunning,
+      hours,
+      minutes,
+      seconds,
+      setTime: {
+        hours,
+        minutes
+      }
+    })
+    
+    // Mock chrome alarm
+    global.chrome.alarms = {
+      create: jest.fn((obj) => {}),
+      onAlarm: {
+        addListener: (callback) => callback("test-alarm")
+      }
+    }
+
+    require(backgroundScriptPath)
+
+    let result;
+    global.chrome.storage.local.get([
+        ChromeData.hours,
+        ChromeData.minutes,
+        ChromeData.seconds,
+        ChromeData.isRunning
+      ], (res) => {
+        result = {
+          hours: res.hours,
+          minutes: res.minutes,
+          seconds: res.seconds,
+          isRunning: res.isRunning
+      }
+    })
+
+    await waitFor(() => {
+      expect(result.hours).toBe(0)
+      expect(result.minutes).toBe(0)
+      expect(result.seconds).toBe(59)
+      expect(result.isRunning).toBe(isRunning)
+    })
+  });
+  
+  it("timer counts down from 55 second value", async () => {
+
+    const isRunning = true;
+    const hours = 0;
+    const minutes = 0;
+    const seconds = 55;
+    global.chrome.storage.local.set({
+      isRunning,
+      hours,
+      minutes,
+      seconds,
+      setTime: {
+        hours,
+        minutes
+      }
+    })
+    
+    // Mock chrome alarm
+    global.chrome.alarms = {
+      create: jest.fn((obj) => {}),
+      onAlarm: {
+        addListener: (callback) => callback("test-alarm")
+      }
+    }
+
+    require(backgroundScriptPath)
+
+    let result;
+    global.chrome.storage.local.get([
+        ChromeData.hours,
+        ChromeData.minutes,
+        ChromeData.seconds,
+        ChromeData.isRunning
+      ], (res) => {
+        result = {
+          hours: res.hours,
+          minutes: res.minutes,
+          seconds: res.seconds,
+          isRunning: res.isRunning
+      }
+    })
+
+    await waitFor(() => {
+      expect(result.hours).toBe(0)
+      expect(result.minutes).toBe(0)
+      expect(result.seconds).toBe(54)
+      expect(result.isRunning).toBe(isRunning)
+    })
+  });
+
+  it("1 hour timer is done, timer sends notification to user", async () => {
+
+    const isRunning = true;
+    const hours = 0;
+    const minutes = 0;
+    const seconds = 0;
+    global.chrome.storage.local.set({
+      isRunning,
+      hours,
+      minutes,
+      seconds,
+      setTime: {
+        hours: 1,
+        minutes
+      }
+    })
+    
+    // Mock chrome alarm
+    global.chrome.alarms = {
+      create: jest.fn((obj) => {}),
+      onAlarm: {
+        addListener: (callback) => callback("test-alarm")
+      }
+    }
+
+    global.chrome.notifications = {
+      create: jest.fn()
+    }
+
+    require(backgroundScriptPath)
+
+    let result;
+    global.chrome.storage.local.get([
+        ChromeData.hours,
+        ChromeData.minutes,
+        ChromeData.seconds,
+        ChromeData.isRunning
+      ], (res) => {
+        result = {
+          hours: res.hours,
+          minutes: res.minutes,
+          seconds: res.seconds,
+          isRunning: res.isRunning
+      }
+    })
+
+    await waitFor(() => {
+      expect(result.hours).toBe(0)
+      expect(result.minutes).toBe(0)
+      expect(result.seconds).toBe(0)
+      expect(result.isRunning).toBe(false)
+      expect(global.chrome.notifications.create).toHaveBeenCalledWith({
+        title: "Doro - Pomodoro with Spotify Player",
+          message: "1 hour(s) timer complete.",
+          type: "basic",
+          iconUrl: "./img/doro_logo.png",
+      })
+    })
+  });
+  
+  it("1 hour 1 minute timer is done, timer sends notification to user", async () => {
+
+    const isRunning = true;
+    const hours = 0;
+    const minutes = 0;
+    const seconds = 0;
+    global.chrome.storage.local.set({
+      isRunning,
+      hours,
+      minutes,
+      seconds,
+      setTime: {
+        hours: 1,
+        minutes: 1
+      }
+    })
+    
+    // Mock chrome alarm
+    global.chrome.alarms = {
+      create: jest.fn((obj) => {}),
+      onAlarm: {
+        addListener: (callback) => callback("test-alarm")
+      }
+    }
+
+    global.chrome.notifications = {
+      create: jest.fn()
+    }
+
+    require(backgroundScriptPath)
+
+    let result;
+    global.chrome.storage.local.get([
+        ChromeData.hours,
+        ChromeData.minutes,
+        ChromeData.seconds,
+        ChromeData.isRunning
+      ], (res) => {
+        result = {
+          hours: res.hours,
+          minutes: res.minutes,
+          seconds: res.seconds,
+          isRunning: res.isRunning
+      }
+    })
+
+    await waitFor(() => {
+      expect(result.hours).toBe(0)
+      expect(result.minutes).toBe(0)
+      expect(result.seconds).toBe(0)
+      expect(result.isRunning).toBe(false)
+      expect(global.chrome.notifications.create).toHaveBeenCalledWith({
+        title: "Doro - Pomodoro with Spotify Player",
+          message: "1 hour(s) and 1 minute(s) timer complete.",
+          type: "basic",
+          iconUrl: "./img/doro_logo.png",
+      })
+    })
+  });
+ 
+  it("1 minute timer is done, timer sends notification to user", async () => {
+
+    const isRunning = true;
+    const hours = 0;
+    const minutes = 0;
+    const seconds = 0;
+    global.chrome.storage.local.set({
+      isRunning,
+      hours,
+      minutes,
+      seconds,
+      setTime: {
+        hours,
+        minutes: 1
+      }
+    })
+    
+    // Mock chrome alarm
+    global.chrome.alarms = {
+      create: jest.fn((obj) => {}),
+      onAlarm: {
+        addListener: (callback) => callback("test-alarm")
+      }
+    }
+
+    global.chrome.notifications = {
+      create: jest.fn()
+    }
+
+    require(backgroundScriptPath)
+
+    let result;
+    global.chrome.storage.local.get([
+        ChromeData.hours,
+        ChromeData.minutes,
+        ChromeData.seconds,
+        ChromeData.isRunning
+      ], (res) => {
+        result = {
+          hours: res.hours,
+          minutes: res.minutes,
+          seconds: res.seconds,
+          isRunning: res.isRunning
+      }
+    })
+
+    await waitFor(() => {
+      expect(result.hours).toBe(0)
+      expect(result.minutes).toBe(0)
+      expect(result.seconds).toBe(0)
+      expect(result.isRunning).toBe(false)
+      expect(global.chrome.notifications.create).toHaveBeenCalledWith({
+        title: "Doro - Pomodoro with Spotify Player",
+          message: "1 minute(s) timer complete.",
+          type: "basic",
+          iconUrl: "./img/doro_logo.png",
+      })
+    })
+  });
+
 });

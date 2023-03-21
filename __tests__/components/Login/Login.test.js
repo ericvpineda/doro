@@ -113,20 +113,27 @@ describe("Test Login component", () => {
 
   it("user status signed out and unknown error occurs", async () => {
     global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
-      callback({ data: { profileUrl: "" } });
+      callback({ status: Status.TESTING });
     });
-    mockFxn = jest.fn();
 
+    chrome.storage.local.set({ signedIn: true });
+
+    mockFxn = jest.fn();
     render(<Login setSignedIn={mockFxn} setShowPlayer={mockFxn}></Login>);
 
-    const spotifyButton = screen.getByTestId("spotify-button");
-    expect(spotifyButton).toBeInTheDocument();
+    const profileIcon = screen.getByTestId("profile-icon");
+    expect(profileIcon).toBeInTheDocument();
+
+    // Click profile icon and click signout button
+    await userEvent.click(profileIcon);
 
     const logSpy = jest.spyOn(console, "log");
-    await userEvent.click(spotifyButton);
+    const signOutButton = screen.getByText(/Sign out/i);
+    expect(signOutButton).toBeInTheDocument();
+    await userEvent.click(signOutButton);
     expect(mockFxn).toHaveBeenCalledWith(false);
 
-    expect(logSpy).toHaveBeenCalledWith("Unknown error when pausing track.");
+    expect(logSpy).toHaveBeenCalledWith("Unknown error when signing user out");
   });
 
   it("user status signed in and attempting to sign out causes error but still signs user out", async () => {

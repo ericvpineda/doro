@@ -109,12 +109,12 @@ const signOut = () => {
 // Sets automatic refresh token call
 const setRefreshTokenTimer = (data: any) => {
   const timeout = setInterval(() => {
+    client.refreshToken = data.refreshToken;
+    // console.log("DEBUG: refresh token", client)
     requestRefreshToken(client)
       .then((res) => res.json())
       .then((data) => setAccessTokenHandler(data))
-      .catch(() => {
-        signOut();
-      });
+      .catch(() => signOut());
   }, (data.expires_in - 60) * 1000);
   return () => clearInterval(timeout);
 };
@@ -364,7 +364,7 @@ const trackCommand = async (
   params: any,
   method: string,
   path: string,
-  query: { [key: string]: string } = {}
+  query: {}
 ) => {
   let response = {};
   // Allows for episode type audio
@@ -470,7 +470,9 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
       default:
         res({
           status: Status.ERROR,
-          error: "Unknown error occurred.",
+          error: {
+            message: "Unknown error occurred."
+          },
         });
         break;
     }
@@ -516,10 +518,14 @@ chrome.alarms.onAlarm.addListener((alarm) => {
           isRunning: false,
         });
         // Optional: Show timer done notification on user desktop
-        const message =
-          res.setTime.hours === 0
-            ? `${res.setTime.minutes} minute timer complete.`
-            : `${res.setTime.hours} hour and ${res.setTime.minutes} minute timer complete.`;
+        let message;
+        if (res.setTime.hours > 0 && res.setTime.minutes > 0) {
+          message = `${res.setTime.hours} hour(s) and ${res.setTime.minutes} minute(s) timer complete.`;
+        } else if (res.setTime.hours > 0) {
+          message = `${res.setTime.hours} hour(s) timer complete.`
+        } else {
+          message = `${res.setTime.minutes} minute(s) timer complete.`
+        }
         chrome.notifications.create({
           title: "Doro - Pomodoro with Spotify Player",
           message,
