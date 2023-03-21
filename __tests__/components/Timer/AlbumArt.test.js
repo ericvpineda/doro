@@ -30,12 +30,14 @@ describe("Test AlbumArt component", () => {
     it("player status success, show correct album art link", () => {
         render(<AlbumArt albumUrl={""} playerStatus={PlayerStatus.SUCCESS}></AlbumArt>)
         const albumArt = screen.getByTestId("album-art");
+        
         expect(albumArt).toBeVisible();
     })
 
     it("player status ad playing, shows ad screen prompt", () => {
         render(<AlbumArt albumUrl={""} playerStatus={PlayerStatus.AD_PLAYING}></AlbumArt>)
         const adPrompt = screen.getByText("Ad is currently playing...")
+
         expect(adPrompt).toBeVisible();
     })
 

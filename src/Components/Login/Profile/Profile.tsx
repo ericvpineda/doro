@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from "react";
-import { PlayerActions, Status } from "../../../Utils/SpotifyUtils";
+import { PlayerActions, Status, PlayerStatus } from "../../../Utils/SpotifyUtils";
 import { PersonCircle } from "react-bootstrap-icons";
 import "./Profile.css"; // Needed for dropdown customization
 
@@ -11,6 +11,7 @@ interface Props {
 // Profile componenet
 const Profile: FC<Props> = (props) => {
   const [profileUrl, setProfileUrl] = useState("");
+  const [playerStatus, setPlayerStatus] = useState(PlayerStatus.LOADING)
 
   // Note: Causes parent to rerender
   const signOutHandler = () => {
@@ -24,6 +25,7 @@ const Profile: FC<Props> = (props) => {
       (res) => {
         if (res.status === Status.SUCCESS) {
           setProfileUrl(res.data.profileUrl);
+          setPlayerStatus(PlayerStatus.SUCCESS)
         } else if (res.status === Status.FAILURE) {
           console.log(res.error.message);
           props.signOut();
@@ -37,6 +39,17 @@ const Profile: FC<Props> = (props) => {
     );
   }, []);
 
+  const getProfile = () => {
+    if (playerStatus === PlayerStatus.SUCCESS) {
+      if (profileUrl.length === 0) {
+        return <PersonCircle data-testid="profile-pic-blank" className="image-default"/>
+      } else {
+        return <img data-testid="profile-pic-filled" src={profileUrl} className="image" />
+      }
+    } 
+    return <div className="image"/>
+  }
+
   return (
     <div className="background">
       <div className="btn-group">
@@ -47,11 +60,7 @@ const Profile: FC<Props> = (props) => {
           data-bs-toggle="dropdown"
           aria-expanded="false"
         >
-          {profileUrl.length === 0 ? (
-            <PersonCircle data-testid="profile-pic-blank" className="image-default"></PersonCircle>
-          ) : (
-            <img data-testid="profile-pic-filled" src={profileUrl} className="image" />
-          )}
+          {getProfile()}
         </button>
         <ul className="dropdown-menu dropdown-menu-dark">
           <li onClick={signOutHandler} className="dropdown-item">

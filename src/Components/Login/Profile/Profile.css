@@ -1,37 +1,59 @@
 .background {
+  position: fixed;
+  top: 1.5rem;
+  right: 1rem;
 
-    position: fixed;
-    top: 1.5rem;
-    right: 1rem;
-
-    cursor: pointer;
-    border-radius: 50%;
+  cursor: pointer;
+  border-radius: 50%;
 }
 
 .image {
-    
-    max-height: 2.5rem;
-    max-width: 2.5rem;
+  border-radius: 50%;
+  cursor: pointer;
 
-    border-radius: 50%;
-    cursor: pointer;
+  animation: imageAnimation 0.7s;
+  animation-fill-mode: forwards;
+}
 
+@keyframes imageAnimation {
+  0% {
+    height: 0;
+    width: 0;
+  }
+  100% {
+    height: 2.5rem;
+    width: 2.5rem;
+  }
 }
 
 .image-default {
-    height: 2rem;
-    width: 2rem;
+  height: 2rem;
+  width: 2rem;
 
-    cursor: pointer;
-    color: white;
+  cursor: pointer;
+  color: white;
+
+  animation: defaultImageAnimation 0.7s;
+  animation-fill-mode: forwards;
 }
 
+@keyframes defaultImageAnimation {
+    0% {
+      height: 0;
+      width: 0;
+    }
+    100% {
+      height: 2rem;
+      width: 2rem;
+    }
+  }
+
 ul.dropdown-menu {
-    min-width: 0;
-    text-align: center;
-    --bs-dropdown-padding-y: 0;
+  min-width: 0;
+  text-align: center;
+  --bs-dropdown-padding-y: 0;
 }
 
 li.dropdown-item {
-    padding: 0.5rem 2rem;
+  padding: 0.5rem 2rem;
 }

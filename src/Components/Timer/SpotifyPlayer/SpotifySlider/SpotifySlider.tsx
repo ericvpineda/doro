@@ -74,7 +74,7 @@ const SpotifySlider: FC<Props> = (props) => {
   // Note: will run sequential to previous useEffect
   useEffect(() => {
     if (successOrAdPlayerStatus() && thumbPosition >= 0) {
-      setInterval(() => {
+      const updateTime = setInterval(() => {
         if (isPlaying) {
           const updatedProgress = progressMs + 1000;
           setProgressMs(updatedProgress);
@@ -83,13 +83,14 @@ const SpotifySlider: FC<Props> = (props) => {
           // Caution: Custom set advertisement interval will call this multiple times
           if (
             (successPlayerStatus() && updatedProgress >= durationMs - 3000) ||
-            updatedProgress >= durationMs - 1000
+            (updatedProgress >= durationMs - 1000)
           ) {
             getTrack();
           }
         }
       }, 1000);
-      // return () => clearInterval(updateTime);
+      // Note: Will fail test, but NEED this to smoothen thumb seeking behavior
+      return () => clearInterval(updateTime);
     }
   }, [thumbPosition, progressMs, durationMs, isPlaying, playerStatus]);
 
