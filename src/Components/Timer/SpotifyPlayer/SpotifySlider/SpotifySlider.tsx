@@ -74,7 +74,7 @@ const SpotifySlider: FC<Props> = (props) => {
   // Note: will run sequential to previous useEffect
   useEffect(() => {
     if (successOrAdPlayerStatus() && thumbPosition >= 0) {
-      const updateTime = setInterval(() => {
+      setInterval(() => {
         if (isPlaying) {
           const updatedProgress = progressMs + 1000;
           setProgressMs(updatedProgress);
@@ -89,7 +89,7 @@ const SpotifySlider: FC<Props> = (props) => {
           }
         }
       }, 1000);
-      return () => clearInterval(updateTime);
+      // return () => clearInterval(updateTime);
     }
   }, [thumbPosition, progressMs, durationMs, isPlaying, playerStatus]);
 

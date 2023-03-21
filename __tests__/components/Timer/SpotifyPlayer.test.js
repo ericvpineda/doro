@@ -1490,19 +1490,24 @@ describe("Test SpotifyPlayer component", () => {
     render(<SpotifyPlayer />);
     const seekTrackSlider = screen.getByTestId("seek-position-slider");
 
-    await act(() => {
-      fireEvent.mouseDown(seekTrackSlider, {
-        clientX: seekTrackSlider.getBoundingClientRect().left,
+    // Note: Need to wait so setInterval in SpotifySlider will run for 1 second
+    setTimeout(async () => {
+      await act(() => {
+        fireEvent.mouseDown(seekTrackSlider, {
+          clientX: seekTrackSlider.getBoundingClientRect().left,
+        });
+        fireEvent.mouseMove(seekTrackSlider, {
+          clientX: seekTrackSlider.getBoundingClientRect().left + 1,
+        });
+        fireEvent.mouseUp(seekTrackSlider, {
+          clientX: seekTrackSlider.getBoundingClientRect().left + 1,
+        });
       });
-      fireEvent.mouseMove(seekTrackSlider, {
-        clientX: seekTrackSlider.getBoundingClientRect().left + 1,
-      });
-      fireEvent.mouseUp(seekTrackSlider, {
-        clientX: seekTrackSlider.getBoundingClientRect().left + 1,
-      });
-    });
-
-    expect(logSpy).toBeCalledTimes(0);
+    }, 2000)
+    
+    await waitFor(() => {
+      expect(logSpy).toBeCalledTimes(0);
+    }, {timeout: 2000})
   });
 
   it("user SEEKS track and returns error", async () => {
@@ -1823,6 +1828,5 @@ describe("Test SpotifyPlayer component", () => {
       const adPrompt = screen.getByText("Ad is currently playing...")
       expect(adPrompt).toBeVisible()
     })
-
   });
 });
