@@ -1,6 +1,4 @@
 import { PlayerActions, Status, SpotifyScope } from "../Utils/SpotifyUtils";
-// import { PlayerActions, Status, SpotifyScope } from "../Utils/SpotifyUtils";
-// import { PlayerActions, Status, SpotifyScope } from "../Utils/SpotifyUtils";
 
 // REMOVE: Used to check if background script runs in console
 // console.log("DEBUG: Running background script...");

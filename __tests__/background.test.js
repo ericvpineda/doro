@@ -14,8 +14,6 @@ import "@testing-library/jest-dom";
 //  - need to mock spotify API calls to prevent multiple calls to API
 //  - unable to get correct jest mock calls in Proimise then() statements
 //   - solution: break up mock for chrome listener and user command
-// - FIX:
-//  - error/failure messages to match component tests
 
 describe("Test background script", () => {
   const refresh_token_stub =
@@ -24,11 +22,8 @@ describe("Test background script", () => {
   const access_token_stub =
     "btu6egGeVdQM8nEANiDdDtCc7f68bzAHwiCntsVeJJdMPHqqqB";
   const backgroundScriptPath = "../src/background/background";
-  let mockFxn, logSpy;
 
   beforeEach(() => {
-    mockFxn = jest.fn();
-    logSpy = jest.spyOn(console, "log");
 
     // Stub chrome api
     global.chrome.storage.data = {};
@@ -44,15 +39,9 @@ describe("Test background script", () => {
       }
       return callback(map);
     };
-
-    // Mock setInterval
-    // jest.useFakeTimers();
-    // jest.spyOn(global, "setInterval");
   });
 
   afterEach(() => {
-    // jest.runOnlyPendingTimers()
-    // jest.useRealTimers();
     jest.resetModules(); // Reset module imports
     jest.clearAllMocks();
   });
@@ -2133,6 +2122,7 @@ describe("Test background script", () => {
 
   it("timer is not running and user send request to start timer, does not modify timer", async () => {
 
+    // Stub chrome storage for timer values
     const isRunning = false;
     const hours = 5;
     const minutes = 30;
@@ -2154,6 +2144,7 @@ describe("Test background script", () => {
       }
     }
 
+    // Dynamic import of background script
     require(backgroundScriptPath)
 
     let result;
@@ -2171,7 +2162,7 @@ describe("Test background script", () => {
       }
     })
 
-
+    // Check if chrome storage was modified
     await waitFor(() => {
       expect(result.hours).toBe(hours)
       expect(result.minutes).toBe(minutes)
@@ -2182,6 +2173,7 @@ describe("Test background script", () => {
 
   it("timer counts down from 1 hours to only minutes and seconds", async () => {
     
+    // Stub chrome storage to have pre-set time values
     const isRunning = true;
     const hours = 1;
     const minutes = 0;
@@ -2205,6 +2197,7 @@ describe("Test background script", () => {
       }
     }
 
+    // Dynamic import of background script
     require(backgroundScriptPath)
 
     let result;
@@ -2222,6 +2215,7 @@ describe("Test background script", () => {
       }
     })
 
+    // Check chrome storage if values were decremented
     await waitFor(() => {
       expect(result.hours).toBe(0)
       expect(result.minutes).toBe(59)
@@ -2232,6 +2226,7 @@ describe("Test background script", () => {
     
   it("timer counts down from 1 minute to only seconds", async () => {
 
+    // Stub chrome storage
     const isRunning = true;
     const hours = 0;
     const minutes = 1;
@@ -2255,6 +2250,7 @@ describe("Test background script", () => {
       }
     }
 
+    // Dynamic import of background script
     require(backgroundScriptPath)
 
     let result;
@@ -2272,6 +2268,7 @@ describe("Test background script", () => {
       }
     })
 
+    // Check chrome storage if values were decremented
     await waitFor(() => {
       expect(result.hours).toBe(0)
       expect(result.minutes).toBe(0)
@@ -2282,6 +2279,7 @@ describe("Test background script", () => {
   
   it("timer counts down from 55 second value", async () => {
 
+    // Stub chrome storage for timer values
     const isRunning = true;
     const hours = 0;
     const minutes = 0;
@@ -2305,6 +2303,7 @@ describe("Test background script", () => {
       }
     }
 
+    // Dynamic import background script
     require(backgroundScriptPath)
 
     let result;
@@ -2322,6 +2321,7 @@ describe("Test background script", () => {
       }
     })
 
+    // Check chrome storage if values were decremented
     await waitFor(() => {
       expect(result.hours).toBe(0)
       expect(result.minutes).toBe(0)
@@ -2332,6 +2332,7 @@ describe("Test background script", () => {
 
   it("1 hour timer is done, timer sends notification to user", async () => {
 
+    // Stub chrome storage for timer values
     const isRunning = true;
     const hours = 0;
     const minutes = 0;
@@ -2355,10 +2356,12 @@ describe("Test background script", () => {
       }
     }
 
+    // Mock chrome notifications 
     global.chrome.notifications = {
       create: jest.fn()
     }
 
+    // Dynamic import of background script
     require(backgroundScriptPath)
 
     let result;
@@ -2376,6 +2379,7 @@ describe("Test background script", () => {
       }
     })
 
+    // Check chrome notifications was called
     await waitFor(() => {
       expect(result.hours).toBe(0)
       expect(result.minutes).toBe(0)
@@ -2392,6 +2396,7 @@ describe("Test background script", () => {
   
   it("1 hour 1 minute timer is done, timer sends notification to user", async () => {
 
+    // Stub chrome storage for timer values
     const isRunning = true;
     const hours = 0;
     const minutes = 0;
@@ -2415,10 +2420,12 @@ describe("Test background script", () => {
       }
     }
 
+    // Mock chrome notification
     global.chrome.notifications = {
       create: jest.fn()
     }
 
+    // Dynamic import of background script
     require(backgroundScriptPath)
 
     let result;
@@ -2436,6 +2443,7 @@ describe("Test background script", () => {
       }
     })
 
+    // Check chrome notifications was called upon
     await waitFor(() => {
       expect(result.hours).toBe(0)
       expect(result.minutes).toBe(0)
@@ -2452,6 +2460,7 @@ describe("Test background script", () => {
  
   it("1 minute timer is done, timer sends notification to user", async () => {
 
+    // Stub chrome storage for timer values
     const isRunning = true;
     const hours = 0;
     const minutes = 0;
@@ -2475,10 +2484,12 @@ describe("Test background script", () => {
       }
     }
 
+    // Mock chrome notifications
     global.chrome.notifications = {
       create: jest.fn()
     }
 
+    // Dynamic import of background script
     require(backgroundScriptPath)
 
     let result;
@@ -2496,6 +2507,7 @@ describe("Test background script", () => {
       }
     })
 
+    // Check if chrome notifications was called upon
     await waitFor(() => {
       expect(result.hours).toBe(0)
       expect(result.minutes).toBe(0)
