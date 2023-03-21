@@ -17,7 +17,7 @@ const AlbumArt: FC<Props> = (props: any) => {
   useEffect(() => {
     setPreviousStatus(status);
     setStatus(props.playerStatus);
-  }, [props.playerStatus]);
+  }, [props.playerStatus, status, previousStatus]);
 
   // Show prompt/window to user based on player current player status
   const showAlbum = () => {
@@ -41,6 +41,7 @@ const AlbumArt: FC<Props> = (props: any) => {
           previousStatus === PlayerStatus.LOADING
             ? styles.adWithAnimation
             : styles.ad;
+        console.log("DEBUG: styles", adStyles);
         return (
           <div className={adStyles}>
             <span>Ad is currently playing...</span>

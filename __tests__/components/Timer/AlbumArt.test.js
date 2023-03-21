@@ -11,7 +11,6 @@ import { PlayerStatus } from '../../../src/Utils/SpotifyUtils';
 //  - ad playing
 //  - require webpage 
 //  - error
-// - Note: unable to tests lines 41-51 since require rendering parent component (SpotifyPlayer)
 
 describe("Test AlbumArt component", () => {
     
@@ -37,7 +36,6 @@ describe("Test AlbumArt component", () => {
     it("player status ad playing, shows ad screen prompt", () => {
         render(<AlbumArt albumUrl={""} playerStatus={PlayerStatus.AD_PLAYING}></AlbumArt>)
         const adPrompt = screen.getByText("Ad is currently playing...")
-
         expect(adPrompt).toBeVisible();
     })
 
