@@ -5,7 +5,7 @@ import Time from "../Time/Time";
 import styles from "./UserInput.module.css";
 import { ArrowReturnRight } from "react-bootstrap-icons";
 
-// Parenet is App component
+// Parent is App component
 interface Props {
   setShowTimerHandler: (param: boolean) => void;
 }
@@ -52,6 +52,9 @@ const UserInput: FC<Props> = (props): JSX.Element => {
 
       // Set description boolean to true
       ctx.showDescription();
+
+      chrome.storage.local.set({ showPlayer: false });
+
     }
   };
 
