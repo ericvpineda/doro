@@ -48,15 +48,15 @@ const SpotifyPlayer: FC = () => {
 
   // Inject script for play and pause (Non-premium users)
   const injectTrackPlayPause = () => {
-    const pauseBtn = document.querySelector(
+    const button = document.querySelector(
       "[data-testid=control-button-playpause]"
     ) as HTMLButtonElement;
 
-    if (pauseBtn) {
-      pauseBtn.addEventListener("click", () =>
+    if (button) {
+      button.addEventListener("click", () =>
         chrome.storage.local.set({ scriptSuccess: true })
       );
-      pauseBtn.click();
+      button.click();
     }
   };
 
@@ -208,6 +208,7 @@ const SpotifyPlayer: FC = () => {
                   if (res.scriptSuccess) {
                     resolve({ data: true });
                   } else {
+                  
                     // Note: Result still considered successful
                     resolve({ data: false });
                   }
@@ -216,9 +217,7 @@ const SpotifyPlayer: FC = () => {
               .catch(() => {
                 reject({ data: false });
               });
-          } else {
-            reject({ data: false })
-          }
+            }
         });
       });
     });

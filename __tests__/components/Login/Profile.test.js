@@ -32,7 +32,7 @@ describe("Test Profile Component", () => {
   });
 
   it("getting user profile with user that has profile picture, returns success", () => {
-    global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
+    global.chrome.runtime.sendMessage.mockImplementationOnce((obj, callback) => {
       callback({ status: Status.SUCCESS, data: { profileUrl: "https://images.unsplash.com/photo-1457449940276-e8deed18bfff?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80" } });
     });
     mockFxn = jest.fn();
@@ -42,8 +42,14 @@ describe("Test Profile Component", () => {
     expect(logSpy).toBeCalledTimes(0);
   });
   
+  it("getting user profile during fetching process, shows loading element", () => {
+    render(<Profile signOut={mockFxn}></Profile>);
+    const loadingElement = screen.getByTestId("profile-pic-loading")
+    expect(loadingElement).toBeVisible();
+  });
+  
   it("getting user profile with user that has no profile picture, returns success", () => {
-    global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
+    global.chrome.runtime.sendMessage.mockImplementationOnce((obj, callback) => {
       callback({ status: Status.SUCCESS, data: { profileUrl: "" } });
     });
     mockFxn = jest.fn();
@@ -55,7 +61,7 @@ describe("Test Profile Component", () => {
 
   it("getting user profile, returns failure", () => {
     const message = "Failure when getting user profile."
-    global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
+    global.chrome.runtime.sendMessage.mockImplementationOnce((obj, callback) => {
       callback({
         status: Status.FAILURE,
         data: { profileUrl: "" },
@@ -71,7 +77,7 @@ describe("Test Profile Component", () => {
 
   it("getting user profile, returns error", () => {
     const message = "Error occured when getting user profile.";
-    global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
+    global.chrome.runtime.sendMessage.mockImplementationOnce((obj, callback) => {
         callback({
           status: Status.ERROR,
           data: { profileUrl: "" },
@@ -87,7 +93,7 @@ describe("Test Profile Component", () => {
 
   it("getting user profile, returns unknown error", () => {
     const message = "Unknown error occured when getting profile url.";
-    global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
+    global.chrome.runtime.sendMessage.mockImplementationOnce((obj, callback) => {
         callback({
           status: Status.ERROR,
           data: { profileUrl: "" },
@@ -102,7 +108,7 @@ describe("Test Profile Component", () => {
   });
 
   it("user successfully gets profile, signs user out successfully", async () => {
-    global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
+    global.chrome.runtime.sendMessage.mockImplementationOnce((obj, callback) => {
       callback({ status: Status.SUCCESS, data: { profileUrl: "" } });
     });
     mockFxn = jest.fn();

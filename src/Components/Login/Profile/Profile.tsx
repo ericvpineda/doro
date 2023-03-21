@@ -47,7 +47,7 @@ const Profile: FC<Props> = (props) => {
         return <img data-testid="profile-pic-filled" src={profileUrl} className="image" />
       }
     } 
-    return <div className="image"/>
+    return <div data-testid="profile-pic-loading" className="image"/>
   }
 
   return (

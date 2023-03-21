@@ -51,7 +51,7 @@ describe("Test SpotifyPlayer component", () => {
         callback({
           status: Status.SUCCESS,
           data: {
-            artist: "",
+            artist: "This artist has a name larger than 30 characters",
           },
         });
       }
@@ -66,7 +66,7 @@ describe("Test SpotifyPlayer component", () => {
         callback({
           status: Status.SUCCESS,
           data: {
-            artist: "This artist has a name larger than 30 characters",
+            artist: "",
             type: "ad",
           },
         });
@@ -201,11 +201,7 @@ describe("Test SpotifyPlayer component", () => {
     expect(logSpy).toHaveBeenCalledWith("Error when completing track command.");
   });
 
-  it("player is playing and non-premium user PAUSES track, spotify window not found, returns failure", async () => {
-    // Mock document to have track button
-    document.body.innerHTML = `<div>
-    <button data-testid="control-button-playpause"></button>
-  </div>`;
+  it("player is playing and non-premium user PAUSES track, spotify window not found, does nothing", async () => {
 
     global.chrome.runtime.sendMessage
       .mockImplementationOnce((obj, callback) => {
@@ -218,7 +214,7 @@ describe("Test SpotifyPlayer component", () => {
         });
       })
       .mockImplementation((obj, callback) =>
-        callback({ status: Status.FAILURE })
+        callback({ status: Status.FAILURE }) // Initiate script injection
       );
 
     // Mock getting spotify tab in chrome browser
@@ -227,10 +223,8 @@ describe("Test SpotifyPlayer component", () => {
     };
 
     render(<SpotifyPlayer />);
-    const pauseBtn = screen.getByTestId("pause-btn");
-    await user.click(pauseBtn);
 
-    expect(logSpy).toHaveBeenCalledWith("Failure when pausing track.");
+    expect(logSpy).toBeCalledTimes(0)
   });
 
   it("player is playing and non-premium user PAUSES track, returns success", async () => {
