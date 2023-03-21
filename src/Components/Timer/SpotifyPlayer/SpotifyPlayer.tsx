@@ -433,6 +433,7 @@ const SpotifyPlayer: FC = () => {
           if (volume !== 0) {
             setVolumeCached(volume);
           }
+          setVolume(volumePercent)
         } else if (res.status === Status.FAILURE) {
           if (
             typeof volumePercent === "number" &&
@@ -510,13 +511,9 @@ const SpotifyPlayer: FC = () => {
   // Mimic common volume press behavior
   const muteVolumeHandler = () => {
     if (volume > 0) {
-      setVolume(0);
-      setVolumeCached(volume);
       trackVolumeChangeCommitted(0);
     } else {
-      setVolume(volumeCached);
       trackVolumeChangeCommitted(volumeCached);
-      setVolumeCached(0);
     }
   };
 
