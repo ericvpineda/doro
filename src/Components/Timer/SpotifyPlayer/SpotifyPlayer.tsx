@@ -109,6 +109,9 @@ const SpotifyPlayer: FC = () => {
       const isValidVolume =
         typeof res.volume === "number" && !Number.isNaN(res.volume);
       if (volumeBarContainer && progressBar && isValidVolume) {
+        
+        chrome.storage.local.set({ scriptSuccess: true });
+
         const volumeInt = res.volume;
         const mousedown = new MouseEvent("mousedown", {
           clientX: progressBar.getBoundingClientRect().left,
@@ -130,7 +133,6 @@ const SpotifyPlayer: FC = () => {
         progressBar.dispatchEvent(mousedown);
         progressBar.dispatchEvent(mousemove);
         progressBar.dispatchEvent(mouseup);
-        chrome.storage.local.set({ scriptSuccess: true });
       }
     });
   };
@@ -203,12 +205,14 @@ const SpotifyPlayer: FC = () => {
                 target: { tabId: tab.id },
                 func: commandFxn,
               })
-              .then(() => {
+              .then(async () => {
+                // Note: Need to wait for injection functions (i.e. volume and seek track) to save to chrome storage
+                await new Promise(r => setTimeout(r, 100))
+
                 chrome.storage.local.get([ChromeData.scriptSuccess], (res) => {
                   if (res.scriptSuccess) {
                     resolve({ data: true });
                   } else {
-                  
                     // Note: Result still considered successful
                     resolve({ data: false });
                   }
