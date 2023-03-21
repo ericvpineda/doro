@@ -8,15 +8,15 @@
 }
 
 .image {
-  height: 2.5rem;
-  width: 2.5rem;
+  height: 2.4rem;
+  width: 2.4rem;
   border-radius: 50%;
   cursor: pointer;
 }
 
-.image-default {
-  height: 2rem;
-  width: 2rem;
+.image-stock {
+  height: 2.5rem;
+  width: 2.5rem;
 
   cursor: pointer;
   color: white;
@@ -24,7 +24,7 @@
 
 .image-loading {
   min-height: 1rem;
-  min-width: 3.5rem;
+  min-width: 3.3rem;
 }
 
 ul.dropdown-menu {

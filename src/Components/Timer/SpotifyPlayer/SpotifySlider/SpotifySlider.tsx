@@ -10,7 +10,7 @@ import { ThemeProvider } from "@material-ui/styles";
 import styles from "./SpotifySlider.module.css";
 import debounce from "lodash.debounce";
 
-// Parent component is SpotifyPlayer
+// Parent SpotifyPlayer is component 
 interface Props {
   playerStatus: PlayerStatus;
   progressMs: number;

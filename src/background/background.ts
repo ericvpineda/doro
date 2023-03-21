@@ -108,7 +108,6 @@ const signOut = () => {
 const setRefreshTokenTimer = (data: any) => {
   const timeout = setInterval(() => {
     client.refreshToken = data.refreshToken;
-    // console.log("DEBUG: refresh token", client)
     requestRefreshToken(client)
       .then((res) => res.json())
       .then((data) => setAccessTokenHandler(data))
@@ -315,7 +314,7 @@ const getCurrentlyPlaying = async (params: any) => {
           deviceId: data.device.id,
           volumePercent: data.device.volume_percent,
           isSaved: false,
-          durationMs: 15 * 1000, // Will get re-queried in intervals of 5 seconds
+          durationMs: 6 * 1000, // Will get re-queried in intervals of 6 seconds
           progressMs: data.progress_ms,
           type: "ad",
         };

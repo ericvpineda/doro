@@ -106,9 +106,7 @@ const SpotifyPlayer: FC = () => {
         );
       }
 
-      const isValidVolume =
-        typeof res.volume === "number" && !Number.isNaN(res.volume);
-      if (volumeBarContainer && progressBar && isValidVolume) {
+      if (volumeBarContainer && progressBar) {
         
         chrome.storage.local.set({ scriptSuccess: true });
 
@@ -153,9 +151,7 @@ const SpotifyPlayer: FC = () => {
         ) as HTMLDivElement;
       }
 
-      const validPercent =
-        typeof res.percent === "number" && !Number.isNaN(res.percent);
-      if (playbackContainer && progressBar && validPercent) {
+      if (playbackContainer && progressBar) {
         const percent = res.percent / 100;
         const totalLength =
           progressBar.getBoundingClientRect().right -
@@ -229,7 +225,7 @@ const SpotifyPlayer: FC = () => {
   };
 
   // ----- Spotify API command calling fuctions -----
-
+  
   // Get initial track data upon loading page
   const getTrack = () => {
     chrome.runtime.sendMessage(
@@ -251,7 +247,7 @@ const SpotifyPlayer: FC = () => {
           const duration = res.data.durationMs;
           if (res.data.type === "ad") {
             // Note: set ms value related to custom set ad time in background script
-            setProgressMs((progress % 15000) + 500);
+            setProgressMs((progress % 5000) + 500);
             setPlayerStatus(PlayerStatus.AD_PLAYING);
           } else {
             setPlayerStatus(PlayerStatus.SUCCESS);
