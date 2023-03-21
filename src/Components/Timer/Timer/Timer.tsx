@@ -33,7 +33,7 @@ const Timer: FC<Prop> = (props) => {
         // Check if user currently signed in or access_token still valid
         if (signedInCache || new Date().getTime() < res.endTime) {
           setShowSwitch(true);
-          setShowPlayer(res.showPlayer ? res.showPlayer : true);
+          setShowPlayer(res.showPlayer !== undefined ? res.showPlayer : true);
         } else {
           signedInCache = false;
           chrome.storage.local.set({ signedIn: signedInCache });
@@ -51,8 +51,8 @@ const Timer: FC<Prop> = (props) => {
 
   // Toggle switch for clock/music player icon
   const renderToggleSwitch = () => {
-    chrome.storage.local.set({ showPlayer });
     if (showPlayer) {
+      chrome.storage.local.set({ showPlayer });
       return (
         <Fragment>
           <ToggleOn
