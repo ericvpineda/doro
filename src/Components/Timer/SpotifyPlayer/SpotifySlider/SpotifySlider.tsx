@@ -80,9 +80,9 @@ const SpotifySlider: FC<Props> = (props) => {
           setProgressMs(updatedProgress);
           const updatedPosition = getThumbPosition(updatedProgress, durationMs);
           setThumbPosition(updatedPosition);
-          // Caution: Custom set advertisement interval will call this multiple times
+          // Caution: Setting short advertisement interval (background script) will call this multiple times
           if (
-            (successPlayerStatus() && updatedProgress >= durationMs - 3000) ||
+            (successPlayerStatus() && updatedProgress >= durationMs - 1500) ||
             (updatedProgress >= durationMs - 1000)
           ) {
             getTrack();

@@ -206,7 +206,8 @@ const SpotifyPlayer: FC = () => {
                 func: commandFxn,
               })
               .then(async () => {
-                // Note: Need to wait for injection functions (i.e. volume and seek track) to save to chrome storage
+                // Need to wait for injection functions (i.e. volume and seek track) to save to chrome storage
+                // - Note: Causes error if place async function inside injection fuctions 
                 await new Promise(r => setTimeout(r, 100))
 
                 chrome.storage.local.get([ChromeData.scriptSuccess], (res) => {
@@ -327,8 +328,8 @@ const SpotifyPlayer: FC = () => {
   const trackNext = () => {
     chrome.runtime.sendMessage({ message: PlayerActions.NEXT }, async (res) => {
       if (res.status === Status.SUCCESS) {
-        // Update track information state
-        getTrack();
+        // Wait for api call to succeed
+        setTimeout(getTrack, 500);
       } else if (res.status === Status.FAILURE) {
         // Case: User is non-premium user
         await trackInjection(injectTrackNext)
@@ -351,16 +352,16 @@ const SpotifyPlayer: FC = () => {
 
   // Get players previous track
   const trackPrevious = () => {
-    if (thumbPosition > 0) {
-      trackSeekChangeCommitted(0);
-      setThumbPosition(0);
+    if (thumbPosition > 3) {
+      setThumbPosition(0)
+      trackSeekChangeCommitted(0)
     } else {
       chrome.runtime.sendMessage(
         { message: PlayerActions.PREVIOUS },
         async (res) => {
           if (res.status === Status.SUCCESS) {
-            // Get updated track information
-            getTrack();
+            // Wait for api call to succeed
+            setTimeout(getTrack, 500)
           } else if (res.status === Status.FAILURE) {
             // Case: User is non-premium user
             await trackInjection(injectTrackPrevious)
@@ -373,14 +374,14 @@ const SpotifyPlayer: FC = () => {
                 }
               })
               .catch(() => console.log("Failure when getting previous track."));
-          } else if (res.status === Status.ERROR) {
+            } else if (res.status === Status.ERROR) {
             console.log(res.error.message);
           } else {
             console.log("Unknown error when getting previous track.");
           }
         }
-      );
-    }
+        );
+      }
   };
 
   // Save track to user LIKED playlist
@@ -465,6 +466,7 @@ const SpotifyPlayer: FC = () => {
   // Sets thumb position value after mouse up event on thumb icon
   const trackSeekChangeCommitted = (percent: any) => {
     const positionMs = Math.floor(durationMs * (percent * 0.01));
+  
     chrome.runtime.sendMessage(
       {
         message: PlayerActions.SEEK_POSITION,
