@@ -28,11 +28,11 @@ const Login: FC<Props> = (props) => {
         props.setShowPlayer(true)
       } else if (res.status === Status.FAILURE) {
         // Note: This is case when user is already signed in
-        console.log(res.message);
+        console.log(res.error.message);
       } else if (res.status === Status.ERROR) {
         setSignedIn(false)
         props.setSignedIn(false)
-        console.log(res.message);
+        console.log(res.error.message);
       } else {
         setSignedIn(false)
         props.setSignedIn(false)
@@ -64,7 +64,7 @@ const Login: FC<Props> = (props) => {
   return (
     <Fragment>
       {signedIn ? (
-        <Profile signOut={signOut}></Profile>
+        <Profile signOut={signOut}/>
       ) : (
         <Spotify
         data-testid="spotify-button"

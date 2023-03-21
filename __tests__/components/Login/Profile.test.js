@@ -59,7 +59,7 @@ describe("Test Profile Component", () => {
       callback({
         status: Status.FAILURE,
         data: { profileUrl: "" },
-        message,
+        error: {message}
       });
     });
     mockFxn = jest.fn();
@@ -75,7 +75,7 @@ describe("Test Profile Component", () => {
         callback({
           status: Status.ERROR,
           data: { profileUrl: "" },
-          message,
+          error: {message}
         });
       });
       mockFxn = jest.fn();
@@ -91,7 +91,7 @@ describe("Test Profile Component", () => {
         callback({
           status: Status.ERROR,
           data: { profileUrl: "" },
-          message,
+          error: {message}
         });
       });
       mockFxn = jest.fn();

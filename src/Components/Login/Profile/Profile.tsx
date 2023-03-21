@@ -3,17 +3,21 @@ import { PlayerActions, Status } from "../../../Utils/SpotifyUtils";
 import { PersonCircle } from "react-bootstrap-icons";
 import "./Profile.css"; // Needed for dropdown customization
 
+// Parent is Login Compoenent
 interface Props {
   signOut: () => void;
 }
 
+// Profile componenet
 const Profile: FC<Props> = (props) => {
   const [profileUrl, setProfileUrl] = useState("");
 
+  // Note: Causes parent to rerender
   const signOutHandler = () => {
     props.signOut();
   };
 
+  // Note: Immediately get profile on open extension popup
   useEffect(() => {
     chrome.runtime.sendMessage(
       { message: PlayerActions.GET_PROFILE },
@@ -21,11 +25,10 @@ const Profile: FC<Props> = (props) => {
         if (res.status === Status.SUCCESS) {
           setProfileUrl(res.data.profileUrl);
         } else if (res.status === Status.FAILURE) {
-          // Case user does not have profile picture set
-          console.log(res.message);
+          console.log(res.error.message);
           props.signOut();
         } else if (res.status === Status.ERROR) {
-          console.log(res.message);
+          console.log(res.error.message);
           props.signOut();
         } else {
           console.log("Unknown error occured when getting profile url.");

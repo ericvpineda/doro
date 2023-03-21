@@ -328,7 +328,7 @@ const getCurrentlyPlaying = async (params: any) => {
           message: "Ad is playing.",
         };
       } else {
-        throw { message: "Unknown item type." };
+        throw { message: "Unknown currently playing type." };
       }
       // Assign item data to responses
       response.data = itemData;

@@ -1080,7 +1080,7 @@ describe("Test background script", () => {
       status: Status.ERROR,
       data: {},
       error: {
-        message: "Unknown item type.",
+        message: "Unknown currently playing type.",
       },
     });
   });

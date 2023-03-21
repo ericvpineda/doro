@@ -49,7 +49,7 @@ describe("Test Login component", () => {
       callback({
         status: Status.ERROR,
         data: { profileUrl: "" },
-        message: "User access denied.",
+        error: {message: "User access denied."},
       });
     });
     mockFxn = jest.fn();
@@ -71,7 +71,7 @@ describe("Test Login component", () => {
       callback({
         status: Status.FAILURE,
         data: { profileUrl: "" },
-        message: "User already logged in.",
+        error: {message: "User already logged in."},
       });
     });
     mockFxn = jest.fn();

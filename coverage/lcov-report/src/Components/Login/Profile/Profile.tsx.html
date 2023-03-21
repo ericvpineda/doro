@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">6.25% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>1/16</span>
+                <span class='fraction'>16/16</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">6.25% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>1/16</span>
+                <span class='fraction'>16/16</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -126,7 +126,12 @@
 <a name='L61'></a><a href='#L61'>61</a>
 <a name='L62'></a><a href='#L62'>62</a>
 <a name='L63'></a><a href='#L63'>63</a>
-<a name='L64'></a><a href='#L64'>64</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -136,33 +141,34 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -194,38 +200,41 @@ import { PlayerActions, Status } from "../../../Utils/SpotifyUtils";
 import { PersonCircle } from "react-bootstrap-icons";
 import "./Profile.css"; // Needed for dropdown customization
 &nbsp;
+// Parent is Login Compoenent
 interface Props {
   signOut: () =&gt; void;
 }
 &nbsp;
-const Profile: FC&lt;Props&gt; = <span class="fstat-no" title="function not covered" >(p</span>rops) =&gt; {
-  const [profileUrl, setProfileUrl] = <span class="cstat-no" title="statement not covered" >useState("");</span>
+// Profile componenet
+const Profile: FC&lt;Props&gt; = (props) =&gt; {
+  const [profileUrl, setProfileUrl] = useState("");
 &nbsp;
-  const signOutHandler = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    props.signOut();</span>
+  // Note: Causes parent to rerender
+  const signOutHandler = () =&gt; {
+    props.signOut();
   };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    chrome.runtime.sendMessage(</span>
+  // Note: Immediately get profile on open extension popup
+  useEffect(() =&gt; {
+    chrome.runtime.sendMessage(
       { message: PlayerActions.GET_PROFILE },
-<span class="fstat-no" title="function not covered" >      (r</span>es) =&gt; {
-<span class="cstat-no" title="statement not covered" >        if (res.status === Status.SUCCESS) {</span>
-<span class="cstat-no" title="statement not covered" >          setProfileUrl(res.data.profileUrl);</span>
-        } else <span class="cstat-no" title="statement not covered" >if (res.status === Status.FAILURE) {</span>
-          // Case user does not have profile picture set
-<span class="cstat-no" title="statement not covered" >          console.log(res.message);</span>
-<span class="cstat-no" title="statement not covered" >          props.signOut();</span>
-        } else <span class="cstat-no" title="statement not covered" >if (res.status === Status.ERROR) {</span>
-<span class="cstat-no" title="statement not covered" >          console.log(res.message);</span>
-<span class="cstat-no" title="statement not covered" >          props.signOut();</span>
+      (res) =&gt; {
+        if (res.status === Status.SUCCESS) {
+          setProfileUrl(res.data.profileUrl);
+        } else if (res.status === Status.FAILURE) {
+          console.log(res.error.message);
+          props.signOut();
+        } else if (res.status === Status.ERROR) {
+          console.log(res.error.message);
+          props.signOut();
         } else {
-<span class="cstat-no" title="statement not covered" >          console.log("Unknown error occured when getting profile url.");</span>
+          console.log("Unknown error occured when getting profile url.");
         }
       }
     );
   }, []);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
+  return (
     &lt;div className="background"&gt;
       &lt;div className="btn-group"&gt;
         &lt;button
@@ -259,7 +268,7 @@ export default Profile;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2023-03-21T04:58:27.602Z
+                at 2023-03-21T05:57:11.428Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>
