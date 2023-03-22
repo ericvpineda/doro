@@ -158,7 +158,6 @@ const signIn = async (params: any) => {
             });
             return;
           }
-
           client.authCode = url.searchParams.get("code")!;
           client.verifier = verifier;
           requestAccessToken(client)

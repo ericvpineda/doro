@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>16/16</span>
+                <span class='fraction'>24/24</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>16/16</span>
+                <span class='fraction'>24/24</span>
             </div>
         
             
@@ -129,7 +129,16 @@
 <a name='L64'></a><a href='#L64'>64</a>
 <a name='L65'></a><a href='#L65'>65</a>
 <a name='L66'></a><a href='#L66'>66</a>
-<a name='L67'></a><a href='#L67'>67</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -141,21 +150,23 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">20x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">20x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">15x</span>
-<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">4x</span>
@@ -168,11 +179,18 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">15x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">20x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -196,7 +214,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React, { FC, useEffect, useState } from "react";
-import { PlayerActions, Status } from "../../../Utils/SpotifyUtils";
+import { PlayerActions, Status, PlayerStatus } from "../../../Utils/SpotifyUtils";
 import { PersonCircle } from "react-bootstrap-icons";
 import "./Profile.css"; // Needed for dropdown customization
 &nbsp;
@@ -208,6 +226,7 @@ interface Props {
 // Profile componenet
 const Profile: FC&lt;Props&gt; = (props) =&gt; {
   const [profileUrl, setProfileUrl] = useState("");
+  const [playerStatus, setPlayerStatus] = useState(PlayerStatus.LOADING)
 &nbsp;
   // Note: Causes parent to rerender
   const signOutHandler = () =&gt; {
@@ -221,6 +240,7 @@ const Profile: FC&lt;Props&gt; = (props) =&gt; {
       (res) =&gt; {
         if (res.status === Status.SUCCESS) {
           setProfileUrl(res.data.profileUrl);
+          setPlayerStatus(PlayerStatus.SUCCESS)
         } else if (res.status === Status.FAILURE) {
           console.log(res.error.message);
           props.signOut();
@@ -234,6 +254,17 @@ const Profile: FC&lt;Props&gt; = (props) =&gt; {
     );
   }, []);
 &nbsp;
+  const getProfile = () =&gt; {
+    if (playerStatus === PlayerStatus.SUCCESS) {
+      if (profileUrl.length === 0) {
+        return &lt;PersonCircle data-testid="profile-pic-blank" className="image-stock"/&gt;
+      } else {
+        return &lt;img data-testid="profile-pic-filled" src={profileUrl} className="image" /&gt;
+      }
+    } 
+    return &lt;div data-testid="profile-pic-loading" className="image-loading"/&gt;
+  }
+&nbsp;
   return (
     &lt;div className="background"&gt;
       &lt;div className="btn-group"&gt;
@@ -244,11 +275,7 @@ const Profile: FC&lt;Props&gt; = (props) =&gt; {
           data-bs-toggle="dropdown"
           aria-expanded="false"
         &gt;
-          {profileUrl.length === 0 ? (
-            &lt;PersonCircle data-testid="profile-pic-blank" className="image-default"&gt;&lt;/PersonCircle&gt;
-          ) : (
-            &lt;img data-testid="profile-pic-filled" src={profileUrl} className="image" /&gt;
-          )}
+          {getProfile()}
         &lt;/button&gt;
         &lt;ul className="dropdown-menu dropdown-menu-dark"&gt;
           &lt;li onClick={signOutHandler} className="dropdown-item"&gt;
@@ -268,7 +295,7 @@ export default Profile;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2023-03-21T07:53:46.759Z
+                at 2023-03-22T05:26:27.890Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

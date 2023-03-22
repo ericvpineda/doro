@@ -988,7 +988,7 @@ describe("Test background script", () => {
       volumePercent: "0",
       isSaved: false,
       progressMs: "0",
-      durationMs: 15 * 1000,
+      durationMs: 6 * 1000,
       type: "ad",
     };
 

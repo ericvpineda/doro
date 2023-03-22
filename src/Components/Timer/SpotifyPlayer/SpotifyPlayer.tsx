@@ -68,7 +68,7 @@ const SpotifyPlayer: FC = () => {
 
     if (nextTrackBtn) {
       nextTrackBtn.addEventListener("click", () =>
-      chrome.storage.local.set({ scriptSuccess: true })
+        chrome.storage.local.set({ scriptSuccess: true })
       );
       nextTrackBtn.click();
     }
@@ -204,16 +204,16 @@ const SpotifyPlayer: FC = () => {
               .then(async () => {
                 // Need to wait for injection functions (i.e. volume and seek track) to save to chrome storage
                 // - Note: Causes error if place async function inside injection fuctions 
-                await new Promise(r => setTimeout(r, 100))
-
-                chrome.storage.local.get([ChromeData.scriptSuccess], (res) => {
-                  if (res.scriptSuccess) {
-                    resolve({ data: true });
-                  } else {
-                    // Note: Result still considered successful
-                    resolve({ data: false });
-                  }
-                });
+                await new Promise(() => setTimeout(() => {
+                  chrome.storage.local.get([ChromeData.scriptSuccess], (res) => {
+                    if (res.scriptSuccess) {
+                      resolve({ data: true });
+                    } else {
+                      // Note: Result still considered successful
+                      resolve({ data: false });
+                    }
+                  });
+                }, 300)) // Note: Lower than 200ms causes chrome fetch to receive undefined
               })
               .catch(() => {
                 reject({ data: false });
@@ -671,8 +671,7 @@ const SpotifyPlayer: FC = () => {
               </IconButton>
             </Grid>
           </Stack>
-        </Box>
-      </div>
+        </Box>      </div>
       <div
         className={successOrAdPlayerStatus() ? styles.playerTrackSlider : ""}
       >
