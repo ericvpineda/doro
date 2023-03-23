@@ -66,6 +66,7 @@ const SpotifySlider: FC<Props> = (props) => {
   const debounceThumbSeekHandler = useMemo(() => debounce(thumbSeekUI, 25), []);
 
   // Set intital values for thumb position and progress bar
+  // console.log("DEBUG: Runnign spotify slider")
   useEffect(() => {
     setThumbPosition(props.thumbPosition);
     setProgressMs(props.progressMs);
@@ -85,7 +86,8 @@ const SpotifySlider: FC<Props> = (props) => {
             (successPlayerStatus() && updatedProgress >= durationMs - 1500) ||
             (updatedProgress >= durationMs - 1000)
           ) {
-            getTrack();
+            // console.log("DEBUG: Calling get track from spotify slider")
+            // getTrack();
           }
         }
       }, 1000);

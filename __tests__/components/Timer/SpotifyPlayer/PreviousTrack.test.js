@@ -6,6 +6,10 @@ import { Status } from "../../../../src/Utils/SpotifyUtils";
 import userEvent from "@testing-library/user-event";
 import { PlayerActions } from "../../../../src/Utils/SpotifyUtils";
 
+// Note:
+// - Assertions dealing with chrome.sendMessage needs to be wrapped in waitFor
+//  - Else, will have async errors
+
 // Tests for SpotifyPlayer component
 describe("Test SpotifyPlayer component previous track", () => {
   let user, logSpy;
@@ -30,12 +34,12 @@ describe("Test SpotifyPlayer component previous track", () => {
 
   afterEach(() => {
     jest.clearAllMocks(); // Clears spy mocks
-    // global.chrome.runtime.sendMessage = jest.fn();
     document.body.innerHTML = "";
   });
 
   // ----- PREVIOUS TRACK TESTS -----
 
+  // Test #1
   it("player plays song at 0ms and user plays PREVIOUS track, returns success", async () => {
     global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
       callback({
@@ -52,10 +56,13 @@ describe("Test SpotifyPlayer component previous track", () => {
     const prevTrackBtn = screen.getByTestId("previous-track-btn");
     await user.click(prevTrackBtn);
 
-    expect(global.chrome.runtime.sendMessage).toBeCalledTimes(2);
-    expect(logSpy).toBeCalledTimes(0);
+    await waitFor(() => {
+      expect(global.chrome.runtime.sendMessage).toBeCalledTimes(2);
+      expect(logSpy).toBeCalledTimes(0);
+    })
   });
 
+  // Test #2
   it("player is playing song greater than 0ms and user plays PREVIOUS track, returns success", async () => {
     global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
       callback({
@@ -73,10 +80,13 @@ describe("Test SpotifyPlayer component previous track", () => {
     const prevTrackBtn = screen.getByTestId("previous-track-btn");
     await user.click(prevTrackBtn);
 
-    expect(global.chrome.runtime.sendMessage).toBeCalledTimes(2);
-    expect(logSpy).toBeCalledTimes(0);
+    await waitFor(() => {
+      expect(global.chrome.runtime.sendMessage).toBeCalledTimes(2);
+      expect(logSpy).toBeCalledTimes(0);
+    })
   });
 
+  // Test #3
   // Note: Seek track back to 0ms
   it("player is playing and user plays PREVIOUS track, returns error", async () => {
     global.chrome.runtime.sendMessage
@@ -118,6 +128,7 @@ describe("Test SpotifyPlayer component previous track", () => {
   // - mock chrome scripting executeScript
   //  - mock document object for correct document objects
   //  - mock fulfilled state and rejected state
+  // Test #4
   it("non-premium user plays PREVIOUS track, returns success", async () => {
     // Mock document to have track button
     document.body.innerHTML = `<div>
@@ -130,7 +141,7 @@ describe("Test SpotifyPlayer component previous track", () => {
         callback({
           status: Status.SUCCESS,
           data: {
-            artist: "",
+            artist: "Test4",
             track: "",
             isPlaying: true,
             progressMs: 0,
@@ -138,21 +149,11 @@ describe("Test SpotifyPlayer component previous track", () => {
           },
         });
       })
-      .mockImplementationOnce((obj, callback) => {
+      .mockImplementation((obj, callback) => {
         callback({
           status: Status.FAILURE
         });
       })
-      .mockImplementation((obj, callback) => {
-        callback({
-          status: Status.SUCCESS,
-          data: {
-            artist: "",
-            track: "",
-            isPlaying: true,
-          },
-        });
-      });
 
     // Mock getting spotify tab in chrome browser
     global.chrome.tabs.query = (_, callback) => {
@@ -171,7 +172,7 @@ describe("Test SpotifyPlayer component previous track", () => {
     await user.click(prevTrackBtn);
 
     await waitFor(() => {
-      // expect(global.chrome.runtime.sendMessage).toBeCalledTimes(5);
+      expect(global.chrome.runtime.sendMessage).toBeCalledTimes(2);
       expect(logSpy).toBeCalledTimes(0);
       expect(global.chrome.runtime.sendMessage).toBeCalledWith(
         { message: PlayerActions.GET_CURRENTLY_PLAYING },
@@ -180,167 +181,127 @@ describe("Test SpotifyPlayer component previous track", () => {
     });
   });
 
-  // it("non-premium user plays PREVIOUS track, returns failure", async () => {
-  //   // Mock initial call to get track information
-  //   global.chrome.runtime.sendMessage
-  //     .mockImplementationOnce((obj, callback) => {
-  //       callback({
-  //         status: Status.SUCCESS,
-  //         data: {
-  //           artist: "",
-  //           track: "",
-  //           isPlaying: true,
-  //           progressMs: 0,
-  //           durationMs: 0,
-  //         },
-  //       });
-  //     })
-  //     .mockImplementationOnce((obj, callback) => {
-  //       callback({
-  //         status: Status.FAILURE,
-  //       });
-  //     })
-  //     .mockImplementation((obj, callback) => {
-  //       callback({
-  //         status: Status.SUCCESS,
-  //         data: {
-  //           artist: "",
-  //           track: "",
-  //           isPlaying: true,
-  //         },
-  //       });
-  //     });
+  // Test #5
+  it("non-premium user plays PREVIOUS track, returns failure", async () => {
 
-  //   // Mock getting spotify tab in chrome browser
-  //   global.chrome.tabs.query = (_, callback) => {
-  //     callback([{ url: "https://www.spotify.com", id: 1 }]);
-  //   };
+    // Mock initial call to get track information
+    global.chrome.runtime.sendMessage
+      .mockImplementationOnce((obj, callback) => {
+        callback({
+          status: Status.SUCCESS,
+          data: {
+            artist: "Test5",
+            track: "",
+            isPlaying: true,
+            progressMs: 0,
+            durationMs: 0,
+          },
+        });
+      })
+      .mockImplementation((obj, callback) => {
+        callback({
+          status: Status.FAILURE,
+        });
+      })
 
-  //   // Mock script injection function
-  //   global.chrome.scripting = {
-  //     executeScript: ({ target, func }) => {
-  //       return new Promise((resolve, reject) => resolve(func()));
-  //     },
-  //   };
+    // Mock getting spotify tab in chrome browser
+    global.chrome.tabs.query = (_, callback) => {
+      callback([{ url: "https://www.spotify.com", id: 1 }]);
+    };
 
-  //   render(<SpotifyPlayer />);
-  //   const prevTrackBtn = screen.getByTestId("previous-track-btn");
-  //   await user.click(prevTrackBtn);
-  //   await user.click(prevTrackBtn);
-  //   await user.click(prevTrackBtn);
+    // Mock script injection function
+    global.chrome.scripting = {
+      executeScript: ({ target, func }) => {
+        return new Promise((resolve, reject) => resolve(func()));
+      },
+    };
 
-  //   await waitFor(() => {
-  //     expect(global.chrome.runtime.sendMessage).toBeCalledWith(
-  //       { message: PlayerActions.GET_CURRENTLY_PLAYING },
-  //       expect.any(Function)
-  //     );
-  //     expect(logSpy).toHaveBeenCalledWith(
-  //       "Failure when getting previous track."
-  //     );
-  //   });
-  // });
+    render(<SpotifyPlayer />);
+    const prevTrackBtn = screen.getByTestId("previous-track-btn");
+    await user.click(prevTrackBtn);
 
-  // it("non-premium user plays PREVIOUS track, injection script returns failure", async () => {
-  //   global.chrome.runtime.sendMessage
-  //     .mockImplementationOnce((obj, callback) => {
-  //       callback({
-  //         status: Status.SUCCESS,
-  //         data: {
-  //           artist: "",
-  //           isPlaying: false,
-  //           progressMs: 0,
-  //           durationMs: 0,
-  //         },
-  //       });
-  //     })
-  //     .mockImplementationOnce((obj, callback) => {
-  //       callback({
-  //         status: Status.SUCCESS,
-  //         data: {
-  //           artist: "",
-  //           isPlaying: false,
-  //           progressMs: 0,
-  //           durationMs: 0,
-  //         },
-  //       });
-  //     })
-  //     .mockImplementationOnce((obj, callback) =>
-  //       callback({ status: Status.FAILURE })
-  //     )
-  //     .mockImplementation((obj, callback) =>
-  //       callback({
-  //         status: Status.SUCCESS,
-  //         data: { track: "", artist: "" },
-  //       })
-  //     );
+    await waitFor(() => {
+      expect(global.chrome.runtime.sendMessage).toBeCalledWith(
+        { message: PlayerActions.GET_CURRENTLY_PLAYING },
+        expect.any(Function)
+      );
+      expect(logSpy).toHaveBeenCalledWith(
+        "Failure when getting previous track."
+      );
+    });
+  });
 
-  //   // Mock getting spotify tab
-  //   global.chrome.tabs.query = (_, callback) => {
-  //     callback([{ url: "https://www.spotify.com", id: 1 }]);
-  //   };
+  // Test #6
+  it("non-premium user plays PREVIOUS track, injection script returns failure", async () => {
 
-  //   // Mock script injection function
-  //   global.chrome.scripting = {
-  //     executeScript: ({ target, func }) => {
-  //       return new Promise((resolve, reject) => reject(func()));
-  //     },
-  //   };
+    global.chrome.runtime.sendMessage
+      .mockImplementationOnce((obj, callback) => {
+        callback({
+          status: Status.SUCCESS,
+          data: {
+            artist: "Test6",
+            isPlaying: false,
+            progressMs: 0,
+            durationMs: 0,
+          },
+        });
+      })
+      .mockImplementation((obj, callback) =>
+        callback({ status: Status.FAILURE })
+      )
 
-  //   render(<SpotifyPlayer />);
-  //   const prevTrackBtn = screen.getByTestId("previous-track-btn");
-  //   await user.click(prevTrackBtn);
-  //   await user.click(prevTrackBtn);
+    // Mock getting spotify tab
+    global.chrome.tabs.query = (_, callback) => {
+      callback([{ url: "https://www.spotify.com", id: 1 }]);
+    };
 
-  //   await waitFor(
-  //     () => {
-  //       expect(logSpy).toHaveBeenCalledWith(
-  //         "Failure when getting previous track."
-  //       );
-  //     },
-  //     { timeout: 1000 }
-  //   );
-  // });
+    // Mock script injection function
+    global.chrome.scripting = {
+      executeScript: ({ target, func }) => {
+        return new Promise((resolve, reject) => reject(func()));
+      },
+    };
 
-  // it("player is playing and user plays PREVIOUS track, returns unknown error", async () => {
-  //   global.chrome.runtime.sendMessage
-  //     .mockImplementationOnce((obj, callback) => {
-  //       callback({
-  //         status: Status.SUCCESS,
-  //         data: {
-  //           artist: "",
-  //           track: "",
-  //           isPlaying: true,
-  //           progressMs: 0,
-  //           durationMs: 0,
-  //         },
-  //       });
-  //     })
-  //     .mockImplementationOnce((obj, callback) => {
-  //       callback({ status: Status.TESTING });
-  //     })
-  //     .mockImplementation((obj, callback) =>
-  //       callback({
-  //         status: Status.SUCCESS,
-  //         data: {
-  //           artist: "",
-  //           track: "",
-  //           isPlaying: true,
-  //           progressMs: 0,
-  //           durationMs: 0,
-  //         },
-  //       })
-  //     );
+    render(<SpotifyPlayer />);
+    const prevTrackBtn = screen.getByTestId("previous-track-btn");
+    await user.click(prevTrackBtn);
 
-  //   render(<SpotifyPlayer />);
-  //   const prevTrackBtn = screen.getByTestId("previous-track-btn");
-  //   await user.click(prevTrackBtn);
-  //   await user.click(prevTrackBtn);
-  //   await user.click(prevTrackBtn);
+    await waitFor(
+      () => {
+        expect(logSpy).toHaveBeenCalledWith(
+          "Failure when getting previous track."
+        );
+      }
+    );
+  });
 
-  //   await waitFor(() => {
-  //     expect(logSpy).toHaveBeenCalledWith(
-  //       "Unknown error when getting previous track."
-  //     );
-  //   });
-  // });
+  // Test #7
+  it("player is playing and user plays PREVIOUS track, returns unknown error", async () => {
+    global.chrome.runtime.sendMessage
+      .mockImplementationOnce((obj, callback) => {
+        callback({
+          status: Status.SUCCESS,
+          data: {
+            artist: "",
+            track: "",
+            isPlaying: true,
+            progressMs: 0,
+            durationMs: 0,
+          },
+        });
+      })
+      .mockImplementation((obj, callback) => {
+        callback({ status: Status.TESTING });
+      })
+
+    render(<SpotifyPlayer />);
+    const prevTrackBtn = screen.getByTestId("previous-track-btn");
+    await user.click(prevTrackBtn);
+
+    await waitFor(() => {
+      expect(logSpy).toHaveBeenCalledWith(
+        "Unknown error when getting previous track."
+      );
+    });
+  });
 });

@@ -218,10 +218,11 @@ const SpotifyPlayer: FC = () => {
 
   // Get initial track data upon loading page
   const getTrack = () => {
+
     chrome.runtime.sendMessage(
       { message: PlayerActions.GET_CURRENTLY_PLAYING },
       (res) => {
-        // console.log("DEBUG: GET TRACK", res)
+        // console.log("DEBUG: get track", res)
         // Note: Will return success on tracks and advertisements
         if (res.status === Status.SUCCESS) {
           setTrack(res.data.track);
@@ -265,6 +266,9 @@ const SpotifyPlayer: FC = () => {
 
   // Pause current track
   const trackPause = () => {
+    
+    // console.log("DEBUG: play track")
+    
     chrome.runtime.sendMessage({ message: PlayerActions.PAUSE }, (res) => {
       // console.log("DEBUG: PAUSE TRACK", res)
       if (res.status === Status.SUCCESS) {
@@ -290,6 +294,9 @@ const SpotifyPlayer: FC = () => {
 
   // Play current track
   const trackPlay = () => {
+
+    // console.log("DEBUG: play track")
+    
     chrome.runtime.sendMessage({ message: PlayerActions.PLAY }, (res) => {
       if (res.status === Status.SUCCESS) {
         setIsPlaying(true);
@@ -314,6 +321,9 @@ const SpotifyPlayer: FC = () => {
 
   // Get players next track
   const trackNext = () => {
+
+    // console.log("DEBUG: next track")
+    
     chrome.runtime.sendMessage({ message: PlayerActions.NEXT }, async (res) => {
       if (res.status === Status.SUCCESS) {
         // Wait for api call to succeed
@@ -344,19 +354,21 @@ const SpotifyPlayer: FC = () => {
       setThumbPosition(0);
       trackSeekChangeCommitted(0);
     } else {
+    // console.log("DEBUG: previous track")
+
       chrome.runtime.sendMessage(
         { message: PlayerActions.PREVIOUS },
         async (res) => {
           if (res.status === Status.SUCCESS) {
             // Wait for api call to succeed
-            setTimeout(getTrack, 500);
+            // setTimeout(getTrack, 500);
           } else if (res.status === Status.FAILURE) {
             // Case: User is non-premium user
             await trackInjection(injectTrackPrevious)
               .then(async (res: any) => {
                 // Need to account for api call lag time
                 if (res.data === true) {
-                  setTimeout(getTrack, 250);
+                  // setTimeout(getTrack, 250);
                 } else {
                   console.log("Failure when getting previous track.");
                 }
@@ -374,6 +386,8 @@ const SpotifyPlayer: FC = () => {
 
   // Save track to user LIKED playlist
   const trackSave = () => {
+    // console.log("DEBUG: save track")
+
     chrome.runtime.sendMessage(
       { message: PlayerActions.SAVE_TRACK, query: trackId, type: trackType },
       (res) => {
@@ -390,6 +404,8 @@ const SpotifyPlayer: FC = () => {
 
   // Remove track from user LIKED playlist
   const trackRemoveSaved = () => {
+    // console.log("DEBUG: removing track")
+
     chrome.runtime.sendMessage(
       {
         message: PlayerActions.REMOVE_SAVED_TRACK,
@@ -410,6 +426,8 @@ const SpotifyPlayer: FC = () => {
 
   // Get volume value after mouse-up from mouse click
   const trackVolumeChangeCommitted = (volumePercent: any) => {
+    // console.log("DEBUG: changing volume")
+
     chrome.runtime.sendMessage(
       {
         message: PlayerActions.SET_VOLUME,
@@ -456,6 +474,7 @@ const SpotifyPlayer: FC = () => {
   const trackSeekChangeCommitted = (percent: any) => {
     const positionMs = Math.floor(durationMs * (percent * 0.01));
 
+    // console.log("DEBUG: seeking track")
     chrome.runtime.sendMessage(
       {
         message: PlayerActions.SEEK_POSITION,
@@ -573,8 +592,13 @@ const SpotifyPlayer: FC = () => {
     }
   };
 
+  // console.log("DEBUG: RENDER Spotify player")
+  
   // On initial popup, get track data
-  useEffect(() => getTrack(), []);
+  useEffect(() => {
+    // console.log("DEBUG: Initial get track call")
+    getTrack()
+  }, []);
 
   return (
     <div className={styles.playerContainer} id="player-container">
