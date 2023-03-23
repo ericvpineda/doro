@@ -53,38 +53,37 @@ const SpotifyPlayer: FC = () => {
     ) as HTMLButtonElement;
 
     if (button) {
-      button.addEventListener("click", () =>
-        chrome.storage.local.set({ scriptSuccess: true })
-      );
       button.click();
+      return true;
     }
+    // console.log("DEBUG: play and pause result=", result)
+    return false;
   };
 
   // Inject script for next track (Non-premium users)
   const injectTrackNext = () => {
-    const nextTrackBtn = document.querySelector(
+    const button = document.querySelector(
       "[data-testid=control-button-skip-forward]"
     ) as HTMLButtonElement;
 
-    if (nextTrackBtn) {
-      nextTrackBtn.addEventListener("click", () =>
-        chrome.storage.local.set({ scriptSuccess: true })
-      );
-      nextTrackBtn.click();
+    if (button) {
+      button.click();
+      return true;
     }
+    return false;
   };
 
   // Inject script for previous track (Non-premium users)
   const injectTrackPrevious = () => {
-    const prevTrackBtn = document.querySelector(
+    const button = document.querySelector(
       "[data-testid=control-button-skip-back]"
     ) as HTMLButtonElement;
-    if (prevTrackBtn) {
-      prevTrackBtn.addEventListener("click", () =>
-        chrome.storage.local.set({ scriptSuccess: true })
-      );
-      prevTrackBtn.click();
+
+    if (button) {
+      button.click();
+      return true;
     }
+    return false;
   };
 
   // Inject script for change volume (Non-premium users)
@@ -92,24 +91,21 @@ const SpotifyPlayer: FC = () => {
   //  - cannot return promise since chrome.executescript only support jsonifiable objects
   //  - cannot access ChromeData since not injected
   const injectChangeVolume = () => {
-    chrome.storage.local.get(["volume"], (res) => {
-      // Container parent
-      const volumeBarContainer = document.querySelector(
-        "[data-testid=volume-bar]"
+    // Container parent
+    const volumeBarContainer = document.querySelector(
+      "[data-testid=volume-bar]"
+    );
+
+    let progressBar: any;
+    if (volumeBarContainer) {
+      // Note: data-testid progress-bar is also id of seek track bar
+      progressBar = volumeBarContainer.querySelector(
+        "[data-testid=progress-bar]"
       );
+    }
 
-      let progressBar;
-      if (volumeBarContainer) {
-        // Note: data-testid progress-bar is also id of seek track bar
-        progressBar = volumeBarContainer.querySelector(
-          "[data-testid=progress-bar]"
-        );
-      }
-
-      if (volumeBarContainer && progressBar) {
-        
-        chrome.storage.local.set({ scriptSuccess: true });
-
+    if (volumeBarContainer && progressBar) {
+      chrome.storage.local.get(["volume"], (res) => {
         const volumeInt = res.volume;
         const mousedown = new MouseEvent("mousedown", {
           clientX: progressBar.getBoundingClientRect().left,
@@ -131,27 +127,29 @@ const SpotifyPlayer: FC = () => {
         progressBar.dispatchEvent(mousedown);
         progressBar.dispatchEvent(mousemove);
         progressBar.dispatchEvent(mouseup);
-      }
-    });
+      });
+      return true;
+    }
+    return false;
   };
 
   // Inject script for seeking track (Non-premium users)
   const injectSeekTrack = () => {
-    chrome.storage.local.get(["percent"], (res) => {
-      // Container parent
-      const playbackContainer = document.querySelector(
-        "[data-testid=playback-progressbar]"
+    // Container parent
+    const playbackContainer = document.querySelector(
+      "[data-testid=playback-progressbar]"
+    ) as HTMLDivElement;
+
+    let progressBar: any;
+    if (playbackContainer) {
+      // Note: data-testid progress-bar is also id of seek track bar
+      progressBar = playbackContainer.querySelector(
+        "[data-testid=progress-bar]"
       ) as HTMLDivElement;
+    }
 
-      let progressBar;
-      if (playbackContainer) {
-        // Note: data-testid progress-bar is also id of seek track bar
-        progressBar = playbackContainer.querySelector(
-          "[data-testid=progress-bar]"
-        ) as HTMLDivElement;
-      }
-
-      if (playbackContainer && progressBar) {
+    if (playbackContainer && progressBar) {
+      chrome.storage.local.get(["percent"], (res) => {
         const percent = res.percent / 100;
         const totalLength =
           progressBar.getBoundingClientRect().right -
@@ -178,9 +176,10 @@ const SpotifyPlayer: FC = () => {
         progressBar.dispatchEvent(mousedown);
         progressBar.dispatchEvent(mousemove);
         progressBar.dispatchEvent(mouseup);
-        chrome.storage.local.set({ scriptSuccess: true });
-      }
-    });
+      });
+      return true;
+    }
+    return false;
   };
 
   // Helper function to execute chrome injection scripts
@@ -193,44 +192,36 @@ const SpotifyPlayer: FC = () => {
         // Search for tab with spotify using regex pattern
         tabs.forEach((tab) => {
           if (tab.url && re.test(tab.url) && tab.id) {
-            // Set/reset script result boolean in chrome storage
-            chrome.storage.local.set({ scriptSuccess: false });
             // Execute script injection into chrome browser
             chrome.scripting
               .executeScript({
                 target: { tabId: tab.id },
                 func: commandFxn,
               })
-              .then(async () => {
-                // Need to wait for injection functions (i.e. volume and seek track) to save to chrome storage
-                // - Note: Causes error if place async function inside injection fuctions 
-                await new Promise(() => setTimeout(() => {
-                  chrome.storage.local.get([ChromeData.scriptSuccess], (res) => {
-                    if (res.scriptSuccess) {
-                      resolve({ data: true });
-                    } else {
-                      // Note: Result still considered successful
-                      resolve({ data: false });
-                    }
-                  });
-                }, 300)) // Note: Lower than 200ms causes chrome fetch to receive undefined
+              .then((data) => {
+                if (data) {
+                  resolve({ data });
+                } else {
+                  resolve({ data: false });
+                }
               })
               .catch(() => {
                 reject({ data: false });
               });
-            }
+          }
         });
       });
     });
   };
 
   // ----- Spotify API command calling fuctions -----
-  
+
   // Get initial track data upon loading page
   const getTrack = () => {
     chrome.runtime.sendMessage(
       { message: PlayerActions.GET_CURRENTLY_PLAYING },
       (res) => {
+        // console.log("DEBUG: GET TRACK", res)
         // Note: Will return success on tracks and advertisements
         if (res.status === Status.SUCCESS) {
           setTrack(res.data.track);
@@ -275,6 +266,7 @@ const SpotifyPlayer: FC = () => {
   // Pause current track
   const trackPause = () => {
     chrome.runtime.sendMessage({ message: PlayerActions.PAUSE }, (res) => {
+      // console.log("DEBUG: PAUSE TRACK", res)
       if (res.status === Status.SUCCESS) {
         setIsPlaying(false);
       } else if (res.status === Status.FAILURE) {
@@ -329,9 +321,9 @@ const SpotifyPlayer: FC = () => {
       } else if (res.status === Status.FAILURE) {
         // Case: User is non-premium user
         await trackInjection(injectTrackNext)
-        .then(async (response: any) => {
-          if (response.data === true) {
-            // Need to account for api call lag time
+          .then(async (response: any) => {
+            if (response.data === true) {
+              // Need to account for api call lag time
               setTimeout(getTrack, 250);
             } else {
               console.log("Failure when getting next track.");
@@ -349,35 +341,35 @@ const SpotifyPlayer: FC = () => {
   // Get players previous track
   const trackPrevious = () => {
     if (thumbPosition > 3) {
-      setThumbPosition(0)
-      trackSeekChangeCommitted(0)
+      setThumbPosition(0);
+      trackSeekChangeCommitted(0);
     } else {
       chrome.runtime.sendMessage(
         { message: PlayerActions.PREVIOUS },
         async (res) => {
           if (res.status === Status.SUCCESS) {
             // Wait for api call to succeed
-            setTimeout(getTrack, 500)
+            setTimeout(getTrack, 500);
           } else if (res.status === Status.FAILURE) {
             // Case: User is non-premium user
             await trackInjection(injectTrackPrevious)
               .then(async (res: any) => {
                 // Need to account for api call lag time
                 if (res.data === true) {
-                  setTimeout(getTrack, 250)
+                  setTimeout(getTrack, 250);
                 } else {
                   console.log("Failure when getting previous track.");
                 }
               })
               .catch(() => console.log("Failure when getting previous track."));
-            } else if (res.status === Status.ERROR) {
+          } else if (res.status === Status.ERROR) {
             console.log(res.error.message);
           } else {
             console.log("Unknown error when getting previous track.");
           }
         }
-        );
-      }
+      );
+    }
   };
 
   // Save track to user LIKED playlist
@@ -429,7 +421,7 @@ const SpotifyPlayer: FC = () => {
           if (volume !== 0) {
             setVolumeCached(volume);
           }
-          setVolume(volumePercent)
+          setVolume(volumePercent);
         } else if (res.status === Status.FAILURE) {
           if (
             typeof volumePercent === "number" &&
@@ -463,7 +455,7 @@ const SpotifyPlayer: FC = () => {
   // Sets thumb position value after mouse up event on thumb icon
   const trackSeekChangeCommitted = (percent: any) => {
     const positionMs = Math.floor(durationMs * (percent * 0.01));
-  
+
     chrome.runtime.sendMessage(
       {
         message: PlayerActions.SEEK_POSITION,
@@ -671,7 +663,8 @@ const SpotifyPlayer: FC = () => {
               </IconButton>
             </Grid>
           </Stack>
-        </Box>      </div>
+        </Box>{" "}
+      </div>
       <div
         className={successOrAdPlayerStatus() ? styles.playerTrackSlider : ""}
       >
