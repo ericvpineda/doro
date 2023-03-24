@@ -117,13 +117,13 @@ describe("Test SpotifyPlayer component play track", () => {
   
       // Mock getting spotify tab
       global.chrome.tabs.query = (_, callback) => {
-        callback([{ url: "https://www.spotify.com", id: 1 }]);
+        callback([{ url: "https://open.spotify.com", id: 1 }]);
       };
   
       // Mock script injection function
       global.chrome.scripting = {
         executeScript: ({ target, func }) => {
-          return new Promise((resolve, reject) => resolve(func()));
+          return new Promise((resolve, reject) => resolve([{result: func()}]));
         },
       };
   
@@ -157,13 +157,13 @@ describe("Test SpotifyPlayer component play track", () => {
   
       // Mock getting spotify tab
       global.chrome.tabs.query = (_, callback) => {
-        callback([{ url: "https://www.spotify.com", id: 1 }]);
+        callback([{ url: "https://open.spotify.com", id: 1 }]);
       };
   
       // Mock script injection function
       global.chrome.scripting = {
         executeScript: ({ target, func }) => {
-          return new Promise((resolve, reject) => resolve(func()));
+          return new Promise((resolve, reject) => resolve([{result: func()}]));
         },
       };
   
@@ -202,7 +202,7 @@ describe("Test SpotifyPlayer component play track", () => {
   
       // Mock getting spotify tab
       global.chrome.tabs.query = (_, callback) => {
-        callback([{ url: "https://www.spotify.com", id: 1 }]);
+        callback([{ url: "https://open.spotify.com", id: 1 }]);
       };
   
       // Mock script injection function

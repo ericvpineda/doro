@@ -11,6 +11,10 @@ import SpotifyPlayer from "../../../../src/Components/Timer/SpotifyPlayer/Spotif
 import { Status } from "../../../../src/Utils/SpotifyUtils";
 import userEvent from "@testing-library/user-event";
 
+// Note:
+// - update spotify regex to "https://open.spotify.com"
+// - update resolve function to be "resolve([{result: func()}])"
+
 // Tests for SpotifyPlayer component
 describe("Test SpotifyPlayer component volume", () => {
   let user, logSpy;
@@ -40,7 +44,7 @@ describe("Test SpotifyPlayer component volume", () => {
   });
 
 
-// // ----- VOLUME SLIDER TESTS -----
+// ----- VOLUME SLIDER TESTS -----
 
 // Note: Don't need manually render volume-btn, volume-slider bc VolumeSlider is subcomponent
 it("user changes VOLUME and returns success", async () => {
@@ -93,7 +97,9 @@ it("user changes VOLUME and returns success", async () => {
     fireEvent.mouseOut(volumeBtn);
   });
 
-  expect(logSpy).toBeCalledTimes(0);
+  await waitFor(() => {
+    expect(logSpy).toBeCalledTimes(0);
+  })
 });
 
 // Note: Don't need manually render volume-btn, volume-slider bc VolumeSlider is subcomponent
@@ -149,11 +155,14 @@ it("user changes VOLUME and returns error", async () => {
     fireEvent.mouseOut(volumeBtn);
   });
 
-  expect(logSpy).toHaveBeenCalledWith("Error when completing track command.");
+  await waitFor(() => {
+    expect(logSpy).toHaveBeenCalledWith("Error when completing track command.");
+  })
 });
 
 // Note: Spotify browser elements not to document, should throw error
 it("non-premium user changes VOLUME and returns failure", async () => {
+
   global.chrome.runtime.sendMessage
     .mockImplementationOnce((obj, callback) => {
       callback({
@@ -165,29 +174,24 @@ it("non-premium user changes VOLUME and returns failure", async () => {
         },
       });
     })
-    .mockImplementationOnce((obj, callback) =>
+    .mockImplementation((obj, callback) =>
       callback({ status: Status.FAILURE })
     )
-    .mockImplementation((obj, callback) =>
-      callback({
-        status: Status.SUCCESS,
-        data: { track: "", artist: "" },
-      })
-    );
-
+ 
   // Mock getting spotify tab in chrome browser
   global.chrome.tabs.query = (_, callback) => {
-    callback([{ url: "https://www.spotify.com", id: 1 }]);
+    callback([{ url: "https://open.spotify.com", id: 1 }]);
   };
 
   // Mock script injection function
   global.chrome.scripting = {
     executeScript: ({ target, func }) => {
-      return new Promise((resolve, reject) => resolve(func()));
+      return new Promise((resolve, reject) => [{result: resolve(func())}]);
     },
   };
 
   render(<SpotifyPlayer />);
+
   const volumeBtn = screen.getByTestId("volume-btn");
   await user.hover(volumeBtn);
 
@@ -252,7 +256,7 @@ it("non-premium user changes VOLUME and injection script returns failure", async
 
   // Mock getting spotify tab in chrome browser
   global.chrome.tabs.query = (_, callback) => {
-    callback([{ url: "https://www.spotify.com", id: 1 }]);
+    callback([{ url: "https://open.spotify.com", id: 1 }]);
   };
 
   // Mock script injection function
@@ -293,6 +297,7 @@ it("non-premium user changes VOLUME and injection script returns failure", async
 });
 
 it("non-premium user changes VOLUME and returns success", async () => {
+
   // Mock document to have volume slider since injecting on spotify volume slider
   const volumeBar = document.createElement("div");
   volumeBar.setAttribute("data-testid", "volume-bar");
@@ -317,23 +322,26 @@ it("non-premium user changes VOLUME and returns success", async () => {
     })
     .mockImplementationOnce((obj, callback) =>
       callback({ status: Status.FAILURE })
-    )
-    .mockImplementation((obj, callback) =>
+    ).mockImplementation((obj, callback) => {
       callback({
         status: Status.SUCCESS,
-        data: { track: "", artist: "" },
-      })
-    );
+        data: {
+          artist: "",
+          isPlaying: true,
+          volumePercent: 24,
+        },
+      });
+    })
 
   // Mock getting spotify tab in chrome browser
   global.chrome.tabs.query = (_, callback) => {
-    callback([{ url: "https://www.spotify.com", id: 1 }]);
+    callback([{ url: "https://open.spotify.com", id: 1 }]);
   };
 
   // Mock script injection function
   global.chrome.scripting = {
     executeScript: ({ target, func }) => {
-      return new Promise((resolve, reject) => resolve(func()));
+      return new Promise((resolve, reject) => resolve([{result: func()}]));
     },
   };
 
@@ -358,7 +366,9 @@ it("non-premium user changes VOLUME and returns success", async () => {
     });
   });
 
-  expect(logSpy).toBeCalledTimes(0);
+  await waitFor(() => {
+    expect(logSpy).toBeCalledTimes(0);
+  })
 });
 
 it("user changes VOLUME and returns unknown error", async () => {

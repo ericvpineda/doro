@@ -183,7 +183,7 @@ const SpotifyPlayer: FC = () => {
   // Helper function to execute chrome injection scripts
   const trackInjection = (commandFxn: () => void) => {
     // Spotify regex expresion
-    const re = new RegExp("^https://[-a-zA-Z0-9@:%._+~#=]{1,256}.spotify.com");
+    const re = new RegExp("^https://open.spotify.com");
 
     return new Promise((resolve, reject) => {
       chrome.tabs.query({}, (tabs) => {
@@ -196,9 +196,10 @@ const SpotifyPlayer: FC = () => {
                 target: { tabId: tab.id },
                 func: commandFxn,
               })
-              .then((data) => {
-                if (data) {
-                  resolve({ data });
+              .then((injectionResult) => {
+                // console.log("DEBUG: data", injectionResult[0].result)
+                if (injectionResult) {
+                  resolve({ data: injectionResult[0].result });
                 } else {
                   resolve({ data: false });
                 }
@@ -206,6 +207,8 @@ const SpotifyPlayer: FC = () => {
               .catch(() => {
                 reject({ data: false });
               });
+              // Note: only want single spotify webpage instance to run 
+              return;
           }
         });
       });
@@ -219,6 +222,7 @@ const SpotifyPlayer: FC = () => {
     chrome.runtime.sendMessage(
       { message: PlayerActions.GET_CURRENTLY_PLAYING },
       (res) => {
+        // console.log("DEBUG: GET TRACK", res)
         // Note: Will return success on tracks and advertisements
         if (res.status === Status.SUCCESS) {
           setTrack(res.data.track);
@@ -262,6 +266,7 @@ const SpotifyPlayer: FC = () => {
 
   // Pause current track
   const trackPause = () => {
+    // console.log("DEBUG: pausing track", )
     chrome.runtime.sendMessage({ message: PlayerActions.PAUSE }, (res) => {
       if (res.status === Status.SUCCESS) {
         setIsPlaying(false);
@@ -286,6 +291,8 @@ const SpotifyPlayer: FC = () => {
 
   // Play current track
   const trackPlay = () => {
+    // console.log("DEBUG: play track", )
+
     chrome.runtime.sendMessage({ message: PlayerActions.PLAY }, (res) => {
       if (res.status === Status.SUCCESS) {
         setIsPlaying(true);
@@ -412,7 +419,7 @@ const SpotifyPlayer: FC = () => {
         query: { volumePercent, deviceId },
       },
       async (res) => {
-        // console.log("Volume change status=", res.status, res.status === Status.SUCCESS, res.status === Status.FAILURE)
+        // console.log("DEBUG: track volume=", res)
         if (res.status === Status.SUCCESS) {
           if (volume !== 0) {
             setVolumeCached(volume);

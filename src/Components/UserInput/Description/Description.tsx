@@ -18,7 +18,7 @@ const Description: FC<Props> = (props): JSX.Element => {
   // Note: Invariant that description can never be empty
   const setDescriptHandler = (event: ChangeEvent<HTMLTextAreaElement>) => {
     const description = event.target.value;
-    if (description.length > 30) {
+    if (description && description.length > 30) {
       props.setErrorMessage("Focus plan character limit is 0-30.");
     } else {
       props.setErrorMessage("");

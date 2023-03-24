@@ -50,7 +50,10 @@ describe("Test description input element", () => {
     );
     input = screen.getByLabelText(/Focus Plan?/i);
     fireEvent.change(input, { target: { value: "Working on doro extension" } });
-    expect(input.value).toBe("Working on doro extension");
+
+    await waitFor(() => {
+      expect(input.value).toBe("Working on doro extension");
+    })
   });
 
   it("user input description with greater than 30 characters, shows error message", async () => {
@@ -65,13 +68,14 @@ describe("Test description input element", () => {
     const message = "This message is way over the limit...";
     const textBox = screen.getByRole("textbox");
     user.type(textBox, message);
+
     // Need to wait for debounce function to be called in componenet 
     await waitFor(() => {
-      expect(textBox).toHaveValue(message);
-      expect(mockDescriptionFxn).toHaveBeenCalledTimes(0);
       expect(mockErrorFxn).toHaveBeenCalledWith(
         "Focus plan character limit is 0-30."
       );
+      expect(textBox).toHaveValue(message);
+      expect(mockDescriptionFxn).toHaveBeenCalledTimes(0);
     });
   });
 
@@ -87,6 +91,7 @@ describe("Test description input element", () => {
     const message = "Testing description...";
     const textBox = screen.getByRole("textbox");
     user.type(textBox, message);
+
     // Need to wait for debounce function to be called in componenet 
     await waitFor(() => {
       expect(textBox).toHaveValue(message);
@@ -148,7 +153,9 @@ describe("Test description input element", () => {
       ></Description>
     );
     input = screen.getByLabelText(/Focus Plan?/i);
-    expect(input).toHaveValue(description);
+    await waitFor(() => {
+      expect(input).toHaveValue(description);
+    })
   });
 
 });

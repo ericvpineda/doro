@@ -181,13 +181,13 @@ describe("Test SpotifyPlayer component pause track", () => {
 
     // Mock getting spotify tab in chrome browser
     global.chrome.tabs.query = (_, callback) => {
-      callback([{ url: "https://www.spotify.com", id: 1 }]);
+      callback([{ url: "https://open.spotify.com", id: 1 }]);
     };
 
     // Mock script injection function
     global.chrome.scripting = {
       executeScript: ({ target, func }) => {
-        return new Promise((resolve, reject) => resolve(func()));
+        return new Promise((resolve, reject) => resolve([{result: func()}]));
       },
     };
 
@@ -234,13 +234,13 @@ describe("Test SpotifyPlayer component pause track", () => {
 
     // Mock getting spotify tab in chrome browser
     global.chrome.tabs.query = (_, callback) => {
-      callback([{ url: "https://www.spotify.com", id: 1 }]);
+      callback([{ url: "https://open.spotify.com", id: 1 }]);
     };
 
     // Mock script injection function
     global.chrome.scripting = {
       executeScript: ({ target, func }) => {
-        return new Promise((resolve, reject) => resolve(func()));
+        return new Promise((resolve, reject) => resolve([{result: func()}]));
       },
     };
 
@@ -254,8 +254,6 @@ describe("Test SpotifyPlayer component pause track", () => {
   });
 
   it("player is playing and non-premium user PAUSES track, injection script returns failure", async () => {
-
-    console.log("DEBUG: RUNNING CURRENT TEST...")
 
     // Mock initial get track request
     global.chrome.runtime.sendMessage
@@ -284,7 +282,7 @@ describe("Test SpotifyPlayer component pause track", () => {
 
     // Mock getting spotify tab in chrome browser
     global.chrome.tabs.query = (_, callback) => {
-      callback([{ url: "https://www.spotify.com", id: 1 }]);
+      callback([{ url: "https://open.spotify.com", id: 1 }]);
     };
 
     // Mock script injection function

@@ -1,9 +1,5 @@
 import React from "react";
-import {
-  render,
-  screen,
-  waitFor,
-} from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import SpotifyPlayer from "../../../../src/Components/Timer/SpotifyPlayer/SpotifyPlayer";
 import { Status } from "../../../../src/Utils/SpotifyUtils";
@@ -37,7 +33,7 @@ describe("Test SpotifyPlayer component get track", () => {
   });
   // ----- GET TRACK TESTS -----
 
-  it("player GETS track successfully", () => {
+  it("player GETS track successfully", async () => {
     // Mock initial request get current track
     global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
       callback({
@@ -49,10 +45,13 @@ describe("Test SpotifyPlayer component get track", () => {
     });
 
     render(<SpotifyPlayer />);
-    expect(logSpy).toBeCalledTimes(0);
+
+    await waitFor(() => {
+      expect(logSpy).toBeCalledTimes(0);
+    });
   });
 
-  it("player GETS advertisement track successfully", () => {
+  it("player GETS advertisement track successfully", async () => {
     // Mock initial request get current track
     global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
       callback({
@@ -66,7 +65,10 @@ describe("Test SpotifyPlayer component get track", () => {
     });
 
     render(<SpotifyPlayer />);
-    expect(logSpy).toBeCalledTimes(0);
+
+    await waitFor(() => {
+      expect(logSpy).toBeCalledTimes(0);
+    });
   });
 
   it("player GETS track, then gets advertisement, returns success", async () => {
@@ -99,10 +101,12 @@ describe("Test SpotifyPlayer component get track", () => {
     const nextTrackBtn = screen.getByTestId("next-track-btn");
     await user.click(nextTrackBtn);
 
-    expect(logSpy).toBeCalledTimes(0);
+    await waitFor(() => {
+      expect(logSpy).toBeCalledTimes(0);
+    });
   });
 
-  it("player GETS track and returns failure", () => {
+  it("player GETS track and returns failure", async () => {
     // Mock initial request get current track
     global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
       callback({
@@ -115,11 +119,13 @@ describe("Test SpotifyPlayer component get track", () => {
 
     render(<SpotifyPlayer />);
 
-    expect(logSpy).toBeCalledTimes(1);
-    expect(logSpy).toHaveBeenCalledWith("Web player not open in browser.");
+    await waitFor(() => {
+      expect(logSpy).toBeCalledTimes(1);
+      expect(logSpy).toHaveBeenCalledWith("Web player not open in browser.");
+    });
   });
 
-  it("players GETS track and returns error", () => {
+  it("players GETS track and returns error", async () => {
     // Mock initial request get current track
     global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
       callback({
@@ -136,7 +142,7 @@ describe("Test SpotifyPlayer component get track", () => {
     );
   });
 
-  it("players GETS track and returns unknown error", () => {
+  it("players GETS track and returns unknown error", async () => {
     // Mock initial request get current track
     global.chrome.runtime.sendMessage.mockImplementation((obj, callback) => {
       if (typeof callback === "function") {
@@ -146,10 +152,12 @@ describe("Test SpotifyPlayer component get track", () => {
 
     render(<SpotifyPlayer />);
 
-    expect(logSpy).toBeCalledTimes(1);
-    expect(logSpy).toHaveBeenCalledWith(
-      "Unknown error when getting track data."
-    );
+    await waitFor(() => {
+      expect(logSpy).toBeCalledTimes(1);
+      expect(logSpy).toHaveBeenCalledWith(
+        "Unknown error when getting track data."
+      );
+    });
   });
 
   // ----- AlbumArt DEPENDANT TESTS -----
@@ -196,13 +204,13 @@ describe("Test SpotifyPlayer component get track", () => {
 
     // Mock getting spotify tab
     global.chrome.tabs.query = (_, callback) => {
-      callback([{ url: "https://www.spotify.com", id: 1 }]);
+      callback([{ url: "https://open.spotify.com", id: 1 }]);
     };
 
     // Mock script injection function
     global.chrome.scripting = {
       executeScript: ({ target, func }) => {
-        return new Promise((resolve, reject) => resolve(func()));
+        return new Promise((resolve, reject) => resolve([{ result: func() }]));
       },
     };
 
@@ -210,9 +218,8 @@ describe("Test SpotifyPlayer component get track", () => {
     const nextTrackBtn = screen.getByTestId("next-track-btn");
     await user.click(nextTrackBtn);
 
-    expect(logSpy).toBeCalledTimes(0);
-
-    waitFor(() => {
+    await waitFor(() => {
+      expect(logSpy).toBeCalledTimes(0);
       const adPrompt = screen.getByText("Ad is currently playing...");
       expect(adPrompt).toBeVisible();
     });
