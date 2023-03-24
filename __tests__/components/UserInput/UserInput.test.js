@@ -91,7 +91,7 @@ describe("Test UserInput component", () => {
     user.type(inputMinutes, message)
     await waitFor(() => expect(inputMinutes).toHaveValue(+message));
 
-    // Set description to invalid value
+    // Set description to value
     const inputDescription = screen.getByRole("textbox");
     const description = "This message is valid!";
     user.type(inputDescription, "{backspace}")

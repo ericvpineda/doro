@@ -294,9 +294,4 @@ describe("Test Clock component", () => {
 
     expect(isRunning).toBe(false);
   });
-
-  // Note: This is for E2E test
-  test.todo(
-    "successful submit of hours and description shows clear button, reset button, and pause button"
-  );
 });

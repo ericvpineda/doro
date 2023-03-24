@@ -41,7 +41,7 @@ const Profile: FC<Props> = (props) => {
 
   const getProfile = () => {
     if (playerStatus === PlayerStatus.SUCCESS) {
-      if (profileUrl.length === 0) {
+      if (profileUrl && profileUrl.length === 0) {
         return <PersonCircle data-testid="profile-pic-blank" className="image-stock"/>
       } else {
         return <img data-testid="profile-pic-filled" src={profileUrl} className="image" />
