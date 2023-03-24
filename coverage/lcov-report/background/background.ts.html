@@ -600,13 +600,7 @@
 <a name='L535'></a><a href='#L535'>535</a>
 <a name='L536'></a><a href='#L536'>536</a>
 <a name='L537'></a><a href='#L537'>537</a>
-<a name='L538'></a><a href='#L538'>538</a>
-<a name='L539'></a><a href='#L539'>539</a>
-<a name='L540'></a><a href='#L540'>540</a>
-<a name='L541'></a><a href='#L541'>541</a>
-<a name='L542'></a><a href='#L542'>542</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L538'></a><a href='#L538'>538</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -675,15 +669,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">63x</span>
-<span class="cline-any cline-yes">54x</span>
-<span class="cline-any cline-yes">54x</span>
-<span class="cline-any cline-yes">54x</span>
-<span class="cline-any cline-yes">54x</span>
-<span class="cline-any cline-yes">54x</span>
-<span class="cline-any cline-yes">54x</span>
+<span class="cline-any cline-yes">68x</span>
+<span class="cline-any cline-yes">68x</span>
+<span class="cline-any cline-yes">68x</span>
+<span class="cline-any cline-yes">68x</span>
+<span class="cline-any cline-yes">68x</span>
+<span class="cline-any cline-yes">68x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">54x</span>
+<span class="cline-any cline-yes">68x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -703,7 +697,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">63x</span>
-<span class="cline-any cline-yes">55x</span>
+<span class="cline-any cline-yes">69x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -715,12 +709,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">63x</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">54x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">54x</span>
-<span class="cline-any cline-yes">48x</span>
+<span class="cline-any cline-yes">68x</span>
+<span class="cline-any cline-yes">68x</span>
+<span class="cline-any cline-yes">62x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-yes">54x</span>
+<span class="cline-any cline-yes">68x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -766,7 +759,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">4x</span>
@@ -1146,8 +1138,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { PlayerActions, Status, SpotifyScope } from "../Utils/SpotifyUtils";
-// import { PlayerActions, Status, SpotifyScope } from "../Utils/SpotifyUtils";
-// import { PlayerActions, Status, SpotifyScope } from "../Utils/SpotifyUtils";
 &nbsp;
 // REMOVE: Used to check if background script runs in console
 // console.log("DEBUG: Running background script...");
@@ -1257,7 +1247,6 @@ const signOut = () =&gt; {
 const setRefreshTokenTimer = (data: any) =&gt; {
   const timeout = setInterval(() =&gt; {
     client.refreshToken = data.refreshToken;
-    // console.log("DEBUG: refresh token", client)
     requestRefreshToken(client)
       .then((res) =&gt; res.json())
       .then(<span class="fstat-no" title="function not covered" >(d</span>ata) =&gt; <span class="cstat-no" title="statement not covered" >setAccessTokenHandler(data))</span>
@@ -1308,7 +1297,6 @@ const signIn = async (params: any) =&gt; {
             });
             return;
           }
-&nbsp;
           client.authCode = url.searchParams.get("code")!;
           client.verifier = verifier;
           requestAccessToken(client)
@@ -1464,7 +1452,7 @@ const getCurrentlyPlaying = async (params: any) =&gt; {
           deviceId: data.device.id,
           volumePercent: data.device.volume_percent,
           isSaved: false,
-          durationMs: 15 * 1000, // Will get re-queried in intervals of 5 seconds
+          durationMs: 6 * 1000, // Will get re-queried in intervals of 6 seconds
           progressMs: data.progress_ms,
           type: "ad",
         };
@@ -1693,7 +1681,7 @@ export { signIn, getCurrentlyPlaying, getUserProfile, trackCommand };
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2023-03-21T05:49:59.545Z
+                at 2023-03-24T01:05:32.954Z
             </div>
         <script src="../prettify.js"></script>
         <script>

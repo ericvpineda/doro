@@ -21,7 +21,6 @@ import {
   HeartHalf,
 } from "react-bootstrap-icons";
 import AlbumArt from "./AlbumArt/AlbumArt";
-import { ChromeData } from "../../../Utils/ChromeUtils";
 import SpotifySlider from "./SpotifySlider/SpotifySlider";
 import VolumeSlider from "./VolumeSlider/VolumeSlider";
 
@@ -217,7 +216,6 @@ const SpotifyPlayer: FC = () => {
 
   // Get initial track data upon loading page
   const getTrack = () => {
-
     chrome.runtime.sendMessage(
       { message: PlayerActions.GET_CURRENTLY_PLAYING },
       (res) => {
@@ -264,7 +262,6 @@ const SpotifyPlayer: FC = () => {
 
   // Pause current track
   const trackPause = () => {
-    
     chrome.runtime.sendMessage({ message: PlayerActions.PAUSE }, (res) => {
       if (res.status === Status.SUCCESS) {
         setIsPlaying(false);
@@ -289,7 +286,6 @@ const SpotifyPlayer: FC = () => {
 
   // Play current track
   const trackPlay = () => {
-    
     chrome.runtime.sendMessage({ message: PlayerActions.PLAY }, (res) => {
       if (res.status === Status.SUCCESS) {
         setIsPlaying(true);
@@ -314,7 +310,6 @@ const SpotifyPlayer: FC = () => {
 
   // Get players next track
   const trackNext = () => {
-    
     chrome.runtime.sendMessage({ message: PlayerActions.NEXT }, async (res) => {
       if (res.status === Status.SUCCESS) {
         // Wait for api call to succeed
@@ -344,7 +339,6 @@ const SpotifyPlayer: FC = () => {
     if (thumbPosition > 3) {
       setThumbPosition(0);
       trackSeekChangeCommitted(0);
-
     } else {
       chrome.runtime.sendMessage(
         { message: PlayerActions.PREVIOUS },
@@ -376,7 +370,6 @@ const SpotifyPlayer: FC = () => {
 
   // Save track to user LIKED playlist
   const trackSave = () => {
-
     chrome.runtime.sendMessage(
       { message: PlayerActions.SAVE_TRACK, query: trackId, type: trackType },
       (res) => {
@@ -393,7 +386,6 @@ const SpotifyPlayer: FC = () => {
 
   // Remove track from user LIKED playlist
   const trackRemoveSaved = () => {
-
     chrome.runtime.sendMessage(
       {
         message: PlayerActions.REMOVE_SAVED_TRACK,
@@ -414,7 +406,6 @@ const SpotifyPlayer: FC = () => {
 
   // Get volume value after mouse-up from mouse click
   const trackVolumeChangeCommitted = (volumePercent: any) => {
-
     chrome.runtime.sendMessage(
       {
         message: PlayerActions.SET_VOLUME,
@@ -578,10 +569,9 @@ const SpotifyPlayer: FC = () => {
     }
   };
 
-  
   // On initial popup, get track data
   useEffect(() => {
-    getTrack()
+    getTrack();
   }, []);
 
   return (

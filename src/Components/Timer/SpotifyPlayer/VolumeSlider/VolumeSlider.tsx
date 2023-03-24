@@ -47,7 +47,6 @@ const VolumeSlider: FC<Props> = (props) => {
   const debounceVolumeHandler = useMemo(() => debounce(volumeChangeUI, 25), []);
 
   // Set initial volume and mounted information from parent component
-  // console.log("DEBUG: Running volume slider")
   useEffect(() => {
     setVolume(props.volume);
   }, [props.volume]);
