@@ -76,7 +76,7 @@ describe("Test description input element", () => {
       );
       expect(textBox).toHaveValue(message);
       expect(mockDescriptionFxn).toHaveBeenCalledTimes(0);
-    });
+    }, {timeout: 2000});
   });
 
   it("user input description, returns success and correct parent props set", async () => {

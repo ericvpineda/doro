@@ -197,7 +197,6 @@ const SpotifyPlayer: FC = () => {
                 func: commandFxn,
               })
               .then((injectionResult) => {
-                // console.log("DEBUG: data", injectionResult[0].result)
                 if (injectionResult) {
                   resolve({ data: injectionResult[0].result });
                 } else {
@@ -222,7 +221,6 @@ const SpotifyPlayer: FC = () => {
     chrome.runtime.sendMessage(
       { message: PlayerActions.GET_CURRENTLY_PLAYING },
       (res) => {
-        // console.log("DEBUG: GET TRACK", res)
         // Note: Will return success on tracks and advertisements
         if (res.status === Status.SUCCESS) {
           setTrack(res.data.track);
@@ -266,7 +264,6 @@ const SpotifyPlayer: FC = () => {
 
   // Pause current track
   const trackPause = () => {
-    // console.log("DEBUG: pausing track", )
     chrome.runtime.sendMessage({ message: PlayerActions.PAUSE }, (res) => {
       if (res.status === Status.SUCCESS) {
         setIsPlaying(false);
@@ -291,8 +288,6 @@ const SpotifyPlayer: FC = () => {
 
   // Play current track
   const trackPlay = () => {
-    // console.log("DEBUG: play track", )
-
     chrome.runtime.sendMessage({ message: PlayerActions.PLAY }, (res) => {
       if (res.status === Status.SUCCESS) {
         setIsPlaying(true);
@@ -419,7 +414,6 @@ const SpotifyPlayer: FC = () => {
         query: { volumePercent, deviceId },
       },
       async (res) => {
-        // console.log("DEBUG: track volume=", res)
         if (res.status === Status.SUCCESS) {
           if (volume !== 0) {
             setVolumeCached(volume);
