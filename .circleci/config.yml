@@ -3,10 +3,10 @@ orbs:
   node: circleci/node@5.0.2
 jobs:
   build_and_test: 
-    - node/install-packages:
-        pkg-manager: npm
     steps:
       - checkout # alias for git clone
+      - node/install-packages:
+          pkg-manager: npm
       - run:
           name: Install npm dependencies 
           command: npm install --save
