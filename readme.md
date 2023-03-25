@@ -1,4 +1,4 @@
-[![CircleCI](https://circleci.com/gh/ericvpineda/doro.svg?style=svg)](https://app.circleci.com/pipelines/github/ericvpineda/doro)
+[![CircleCI](https://circleci.com/gh/ericvpineda/doro.svg?style=shield)](https://app.circleci.com/pipelines/github/ericvpineda/doro)
 
 # Doro - Pomodoro Timer with Spotify Player 
 ![Doro Clock screen](./src/img/timer.png)
