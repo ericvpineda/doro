@@ -31,6 +31,14 @@
   - User input for hours, minutes, and focus description
   - Desktop notification when timer complete
 
+## Reasoning for Project (In segments)
+
+- Initially, I wanted to learn about creating a simple chrome extension, which was a pomodoro app.
+- However, it was fairly easy to make since I've learned basic react and web development. 
+- So to make things more challenging, I ventured to learn new technologies, including typescript and webpack. 
+- Eventually, the pomodoro app was expanded to include Spotify when I thought music would be complementary to a timer app. 
+- When I researched there was no such application in the Chrome store, I thought I had to build it. Then, Doro was born.  
+
 ## API
 
 - Front-end library: [ReactJS](https://reactjs.org/)
@@ -40,12 +48,6 @@
 - Chome extension API: [Chome API Reference](https://developer.chrome.com/docs/extensions/reference/)
 - Testing library: [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
 
-## Reasoning for Project (In segments)
-- Initially, I wanted to learn about creating a simple chrome extension, which was a pomodoro app.
-- However, it was fairly easy to make since I've learned basic react and web development. 
-- So to make things more challenging, I ventured to learn new technologies, including typescript and webpack. 
-- Eventually, the pomodoro app was expanded to include Spotify when I thought music would be complementary to a timer app. 
-- When I researched there was no such application in the Chrome store, I thought I had to build it. Then, Doro was born.  
 
 ## Future Tasks
 
