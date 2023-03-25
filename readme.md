@@ -1,9 +1,9 @@
 [![CircleCI](https://circleci.com/gh/ericvpineda/doro.svg?style=shield)](https://app.circleci.com/pipelines/github/ericvpineda/doro)
 
-[![Coverage:lines](./coverage/badges/branches.svg)]()
-[![Coverage:functions](./coverage/badges/functions.svg)]()
-[![Coverage:branches](./coverage/badges/branches.svg)]()
-[![Coverage:statements](./coverage/badges/statements.svg)]()
+![Coverage:lines](./coverage/badges/branches.svg)
+![Coverage:functions](./coverage/badges/functions.svg)
+![Coverage:branches](./coverage/badges/branches.svg)
+![Coverage:statements](./coverage/badges/statements.svg)
 
 # Doro - Pomodoro Timer with Spotify Player 
 ![Doro Clock screen](./src/img/timer.png)
