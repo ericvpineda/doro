@@ -2,7 +2,7 @@
 
 ![Coverage:branches](./coverage/badges/branches.svg)
 ![Coverage:functions](./coverage/badges/functions.svg)
-![Coverage:lines](./coverage/badges/branches.svg)
+![Coverage:lines](./coverage/badges/lines.svg)
 ![Coverage:statements](./coverage/badges/statements.svg)
 
 # Doro - Pomodoro Timer with Spotify Player
