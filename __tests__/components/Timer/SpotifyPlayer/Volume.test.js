@@ -43,464 +43,468 @@ describe("Test SpotifyPlayer component volume", () => {
     document.body.innerHTML = "";
   });
 
+  // ----- VOLUME SLIDER TESTS -----
 
-// ----- VOLUME SLIDER TESTS -----
-
-// Note: Don't need manually render volume-btn, volume-slider bc VolumeSlider is subcomponent
-it("user changes VOLUME and returns success", async () => {
-  global.chrome.runtime.sendMessage
-    .mockImplementationOnce((obj, callback) => {
-      callback({
-        status: Status.SUCCESS,
-        data: {
-          artist: "",
-          isPlaying: true,
-          volumePercent: 1,
-          track: "",
-          type: "track",
-        },
-      });
-    })
-    .mockImplementationOnce((obj, callback) => {
-      callback({
-        status: Status.SUCCESS,
-      });
-    })
-    .mockImplementation((obj, callback) =>
-      callback({
-        status: Status.SUCCESS,
-        data: { track: "", artist: "" },
+  // Note: Don't need manually render volume-btn, volume-slider bc VolumeSlider is subcomponent
+  it("user changes VOLUME and returns success", async () => {
+    global.chrome.runtime.sendMessage
+      .mockImplementationOnce((obj, callback) => {
+        callback({
+          status: Status.SUCCESS,
+          data: {
+            artist: "",
+            isPlaying: true,
+            volumePercent: 1,
+            track: "",
+            type: "track",
+          },
+        });
       })
-    );
-
-  render(<SpotifyPlayer />);
-  const volumeBtn = screen.getByTestId("volume-btn");
-  await user.hover(volumeBtn);
-
-  const volumeSlider = screen.getByTestId("volume-slider");
-  expect(volumeSlider).toBeVisible();
-
-  await act(() => {
-    fireEvent.mouseDown(volumeSlider, {
-      clientY: volumeSlider.getBoundingClientRect().bottom,
-    });
-    fireEvent.mouseMove(volumeSlider, {
-      clientY: volumeSlider.getBoundingClientRect().bottom + 1,
-    });
-    fireEvent.mouseUp(volumeSlider, {
-      clientY: volumeSlider.getBoundingClientRect().bottom + 1,
-    });
-  });
-
-  // Unhover volume button event
-  await act(() => {
-    fireEvent.mouseOut(volumeBtn);
-  });
-
-  await waitFor(() => {
-    expect(logSpy).toBeCalledTimes(0);
-  })
-});
-
-// Note: Don't need manually render volume-btn, volume-slider bc VolumeSlider is subcomponent
-it("user changes VOLUME and returns error", async () => {
-  global.chrome.runtime.sendMessage
-    .mockImplementationOnce((obj, callback) => {
-      callback({
-        status: Status.SUCCESS,
-        data: {
-          artist: "",
-          isPlaying: true,
-          volumePercent: 0,
-          track: "",
-        },
-      });
-    })
-    .mockImplementationOnce((obj, callback) => {
-      callback({
-        status: Status.ERROR,
-        error: {
-          message: "Error when completing track command.",
-        },
-      });
-    })
-    .mockImplementation((obj, callback) =>
-      callback({
-        status: Status.SUCCESS,
-        data: { track: "", artist: "" },
+      .mockImplementationOnce((obj, callback) => {
+        callback({
+          status: Status.SUCCESS,
+        });
       })
-    );
-
-  render(<SpotifyPlayer />);
-  const volumeBtn = screen.getByTestId("volume-btn");
-  await user.hover(volumeBtn);
-
-  const volumeSlider = screen.getByTestId("volume-slider");
-  expect(volumeSlider).toBeVisible();
-
-  await act(() => {
-    fireEvent.mouseDown(volumeSlider, {
-      clientY: volumeSlider.getBoundingClientRect().bottom,
-    });
-    fireEvent.mouseMove(volumeSlider, {
-      clientY: volumeSlider.getBoundingClientRect().bottom + 1,
-    });
-    fireEvent.mouseUp(volumeSlider, {
-      clientY: volumeSlider.getBoundingClientRect().bottom + 1,
-    });
-  });
-
-  // Unhover volume button event
-  await act(() => {
-    fireEvent.mouseOut(volumeBtn);
-  });
-
-  await waitFor(() => {
-    expect(logSpy).toHaveBeenCalledWith("Error when completing track command.");
-  })
-});
-
-// Note: Spotify browser elements not to document, should throw error
-it("non-premium user changes VOLUME and returns failure", async () => {
-
-  global.chrome.runtime.sendMessage
-    .mockImplementationOnce((obj, callback) => {
-      callback({
-        status: Status.SUCCESS,
-        data: {
-          artist: "",
-          isPlaying: true,
-          volumePercent: 0,
-        },
-      });
-    })
-    .mockImplementation((obj, callback) =>
-      callback({ status: Status.FAILURE })
-    )
- 
-  // Mock getting spotify tab in chrome browser
-  global.chrome.tabs.query = (_, callback) => {
-    callback([{ url: "https://open.spotify.com", id: 1 }]);
-  };
-
-  // Mock script injection function
-  global.chrome.scripting = {
-    executeScript: ({ target, func }) => {
-      return new Promise((resolve, reject) => [{result: resolve(func())}]);
-    },
-  };
-
-  render(<SpotifyPlayer />);
-
-  const volumeBtn = screen.getByTestId("volume-btn");
-  await user.hover(volumeBtn);
-
-  const volumeSlider = screen.getByTestId("volume-slider");
-  expect(volumeSlider).toBeVisible();
-
-  await act(() => {
-    fireEvent.mouseDown(volumeSlider, {
-      clientY: volumeSlider.getBoundingClientRect().bottom,
-    });
-    fireEvent.mouseMove(volumeSlider, {
-      clientY: volumeSlider.getBoundingClientRect().bottom + 1,
-    });
-    fireEvent.mouseUp(volumeSlider, {
-      clientY: volumeSlider.getBoundingClientRect().bottom + 1,
-    });
-  });
-
-  await waitFor(
-    () => {
-      expect(logSpy).toHaveBeenCalledWith(
-        "Failure when setting track volume."
+      .mockImplementation((obj, callback) =>
+        callback({
+          status: Status.SUCCESS,
+          data: { track: "", artist: "" },
+        })
       );
-    },
-    { timeout: 1000 }
-  );
-});
 
-// Note: does not mimic same environment since popup and "browser" have shared html
-it("non-premium user changes VOLUME and injection script returns failure", async () => {
-  // Mock document to have volume slider since injecting on spotify volume slider
-  const volumeBar = document.createElement("div");
-  volumeBar.setAttribute("data-testid", "volume-bar");
-  const progressBar = document.createElement("div");
-  progressBar.setAttribute("data-testid", "progress-bar");
-  volumeBar.appendChild(progressBar);
-  document.body.appendChild(volumeBar);
+    render(<SpotifyPlayer />);
+    const volumeBtn = screen.getByTestId("volume-btn");
+    await user.hover(volumeBtn);
 
-  expect(volumeBar).toBeInTheDocument();
-  expect(progressBar).toBeInTheDocument();
+    const volumeSlider = screen.getByTestId("volume-slider");
+    expect(volumeSlider).toBeVisible();
 
-  global.chrome.runtime.sendMessage
-    .mockImplementationOnce((obj, callback) => {
-      callback({
-        status: Status.SUCCESS,
-        data: {
-          artist: "",
-          isPlaying: true,
-          volumePercent: 24,
-        },
+    await act(() => {
+      fireEvent.mouseDown(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom,
       });
-    })
-    .mockImplementationOnce((obj, callback) =>
-      callback({ status: Status.FAILURE })
-    )
-    .mockImplementation((obj, callback) =>
-      callback({
-        status: Status.SUCCESS,
-        data: { track: "", artist: "" },
-      })
-    );
-
-  // Mock getting spotify tab in chrome browser
-  global.chrome.tabs.query = (_, callback) => {
-    callback([{ url: "https://open.spotify.com", id: 1 }]);
-  };
-
-  // Mock script injection function
-  global.chrome.scripting = {
-    executeScript: ({ target, func }) => {
-      return new Promise((resolve, reject) => reject(func()));
-    },
-  };
-
-  render(<SpotifyPlayer />);
-
-  const volumeBtn = screen.getByTestId("volume-btn");
-  await user.hover(volumeBtn);
-
-  const volumeSlider = screen.getByTestId("volume-slider");
-  expect(volumeSlider).toBeVisible();
-
-  await act(() => {
-    fireEvent.mouseDown(volumeSlider, {
-      clientY: volumeSlider.getBoundingClientRect().bottom,
+      fireEvent.mouseMove(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom + 1,
+      });
+      fireEvent.mouseUp(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom + 1,
+      });
     });
-    fireEvent.mouseMove(volumeSlider, {
-      clientY: volumeSlider.getBoundingClientRect().bottom + 1,
+
+    // Unhover volume button event
+    await act(() => {
+      fireEvent.mouseOut(volumeBtn);
     });
-    fireEvent.mouseUp(volumeSlider, {
-      clientY: volumeSlider.getBoundingClientRect().bottom + 1,
+
+    await waitFor(() => {
+      expect(logSpy).toBeCalledTimes(0);
     });
   });
 
-  await waitFor(
-    () => {
-      expect(logSpy).toHaveBeenCalledWith(
-        "Failure when setting track volume."
+  // Note: Don't need manually render volume-btn, volume-slider bc VolumeSlider is subcomponent
+  it("user changes VOLUME and returns error", async () => {
+    global.chrome.runtime.sendMessage
+      .mockImplementationOnce((obj, callback) => {
+        callback({
+          status: Status.SUCCESS,
+          data: {
+            artist: "",
+            isPlaying: true,
+            volumePercent: 0,
+            track: "",
+          },
+        });
+      })
+      .mockImplementationOnce((obj, callback) => {
+        callback({
+          status: Status.ERROR,
+          error: {
+            message: "Error when completing track command.",
+          },
+        });
+      })
+      .mockImplementation((obj, callback) =>
+        callback({
+          status: Status.SUCCESS,
+          data: { track: "", artist: "" },
+        })
       );
-    },
-    { timeout: 1000 }
-  );
-});
 
-it("non-premium user changes VOLUME and returns success", async () => {
+    render(<SpotifyPlayer />);
+    const volumeBtn = screen.getByTestId("volume-btn");
+    await user.hover(volumeBtn);
 
-  // Mock document to have volume slider since injecting on spotify volume slider
-  const volumeBar = document.createElement("div");
-  volumeBar.setAttribute("data-testid", "volume-bar");
-  const progressBar = document.createElement("div");
-  progressBar.setAttribute("data-testid", "progress-bar");
-  volumeBar.appendChild(progressBar);
-  document.body.appendChild(volumeBar);
+    const volumeSlider = screen.getByTestId("volume-slider");
+    expect(volumeSlider).toBeVisible();
 
-  expect(volumeBar).toBeInTheDocument();
-  expect(progressBar).toBeInTheDocument();
-
-  global.chrome.runtime.sendMessage
-    .mockImplementationOnce((obj, callback) => {
-      callback({
-        status: Status.SUCCESS,
-        data: {
-          artist: "",
-          isPlaying: true,
-          volumePercent: 24,
-        },
+    await act(() => {
+      fireEvent.mouseDown(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom,
       });
-    })
-    .mockImplementationOnce((obj, callback) =>
-      callback({ status: Status.FAILURE })
-    ).mockImplementation((obj, callback) => {
-      callback({
-        status: Status.SUCCESS,
-        data: {
-          artist: "",
-          isPlaying: true,
-          volumePercent: 24,
-        },
+      fireEvent.mouseMove(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom + 1,
       });
-    })
-
-  // Mock getting spotify tab in chrome browser
-  global.chrome.tabs.query = (_, callback) => {
-    callback([{ url: "https://open.spotify.com", id: 1 }]);
-  };
-
-  // Mock script injection function
-  global.chrome.scripting = {
-    executeScript: ({ target, func }) => {
-      return new Promise((resolve, reject) => resolve([{result: func()}]));
-    },
-  };
-
-  render(<SpotifyPlayer />);
-
-  const volumeBtn = screen.getByTestId("volume-btn");
-  await user.hover(volumeBtn);
-
-  const volumeSlider = screen.getByTestId("volume-slider");
-  expect(volumeSlider).toBeVisible();
-  expect(volumeSlider.querySelector("input").value).toBe("24");
-
-  await act(() => {
-    fireEvent.mouseDown(volumeSlider, {
-      clientY: volumeSlider.getBoundingClientRect().bottom,
+      fireEvent.mouseUp(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom + 1,
+      });
     });
-    fireEvent.mouseMove(volumeSlider, {
-      clientY: volumeSlider.getBoundingClientRect().bottom + 1,
+
+    // Unhover volume button event
+    await act(() => {
+      fireEvent.mouseOut(volumeBtn);
     });
-    fireEvent.mouseUp(volumeSlider, {
-      clientY: volumeSlider.getBoundingClientRect().bottom + 1,
+
+    await waitFor(() => {
+      expect(logSpy).toHaveBeenCalledWith(
+        "Error when completing track command."
+      );
     });
   });
 
-  await waitFor(() => {
-    expect(logSpy).toBeCalledTimes(0);
-  })
-});
-
-it("user changes VOLUME and returns unknown error", async () => {
-  global.chrome.runtime.sendMessage
-    .mockImplementationOnce((obj, callback) => {
-      callback({
-        status: Status.SUCCESS,
-        data: {
-          artist: "",
-          isPlaying: true,
-          volumePercent: 0,
-        },
-      });
-    })
-    .mockImplementationOnce((obj, callback) => {
-      callback({ status: Status.TESTING });
-    })
-    .mockImplementation((obj, callback) =>
-      callback({
-        status: Status.SUCCESS,
-        data: { track: "", artist: "" },
+  // Note: Spotify browser elements not to document, should throw error
+  it("non-premium user changes VOLUME and returns failure", async () => {
+    global.chrome.runtime.sendMessage
+      .mockImplementationOnce((obj, callback) => {
+        callback({
+          status: Status.SUCCESS,
+          data: {
+            artist: "",
+            isPlaying: true,
+            volumePercent: 0,
+          },
+        });
       })
+      .mockImplementation((obj, callback) =>
+        callback({ status: Status.FAILURE })
+      );
+
+    // Mock getting spotify tab in chrome browser
+    global.chrome.tabs.query = (_, callback) => {
+      callback([{ url: "https://open.spotify.com", id: 1 }]);
+    };
+
+    // Mock script injection function
+    global.chrome.scripting = {
+      executeScript: ({ target, func }) => {
+        return new Promise((resolve, reject) => [{ result: resolve(func()) }]);
+      },
+    };
+
+    render(<SpotifyPlayer />);
+
+    const volumeBtn = screen.getByTestId("volume-btn");
+    await user.hover(volumeBtn);
+
+    const volumeSlider = screen.getByTestId("volume-slider");
+    expect(volumeSlider).toBeVisible();
+
+    await act(() => {
+      fireEvent.mouseDown(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom,
+      });
+      fireEvent.mouseMove(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom + 1,
+      });
+      fireEvent.mouseUp(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom + 1,
+      });
+    });
+
+    await waitFor(
+      () => {
+        expect(logSpy).toHaveBeenCalledWith(
+          "Failure when setting track volume."
+        );
+      },
+      { timeout: 1000 }
     );
+  });
 
-  render(<SpotifyPlayer />);
-  const volumeBtn = screen.getByTestId("volume-btn");
-  await user.hover(volumeBtn);
+  // Note: does not mimic same environment since popup and "browser" have shared html
+  it("non-premium user changes VOLUME and injection script returns failure", async () => {
+    // Mock document to have volume slider since injecting on spotify volume slider
+    const volumeBar = document.createElement("div");
+    volumeBar.setAttribute("data-testid", "volume-bar");
+    const progressBar = document.createElement("div");
+    progressBar.setAttribute("data-testid", "progress-bar");
+    volumeBar.appendChild(progressBar);
+    document.body.appendChild(volumeBar);
 
-  const volumeSlider = screen.getByTestId("volume-slider");
-  expect(volumeSlider).toBeVisible();
+    expect(volumeBar).toBeInTheDocument();
+    expect(progressBar).toBeInTheDocument();
 
-  await act(() => {
-    fireEvent.mouseDown(volumeSlider, {
-      clientY: volumeSlider.getBoundingClientRect().bottom,
+    global.chrome.runtime.sendMessage
+      .mockImplementationOnce((obj, callback) => {
+        callback({
+          status: Status.SUCCESS,
+          data: {
+            artist: "",
+            isPlaying: true,
+            volumePercent: 24,
+          },
+        });
+      })
+      .mockImplementationOnce((obj, callback) =>
+        callback({ status: Status.FAILURE })
+      )
+      .mockImplementation((obj, callback) =>
+        callback({
+          status: Status.SUCCESS,
+          data: { track: "", artist: "" },
+        })
+      );
+
+    // Mock getting spotify tab in chrome browser
+    global.chrome.tabs.query = (_, callback) => {
+      callback([{ url: "https://open.spotify.com", id: 1 }]);
+    };
+
+    // Mock script injection function
+    global.chrome.scripting = {
+      executeScript: ({ target, func }) => {
+        return new Promise((resolve, reject) => reject(func()));
+      },
+    };
+
+    render(<SpotifyPlayer />);
+
+    const volumeBtn = screen.getByTestId("volume-btn");
+    await user.hover(volumeBtn);
+
+    const volumeSlider = screen.getByTestId("volume-slider");
+    expect(volumeSlider).toBeVisible();
+
+    await act(() => {
+      fireEvent.mouseDown(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom,
+      });
+      fireEvent.mouseMove(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom + 1,
+      });
+      fireEvent.mouseUp(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom + 1,
+      });
     });
-    fireEvent.mouseMove(volumeSlider, {
-      clientY: volumeSlider.getBoundingClientRect().bottom + 1,
+
+    await waitFor(
+      () => {
+        expect(logSpy).toHaveBeenCalledWith(
+          "Failure when setting track volume."
+        );
+      },
+      { timeout: 1000 }
+    );
+  });
+
+  it("non-premium user changes VOLUME and returns success", async () => {
+    // Mock document to have volume slider since injecting on spotify volume slider
+    const volumeBar = document.createElement("div");
+    volumeBar.setAttribute("data-testid", "volume-bar");
+    const progressBar = document.createElement("div");
+    progressBar.setAttribute("data-testid", "progress-bar");
+    volumeBar.appendChild(progressBar);
+    document.body.appendChild(volumeBar);
+
+    expect(volumeBar).toBeInTheDocument();
+    expect(progressBar).toBeInTheDocument();
+
+    global.chrome.runtime.sendMessage
+      .mockImplementationOnce((obj, callback) => {
+        callback({
+          status: Status.SUCCESS,
+          data: {
+            artist: "",
+            isPlaying: true,
+            volumePercent: 24,
+          },
+        });
+      })
+      .mockImplementationOnce((obj, callback) =>
+        callback({ status: Status.FAILURE })
+      )
+      .mockImplementation((obj, callback) => {
+        callback({
+          status: Status.SUCCESS,
+          data: {
+            artist: "",
+            isPlaying: true,
+            volumePercent: 24,
+          },
+        });
+      });
+
+    // Mock getting spotify tab in chrome browser
+    global.chrome.tabs.query = (_, callback) => {
+      callback([{ url: "https://open.spotify.com", id: 1 }]);
+    };
+
+    // Mock script injection function
+    global.chrome.scripting = {
+      executeScript: ({ target, func }) => {
+        return new Promise((resolve, reject) => resolve([{ result: func() }]));
+      },
+    };
+
+    render(<SpotifyPlayer />);
+
+    const volumeBtn = screen.getByTestId("volume-btn");
+    await user.hover(volumeBtn);
+
+    const volumeSlider = screen.getByTestId("volume-slider");
+    expect(volumeSlider).toBeVisible();
+    expect(volumeSlider.querySelector("input").value).toBe("24");
+
+    await act(() => {
+      fireEvent.mouseDown(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom,
+      });
+      fireEvent.mouseMove(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom + 1,
+      });
+      fireEvent.mouseUp(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom + 1,
+      });
     });
-    fireEvent.mouseUp(volumeSlider, {
-      clientY: volumeSlider.getBoundingClientRect().bottom + 1,
+
+    await waitFor(() => {
+      expect(logSpy).toBeCalledTimes(0);
     });
   });
 
-  expect(logSpy).toHaveBeenCalledWith(
-    "Unknown error when setting track volume."
-  );
-});
-
-it("volume value greater than zero and premium user click volume button, setting volume to zero, clicks volume button, setting volume to original value", async () => {
-  global.chrome.runtime.sendMessage
-    .mockImplementationOnce((obj, callback) => {
-      callback({
-        status: Status.SUCCESS,
-        data: {
-          artist: "",
-          isPlaying: true,
-          volumePercent: 100,
-          track: "",
-        },
-      });
-    })
-    .mockImplementationOnce((obj, callback) => {
-      callback({
-        status: Status.SUCCESS,
-      });
-    })
-    .mockImplementation((obj, callback) =>
-      callback({
-        status: Status.SUCCESS,
-        data: { track: "", artist: "" },
+  it("user changes VOLUME and returns unknown error", async () => {
+    global.chrome.runtime.sendMessage
+      .mockImplementationOnce((obj, callback) => {
+        callback({
+          status: Status.SUCCESS,
+          data: {
+            artist: "",
+            isPlaying: true,
+            volumePercent: 0,
+          },
+        });
       })
-    );
+      .mockImplementationOnce((obj, callback) => {
+        callback({ status: Status.TESTING });
+      })
+      .mockImplementation((obj, callback) =>
+        callback({
+          status: Status.SUCCESS,
+          data: { track: "", artist: "" },
+        })
+      );
 
-  render(<SpotifyPlayer />);
-  const volumeBtn = screen.getByTestId("volume-btn");
-  await user.click(volumeBtn);
+    render(<SpotifyPlayer />);
+    const volumeBtn = screen.getByTestId("volume-btn");
+    await user.hover(volumeBtn);
 
-  const volumeSlider = screen.getByTestId("volume-slider");
-  let volumeValue = volumeSlider.querySelector("input").value;
-  expect(volumeValue).toBe("0");
+    const volumeSlider = screen.getByTestId("volume-slider");
+    expect(volumeSlider).toBeVisible();
 
-  await user.click(volumeBtn);
-  volumeValue = volumeSlider.querySelector("input").value;
-  expect(volumeValue).toBe("100");
-});
-
-it("volume greater than zero and non-premium user click volume button, sets volume to zero", async () => {
-  // Mock document to have volume slider since injecting on spotify volume slider
-  const volumeBar = document.createElement("div");
-  volumeBar.setAttribute("data-testid", "volume-bar");
-  const progressBar = document.createElement("div");
-  progressBar.setAttribute("data-testid", "progress-bar");
-  volumeBar.appendChild(progressBar);
-  document.body.appendChild(volumeBar);
-
-  expect(volumeBar).toBeInTheDocument();
-  expect(progressBar).toBeInTheDocument();
-
-  global.chrome.runtime.sendMessage
-    .mockImplementationOnce((obj, callback) => {
-      callback({
-        status: Status.SUCCESS,
-        data: {
-          artist: "",
-          isPlaying: true,
-          volumePercent: 100,
-          track: "",
-        },
+    await act(() => {
+      fireEvent.mouseDown(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom,
       });
-    })
-    .mockImplementationOnce((obj, callback) => {
-      callback({
-        status: Status.FAILURE,
+      fireEvent.mouseMove(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom + 1,
       });
-    })
-    .mockImplementation((obj, callback) => {
-      callback({
-        status: Status.SUCCESS,
+      fireEvent.mouseUp(volumeSlider, {
+        clientY: volumeSlider.getBoundingClientRect().bottom + 1,
       });
     });
 
-  render(<SpotifyPlayer />);
-  const volumeBtn = screen.getByTestId("volume-btn");
-  await user.click(volumeBtn);
+    await waitFor(() => {
+      expect(logSpy).toHaveBeenCalledWith(
+        "Unknown error when setting track volume."
+      );
+    });
+  });
 
-  await waitFor(
-    () => {
-      const volumeSlider = screen.getByTestId("volume-slider");
-      const volumeValue = volumeSlider.querySelector("input").value;
+  it("volume value greater than zero and premium user click volume button, setting volume to zero, clicks volume button, setting volume to original value", async () => {
+    global.chrome.runtime.sendMessage
+      .mockImplementationOnce((obj, callback) => {
+        callback({
+          status: Status.SUCCESS,
+          data: {
+            artist: "",
+            isPlaying: true,
+            volumePercent: 100,
+            track: "",
+          },
+        });
+      })
+      .mockImplementationOnce((obj, callback) => {
+        callback({
+          status: Status.SUCCESS,
+        });
+      })
+      .mockImplementation((obj, callback) =>
+        callback({
+          status: Status.SUCCESS,
+          data: { track: "", artist: "" },
+        })
+      );
+
+    render(<SpotifyPlayer />);
+    const volumeBtn = screen.getByTestId("volume-btn");
+    await user.click(volumeBtn);
+
+    const volumeSlider = screen.getByTestId("volume-slider");
+    let volumeValue = volumeSlider.querySelector("input").value;
+    await waitFor(() => {
       expect(volumeValue).toBe("0");
-    },
-    { timeout: 1000 }
-  );
-});
+    });
+
+    await user.click(volumeBtn);
+    volumeValue = volumeSlider.querySelector("input").value;
+    expect(volumeValue).toBe("100");
+  });
+
+  it("volume greater than zero and non-premium user click volume button, sets volume to zero", async () => {
+    // Mock document to have volume slider since injecting on spotify volume slider
+    const volumeBar = document.createElement("div");
+    volumeBar.setAttribute("data-testid", "volume-bar");
+    const progressBar = document.createElement("div");
+    progressBar.setAttribute("data-testid", "progress-bar");
+    volumeBar.appendChild(progressBar);
+    document.body.appendChild(volumeBar);
+
+    expect(volumeBar).toBeInTheDocument();
+    expect(progressBar).toBeInTheDocument();
+
+    global.chrome.runtime.sendMessage
+      .mockImplementationOnce((obj, callback) => {
+        callback({
+          status: Status.SUCCESS,
+          data: {
+            artist: "",
+            isPlaying: true,
+            volumePercent: 100,
+            track: "",
+          },
+        });
+      })
+      .mockImplementationOnce((obj, callback) => {
+        callback({
+          status: Status.FAILURE,
+        });
+      })
+      .mockImplementation((obj, callback) => {
+        callback({
+          status: Status.SUCCESS,
+        });
+      });
+
+    render(<SpotifyPlayer />);
+    const volumeBtn = screen.getByTestId("volume-btn");
+    await user.click(volumeBtn);
+
+    await waitFor(
+      () => {
+        const volumeSlider = screen.getByTestId("volume-slider");
+        const volumeValue = volumeSlider.querySelector("input").value;
+        expect(volumeValue).toBe("0");
+      },
+      { timeout: 1000 }
+    );
+  });
 });

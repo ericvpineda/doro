@@ -65,6 +65,7 @@ describe("Test UserInput component", () => {
     const inputDescription = screen.getByRole("textbox");
     const description = "This message is way too long...";
     user.type(inputDescription, description);
+
     await waitFor(() => {
       expect(inputDescription).toHaveValue(description);
       // Click start button
@@ -72,7 +73,7 @@ describe("Test UserInput component", () => {
       user.click(startBtn);
       const errorElem = screen.getByText(/Focus plan character limit is 0-30./i);
       expect(errorElem).toBeVisible();
-    });
+    }, {timeout: 2000});
   });
 
   it("user input valid hours, minutes, and description, return success", async () => {

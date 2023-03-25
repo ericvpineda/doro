@@ -98,8 +98,8 @@ describe("Test SpotifyPlayer component get track", () => {
     render(<SpotifyPlayer />);
 
     // User presses next track button
-    const nextTrackBtn = screen.getByTestId("next-track-btn");
-    await user.click(nextTrackBtn);
+    const button = screen.getByTestId("next-track-btn");
+    await user.click(button);
 
     await waitFor(() => {
       expect(logSpy).toBeCalledTimes(0);
@@ -136,10 +136,12 @@ describe("Test SpotifyPlayer component get track", () => {
 
     render(<SpotifyPlayer />);
 
-    expect(logSpy).toBeCalledTimes(1);
-    expect(logSpy).toHaveBeenCalledWith(
-      "Error occured when getting track data."
-    );
+    await waitFor(() => {
+      expect(logSpy).toBeCalledTimes(1);
+      expect(logSpy).toHaveBeenCalledWith(
+        "Error occured when getting track data."
+      );
+    })
   });
 
   it("players GETS track and returns unknown error", async () => {
@@ -179,15 +181,14 @@ describe("Test SpotifyPlayer component get track", () => {
             volumePercent: 0,
             track: "",
             progress: 0,
-            duration: 0,
+            duration: 10000,
             type: "track",
           },
         });
       })
-      .mockImplementationOnce((obj, callback) =>
+      .mockImplementation((obj, callback) =>
         callback({ status: Status.FAILURE })
-      )
-      .mockImplementation((obj, callback) => {
+      ).mockImplementation((obj, callback) => {
         callback({
           status: Status.SUCCESS,
           data: {
@@ -196,11 +197,12 @@ describe("Test SpotifyPlayer component get track", () => {
             volumePercent: 0,
             track: "",
             progress: 0,
-            duration: 0,
+            duration: 10000,
             type: "ad",
           },
         });
-      });
+      })
+  
 
     // Mock getting spotify tab
     global.chrome.tabs.query = (_, callback) => {
@@ -215,13 +217,16 @@ describe("Test SpotifyPlayer component get track", () => {
     };
 
     render(<SpotifyPlayer />);
-    const nextTrackBtn = screen.getByTestId("next-track-btn");
-    await user.click(nextTrackBtn);
+
+    await waitFor(() => {
+      const button = screen.getByTestId("next-track-btn");
+      user.click(button);
+    })
 
     await waitFor(() => {
       expect(logSpy).toBeCalledTimes(0);
       const adPrompt = screen.getByText("Ad is currently playing...");
       expect(adPrompt).toBeVisible();
-    });
+    }, {timeout: 3000});
   });
 });

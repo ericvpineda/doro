@@ -1,8 +1,5 @@
 import React from "react";
-import {
-  render,
-  screen,
-} from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import SpotifyPlayer from "../../../../src/Components/Timer/SpotifyPlayer/SpotifyPlayer";
 import { Status } from "../../../../src/Utils/SpotifyUtils";
@@ -67,7 +64,9 @@ describe("Test SpotifyPlayer component remove track", () => {
     const removeTrackBtn = screen.getByTestId("remove-track-btn");
     await user.click(removeTrackBtn);
 
-    expect(logSpy).toBeCalledTimes(0);
+    await waitFor(() => {
+      expect(logSpy).toBeCalledTimes(0);
+    });
   });
 
   it("user REMOVES track and returns error", async () => {
@@ -96,7 +95,11 @@ describe("Test SpotifyPlayer component remove track", () => {
     const removeTrackBtn = screen.getByTestId("remove-track-btn");
     await user.click(removeTrackBtn);
 
-    expect(logSpy).toHaveBeenCalledWith("Error when completing track command.");
+    await waitFor(() => {
+      expect(logSpy).toHaveBeenCalledWith(
+        "Error when completing track command."
+      );
+    });
   });
 
   it("user REMOVES track and returns unknown error", async () => {
@@ -125,8 +128,10 @@ describe("Test SpotifyPlayer component remove track", () => {
     const removeTrackBtn = screen.getByTestId("remove-track-btn");
     await user.click(removeTrackBtn);
 
-    expect(logSpy).toHaveBeenCalledWith(
-      "Unknown error when removing user track."
-    );
+    await waitFor(() => {
+      expect(logSpy).toHaveBeenCalledWith(
+        "Unknown error when removing user track."
+      );
+    });
   });
 });

@@ -53,7 +53,9 @@ describe("Test SpotifyPlayer component save track", () => {
     const saveTrackBtn = screen.getByTestId("save-track-btn");
     await user.click(saveTrackBtn);
 
+    await waitFor(() => {
     expect(logSpy).toBeCalledTimes(0);
+    })
   });
 
   it("user SAVES track and returns error", async () => {
@@ -91,7 +93,9 @@ describe("Test SpotifyPlayer component save track", () => {
     const saveTrackBtn = screen.getByTestId("save-track-btn");
     await user.click(saveTrackBtn);
 
+    await waitFor(() => {
     expect(logSpy).toHaveBeenCalledWith("Error when completing track command.");
+    })
   });
 
   it("user SAVES track and returns unknown error", async () => {

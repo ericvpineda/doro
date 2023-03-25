@@ -357,7 +357,9 @@ describe("Test SpotifyPlayer component seek track", () => {
       });
     });
 
+    await waitFor(() => {
     expect(logSpy).toBeCalledTimes(0);
+    })
   });
 
   it("user SEEKS track and returns unknown error", async () => {
