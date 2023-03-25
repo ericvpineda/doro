@@ -7,7 +7,7 @@ jobs:
     steps:
       - checkout # alias for git clone
       - node/install-packages:
-          pkg-manager: npm
+          pkg-manager: npm@5
       - run:
           name: Run tests
           command: npm run test
