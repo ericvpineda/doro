@@ -1,10 +1,9 @@
 const path = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
 const HtmlPlugin = require("html-webpack-plugin");
+const {CleanWebpackPlugin} = require("clean-webpack-plugin");;
 
 module.exports = {
-  mode: "development",
-  devtool: "cheap-module-source-map",
   // Tells webpack where to start looking
   entry: {
     index: path.resolve("src/index.tsx"),
@@ -34,6 +33,9 @@ module.exports = {
     ],
   },
   plugins: [
+    new CleanWebpackPlugin({
+      cleanStaleWebpackAssets: false // only want clean build folder whenever switch between build types (i.e. dev, prod)
+    }),
     new CopyPlugin({
       patterns: [
         {
