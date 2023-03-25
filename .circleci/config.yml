@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  node: circleci/node@5.0.2
+  node: circleci/node@5.1.0
 jobs:
   build_and_test: 
     steps:
@@ -9,7 +9,7 @@ jobs:
           pkg-manager: npm
       - run:
           name: Run tests
-          command: npm run coverage
+          command: npm run test
 workflows:
   build_test_deploy: # this can be any name you choose
     jobs:
