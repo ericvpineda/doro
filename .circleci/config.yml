@@ -5,14 +5,12 @@ jobs:
   build_and_test: 
     executor: node/default # use the default executor defined within the orb
     steps:
-      - checkout
-      - node/install-packages:
-          pkg-manager: npm
+      - checkout # alias for git clone
       - run:
         name: update npm
         command: npm install -g npm@latest
       - run:
-        name: install npm packages
+        name: Install npm dependencies 
         command: npm install
       - run:
           name: Run tests
