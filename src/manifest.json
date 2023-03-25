@@ -1,7 +1,7 @@
 {
-    "name": "Doro - Pomodoro with Spotify Player",
+    "name": "Doro",
     "version": "1.0.0",
-    "description": "Pomodoro with spotify integration extension.",
+    "description": "Pomodoro Timer.",
     "manifest_version": 3,
     "icons": {
         "16": "./img/doro_logo.png", 
@@ -17,6 +17,5 @@
         "service_worker": "background.js",
         "type": "module"
     },
-    "permissions": ["storage", "alarms", "identity", "scripting", "notifications", "tabs", "scripting", "activeTab"],
-    "host_permissions": ["https://*.spotify.com/*"]
+    "permissions": ["storage", "alarms", "notifications"]
 }
