@@ -56,29 +56,6 @@ describe("Test description input element", () => {
     })
   });
 
-  it("user input description with greater than 30 characters, shows error message", async () => {
-    render(
-      <Description
-        description={description}
-        defaultMsg={defaultMsg}
-        setDescription={mockDescriptionFxn}
-        setErrorMessage={mockErrorFxn}
-      ></Description>
-    );
-    const message = "This message is way over the limit...";
-    const textBox = screen.getByRole("textbox");
-    user.type(textBox, message);
-
-    // Need to wait for debounce function to be called in componenet 
-    await waitFor(() => {
-      expect(mockErrorFxn).toHaveBeenCalledWith(
-        "Focus plan character limit is 0-30."
-      );
-      expect(textBox).toHaveValue(message);
-      expect(mockDescriptionFxn).toHaveBeenCalledTimes(0);
-    }, {timeout: 2000});
-  });
-
   it("user input description, returns success and correct parent props set", async () => {
     render(
       <Description

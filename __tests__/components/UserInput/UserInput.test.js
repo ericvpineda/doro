@@ -12,11 +12,10 @@ import UserInput from "../../../src/Components/UserInput/UserInput/UserInput.tsx
 
 describe("Test UserInput component", () => {
 
-  let startBtn, user, mockFxn;
+  let startBtn, mockFxn, user;
   beforeEach(() => {
-    user = userEvent.setup();
     mockFxn = jest.fn();
-
+    user = userEvent.setup();
     // Stub chrome api
     global.chrome.storage.data = {};
     global.chrome.storage.local.set = (inputs) => {
@@ -38,6 +37,7 @@ describe("Test UserInput component", () => {
   });
 
   it("user inputs 0 hours and minutes, show error message", async () => {
+
     render(<UserInput setShowTimerHandler={mockFxn}></UserInput>);
     const inputMinutes = screen.getByLabelText("Minutes");
     const inputHours = screen.getByLabelText("Hours");
@@ -51,8 +51,49 @@ describe("Test UserInput component", () => {
     const errorElem = screen.getByText(/Hours and minutes cannot both be 0./i);
     expect(errorElem).toBeVisible();
   });
+  
+  it("user input number larger than 24, shows error message", async () => {
+  
+    render(<UserInput setShowTimerHandler={mockFxn}></UserInput>);
+
+    const initialError = screen.queryByText("Hours and minutes cannot both be 0.")
+    expect(initialError).toBeNull()
+
+    const inputHours = screen.getByLabelText("Hours");
+    const message = "25";
+
+    user.type(inputHours, message);
+    await waitFor(() => {
+      expect(inputHours.value).toBe(message)
+      startBtn = screen.getByText(/Start/i);
+      user.click(startBtn)
+      const errorElem = screen.getByText(/Hours must be between 0-24./i);
+      expect(errorElem).toBeVisible();
+    }, {timeout: 2000})
+  });
+
+  it("user input number larger than 59, shows error message", async () => {
+
+    render(<UserInput setShowTimerHandler={mockFxn}></UserInput>);
+
+    const initialError = screen.queryByText("Hours and minutes cannot both be 0.")
+    expect(initialError).toBeNull()
+    
+    const inputMinutes = screen.getByLabelText("Minutes");
+    const message = "60";
+
+    user.type(inputMinutes, message);
+    await waitFor(() => {
+      expect(inputMinutes.value).toBe(message);
+      startBtn = screen.getByText(/Start/i);
+      user.click(startBtn)
+      const errorElem = screen.getByText("Minutes must be between 0-59.");
+      expect(errorElem).toBeVisible();
+    }, {timeout: 2000});
+  })
 
   it("user inputs too long description, shows error message", async () => {
+
     render(<UserInput setShowTimerHandler={mockFxn}></UserInput>);
 
     // Set time to valid value
@@ -77,7 +118,7 @@ describe("Test UserInput component", () => {
   });
 
   it("user input valid hours, minutes, and description, return success", async () => {
-
+    
     chrome.storage.local.set({description: "Default"})
     
     render(<UserInput setShowTimerHandler={mockFxn}></UserInput>);
@@ -114,6 +155,8 @@ describe("Test UserInput component", () => {
   })
 
   it("user clicks return to clock button, returns success", async () => {
+    
+
     render(<UserInput setShowTimerHandler={mockFxn}></UserInput>);
     const returnButton = screen.getByTestId("return-button");
     await user.click(returnButton);

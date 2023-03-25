@@ -1,5 +1,5 @@
 import React from "react";
-import { render, fireEvent, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 import Time from "../../../src/Components/UserInput/Time/Time.tsx";
@@ -39,7 +39,7 @@ describe("Test hours input element", () => {
   // Note: input value return type always string
   it("user input valid hours value, renders correct number", async () => {
     input = screen.getByLabelText("Hours");
-    fireEvent.change(input, { target: { value: 23 } });
+    await user.type(input, "23");
     expect(input.value).toBe("23");
   });
 
@@ -53,17 +53,6 @@ describe("Test hours input element", () => {
     input = screen.getByLabelText("Hours");
     await user.type(input, "2.3");
     expect(input.value).toBe("23");
-  });
-
-  it("user input number larger than 24, shows error message", async () => {
-    const message = "25";
-    user.type(input, message);
-    await waitFor(() => {
-      expect(input).toHaveValue(+message);
-      expect(mockErrorFxn).toHaveBeenCalledWith(
-        "Hours must be between 0-24."
-      );
-    });
   });
 });
   
@@ -88,9 +77,9 @@ describe("Test minutes input element", () => {
     jest.clearAllMocks(); // Clears spy mocks
   });
   
-  it("user input valid minutes value, renders correct number", () => {
+  it("user input valid minutes value, renders correct number", async () => {
     input = screen.getByLabelText("Minutes");
-    fireEvent.change(input, { target: { value: 23 } });
+    await user.type(input, "23");
     expect(input.value).toBe("23");
   });
 
@@ -105,17 +94,6 @@ describe("Test minutes input element", () => {
     await user.type(input, "2.3");
     expect(input.value).toBe("23");
   });
-
-  it("user input number larger than 59, shows error message", async () => {
-    const message = "60";
-    user.type(input, message);
-    await waitFor(() => {
-      expect(input).toHaveValue(+message);
-      expect(mockErrorFxn).toHaveBeenCalledWith(
-        "Minutes must be between 0-59."
-      );
-    });
-  })
  });
 
 describe("Test Time component hours and minutes", () => {
