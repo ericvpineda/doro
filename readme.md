@@ -17,7 +17,7 @@
 
 ## Features
 
-- Spotify playback commands (Free and premium Spotify users\*):
+- Spotify playback commands:
   - Play/pause track
   - Previous/next track
   - Save/unsave track
