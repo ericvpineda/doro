@@ -7,7 +7,7 @@ jobs:
       - checkout # alias for git clone
       - run:
           name: Install npm dependencies
-          command: npm install --save
+          command: npm install --save --legacy-peer-deps
       - run:
           name: Run tests
           command: npm run test
