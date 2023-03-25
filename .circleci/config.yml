@@ -9,8 +9,14 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
       - run:
-          command: npm run test
+        name: update npm
+        command: npm install -g npm@latest
+      - run:
+        name: install npm packages
+        command: npm install
+      - run:
           name: Run tests
+          command: npm run test
       # - run:
       #     command: npm run build
       #     name: Build app
