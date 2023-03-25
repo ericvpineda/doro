@@ -8,9 +8,8 @@
     "test": "jest",
     "watch": "jest --watch",
     "watch-all": "jest --watchAll",
-    "coverage": "jest --collect-coverage",
-    "test:coverage": "npm test -- --coverage",
-    "test:badges": "npm run test:coverage  && jest-coverage-badges"
+    "collect-coverage": "jest --collect-coverage",
+    "test:coverage": "npm test --coverage"
   },
   "repository": {
     "type": "git",
@@ -48,7 +47,9 @@
     "identity-obj-proxy": "^3.0.0",
     "jest-badges": "^0.1.3",
     "jest-chrome": "^0.8.0",
+    "jest-coverage-badges": "^1.1.2",
     "jest-environment-jsdom": "^29.4.3",
+    "mkdirp": "^2.1.6",
     "node-polyfill-webpack-plugin": "^2.0.1",
     "style-loader": "^3.3.1",
     "ts-jest": "^29.0.5",
