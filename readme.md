@@ -40,6 +40,13 @@
 - Chome extension API: [Chome API Reference](https://developer.chrome.com/docs/extensions/reference/)
 - Testing library: [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
 
+# Reasoning for Project (In segments)
+- Initially, I wanted to learn about creating a simple chrome extension, which was a pomodoro app.
+- However, it was fairly easy to make since I've learned basic react and web development. 
+- So to build ontop of my skills, I ventured to learn new technologies, including typescript and webpack. 
+- Eventually, the pomodoro app idea was expanded to include the Spotify API when I thought music would be complementary to a timer app. 
+- When I researched there was no such application in the chrome store, I thought I had to build it. Then, Doro was born.  
+
 ## Future Tasks
 
 - Submit Spotify quota extension request
