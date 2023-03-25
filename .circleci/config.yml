@@ -6,11 +6,11 @@ jobs:
     steps:
       - checkout # alias for git clone
       - run:
-        name: Install npm dependencies 
-        command: npm install --save
+          name: Install npm dependencies 
+          command: npm install --save
       - run:
           name: Run tests
-          command: npm run test
+          command: npm run coverage
 workflows:
   build_test_deploy: # this can be any name you choose
     jobs:
