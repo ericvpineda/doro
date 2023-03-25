@@ -17,18 +17,18 @@
 
 ## Features
 
-- Spotify playback commands:
-  - Play/pause track
-  - Previous/next track
-  - Save/unsave track
-  - Seek track
-  - Volume control
 - Pomodoro timer commands:
   - Play/Pause timer
   - Clear timer
   - Reset timer
   - User input for hours, minutes, and focus description
   - Desktop notification when timer complete
+- Spotify playback commands:
+  - Play/pause track
+  - Previous/next track
+  - Save/unsave track
+  - Seek track
+  - Volume control
 
 ## Reasoning for Project
 
