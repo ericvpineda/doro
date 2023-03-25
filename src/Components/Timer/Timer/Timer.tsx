@@ -87,7 +87,7 @@ const Timer: FC<Prop> = (props) => {
         {signedIn && showPlayer ? <SpotifyPlayer /> : <Clock />}
         <FocusText />
       </div>
-      <Login setSignedIn={setSignedInHandler} setShowPlayer={setShowPlayerHandler} />
+      {/* <Login setSignedIn={setSignedInHandler} setShowPlayer={setShowPlayerHandler} /> */}
       <ManageHistoryIcon
         fontSize={"large"}
         onClick={setShowTimer}
