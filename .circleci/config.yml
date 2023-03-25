@@ -3,6 +3,7 @@ orbs:
   node: circleci/node@5.1.0
 jobs:
   build_and_test: 
+    executor: node/default
     steps:
       - checkout # alias for git clone
       - node/install-packages:
