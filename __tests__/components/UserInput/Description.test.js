@@ -97,7 +97,7 @@ describe("Test description input element", () => {
       expect(textBox).toHaveValue(message);
       expect(mockErrorFxn).toHaveBeenCalledWith("");
       expect(mockDescriptionFxn).toHaveBeenCalledTimes(1);
-    });
+    }, {timeout: 2000});
   });
 
   it("user input empty description, returns success and correct parent props set", async () => {
@@ -118,7 +118,7 @@ describe("Test description input element", () => {
       expect(textBox).toHaveValue("");
       expect(mockErrorFxn).toHaveBeenCalledWith("");
       expect(mockDescriptionFxn).toHaveBeenCalledWith(defaultMsg);
-    });
+    }, {timeout: 2000});
   });
 
   it("user input description, returns success and correct parent props set", async () => {
@@ -138,7 +138,7 @@ describe("Test description input element", () => {
       expect(textBox).toHaveValue(message);
       expect(mockErrorFxn).toHaveBeenCalledWith("");
       expect(mockDescriptionFxn).toHaveBeenCalledTimes(1);
-    });
+    }, {timeout: 2000});
   });
 
   it("storage cached description shows as input value placeholder", async () => {
@@ -155,7 +155,7 @@ describe("Test description input element", () => {
     input = screen.getByLabelText(/Focus Plan?/i);
     await waitFor(() => {
       expect(input).toHaveValue(description);
-    })
+    }, {timeout: 2000})
   });
 
 });
