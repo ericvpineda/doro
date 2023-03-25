@@ -13,4 +13,9 @@ module.exports = {
       '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest'],
     },
     // transformIgnorePatterns: ['/node_modules/', '<rootDir>/node_modules/util-deprecate'],
+    coverageReporters: [
+      "text",
+      "lcov",
+      "jest-badges"
+    ]
   }
