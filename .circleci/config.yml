@@ -1,13 +1,13 @@
 version: 2.1
-orbs:
-  node: circleci/node@5.0.2
 jobs:
   build_and_test: 
-    executor: node/default
+    docker:
+      - image: circleci/node:10
     steps:
       - checkout # alias for git clone
-      - node/install-packages:
-          pkg-manager: npm
+      - run:
+          name: Install npm dependencies
+          command: npm install --save
       - run:
           name: Run tests
           command: npm run test
