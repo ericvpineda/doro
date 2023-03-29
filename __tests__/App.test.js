@@ -3,7 +3,6 @@ import App from "../src/App";
 import { render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";
-import { Status } from "../src/Utils/SpotifyUtils";
 
 // App component tests
 describe("Test App component", () => {
