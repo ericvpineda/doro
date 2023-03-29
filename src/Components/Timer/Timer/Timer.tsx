@@ -2,8 +2,6 @@ import React, { FC, Fragment, useEffect, useState } from "react";
 import Clock from "../Clock/Clock";
 import FocusText from "../FocusText/FocusText";
 import styles from "./Timer.module.css";
-import SpotifyPlayer from "../SpotifyPlayer/SpotifyPlayer";
-import Login from "../../Login/Login/Login";
 import { ToggleOff, ToggleOn } from "react-bootstrap-icons";
 import ManageHistoryIcon from "@mui/icons-material/ManageHistory";
 import { ChromeData } from "../../../Utils/ChromeUtils";
@@ -84,7 +82,7 @@ const Timer: FC<Prop> = (props) => {
   return (
     <Fragment>
       <div id="timer" className={styles.body}>
-        {signedIn && showPlayer ? <SpotifyPlayer /> : <Clock />}
+        <Clock />
         <FocusText />
       </div>
       {/* <Login setSignedIn={setSignedInHandler} setShowPlayer={setShowPlayerHandler} /> */}

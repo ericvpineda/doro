@@ -43,10 +43,6 @@ module.exports = {
           to: path.resolve("dist"),
         },
         {
-          from: path.resolve("src/js/spotify-player.js"),
-          to: path.resolve("dist"),
-        },
-        {
           from: path.resolve("src/img/spotify_icon.png"),
           to: path.resolve("dist/img"),
         },
